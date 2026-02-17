@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Isaac Lefohn's Resume - Finance Student with Technical Background">
+    <title>Resume | Isaac Lefohn</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .resume-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 60px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .resume-header {
+            text-align: center;
+            padding-bottom: 30px;
+            border-bottom: 3px solid #c5a572;
+            margin-bottom: 40px;
+        }
+
+        .resume-header h1 {
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            color: #1a1a1a;
+            font-weight: 300;
+        }
+
+        .resume-header .tagline {
+            font-size: 1.2em;
+            color: #c5a572;
+            margin-bottom: 20px;
+        }
+
+        .resume-contact {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+            font-size: 0.95em;
+            color: #555;
+        }
+
+        .resume-section {
+            margin-bottom: 40px;
+        }
+
+        .resume-section h2 {
+            font-size: 1.6em;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #c5a572;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 400;
+        }
+
+        .resume-item {
+            margin-bottom: 25px;
+        }
+
+        .resume-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 5px;
+            flex-wrap: wrap;
+        }
+
+        .job-title {
+            font-weight: 600;
+            font-size: 1.05em;
+            color: #1a1a1a;
+        }
+
+        .company {
+            color: #c5a572;
+            font-weight: 600;
+        }
+
+        .date {
+            color: #666;
+            font-style: italic;
+            font-size: 0.9em;
+        }
+
+        .location {
+            color: #888;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .resume-item ul {
+            margin-left: 25px;
+            margin-top: 10px;
+        }
+
+        .resume-item li {
+            margin-bottom: 8px;
+            color: #444;
+            line-height: 1.6;
+        }
+
+        .summary {
+            background: #f8f9fa;
+            padding: 25px;
+            border-left: 4px solid #c5a572;
+            margin-bottom: 40px;
+            line-height: 1.8;
+            color: #333;
+        }
+
+        .coursework-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .coursework-category h3 {
+            color: #1a1a1a;
+            margin-bottom: 12px;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        .coursework-list {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .coursework-list li {
+            padding: 8px 0 8px 20px;
+            border-left: 2px solid #e0e0e0;
+            margin-bottom: 8px;
+            color: #555;
+            font-size: 0.95em;
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .skill-item {
+            background: #f8f9fa;
+            padding: 12px 16px;
+            border-radius: 3px;
+            border-left: 3px solid #c5a572;
+            font-size: 0.95em;
+        }
+
+        .download-btn {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        @media (max-width: 768px) {
+            .resume-container {
+                padding: 30px 25px;
+            }
+
+            .resume-header h1 {
+                font-size: 2em;
+            }
+
+            .resume-contact {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .resume-item-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .date {
+                margin-top: 5px;
+            }
+
+            .coursework-grid,
+            .skills-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="logo">IL</a>
+            <button class="mobile-menu-btn" onclick="toggleMenu()">☰</button>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="resume.html" class="active">Resume</a></li>
+                <li><a href="experience.html">Experience</a></li>
+                <li><a href="skills.html">Skills</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>Resume</h1>
+        <p>Comprehensive overview of my education, experience, and skills</p>
+    </div>
+
+    <!-- Download Button -->
+    <div class="container">
+        <div class="download-btn">
+            <a href="Isaac_Lefohn_Resume.pdf" download class="btn btn-primary">Download PDF Resume</a>
+        </div>
+
+        <!-- Resume Content -->
+        <div class="resume-container">
+            <!-- Header -->
+            <div class="resume-header">
+                <h1>ISAAC LEFOHN</h1>
+                <p class="tagline">Finance Student | Honors Scholar | Technical & Analytical Background</p>
+                <div class="resume-contact">
+                    <span>Corvallis, OR</span>
+                    <span>•</span>
+                    <span>(503) 847-7976</span>
+                    <span>•</span>
+                    <span>kiwilefohn@gmail.com</span>
+                    <span>•</span>
+                    <span>linkedin.com/in/isaac-lefohn-472a152b0</span>
+                </div>
+            </div>
+
+            <!-- Professional Summary -->
+            <div class="summary">
+                Finance student at Oregon State University with a unique combination of technical and analytical skills. Strong foundation in financial accounting, economics, and quantitative analysis, complemented by programming experience in Python and engineering coursework. Demonstrated analytical capabilities through rigorous coursework in calculus, statistics, and computer science. Proven track record of accuracy and accountability in cash handling and financial reconciliation across multiple environments. Seeking opportunities in the financial industry where technical skills and financial acumen can drive innovative solutions.
+            </div>
+
+            <!-- Education -->
+            <div class="resume-section">
+                <h2>Education</h2>
+                <div class="resume-item">
+                    <div class="resume-item-header">
+                        <div>
+                            <div class="job-title">Bachelor of Science in Finance, Honors Scholar</div>
+                            <div class="company">Oregon State University, College of Business</div>
+                        </div>
+                        <div class="date">Expected Graduation: June 2027</div>
+                    </div>
+                    <div class="location">Corvallis, OR</div>
+                </div>
+
+                <div class="coursework-grid">
+                    <div class="coursework-category">
+                        <h3>Core Finance & Business</h3>
+                        <ul class="coursework-list">
+                            <li>Financial Accounting</li>
+                            <li>Managerial Accounting (In Progress)</li>
+                            <li>Finance (In Progress)</li>
+                            <li>Introduction to Business</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="coursework-category">
+                        <h3>Economics & Quantitative</h3>
+                        <ul class="coursework-list">
+                            <li>Principles of Microeconomics</li>
+                            <li>Principles of Macroeconomics</li>
+                            <li>Differential Calculus</li>
+                            <li>Integral Calculus</li>
+                            <li>Principles of Statistics I & II</li>
+                        </ul>
+                    </div>
+
+                    <div class="coursework-category">
+                        <h3>Technical & Engineering</h3>
+                        <ul class="coursework-list">
+                            <li>Engineering & Problem Solving</li>
+                            <li>Python Programming</li>
+                            <li>Scientific Reasoning</li>
+                        </ul>
+                    </div>
+
+                    <div class="coursework-category">
+                        <h3>Professional Development</h3>
+                        <ul class="coursework-list">
+                            <li>Technical Writing</li>
+                            <li>Writing in Business</li>
+                            <li>Public Speaking</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Experience -->
+            <div class="resume-section">
+                <h2>Professional Experience</h2>
+                
+                <div class="resume-item">
+                    <div class="resume-item-header">
+                        <div>
+                            <span class="job-title">Facility Manager</span> | <span class="company">Portland Indoor – Lil' Kickers</span>
+                        </div>
+                        <div class="date">June 2025 – Present</div>
+                    </div>
+                    <div class="location">Portland, OR</div>
+                    <ul>
+                        <li>Manage daily facility operations including opening/closing procedures, financial transactions, and payment processing</li>
+                        <li>Maintain accurate financial records and ensure proper cash handling procedures</li>
+                        <li>Coordinate customer scheduling and serve as primary point of contact for service inquiries</li>
+                        <li>Optimize operational efficiency in a fast-paced, customer-facing environment</li>
+                    </ul>
+                </div>
+
+                <div class="resume-item">
+                    <div class="resume-item-header">
+                        <div>
+                            <span class="job-title">Video Editor</span> | <span class="company">Virtuosity.Online</span>
+                        </div>
+                        <div class="date">March 2020 – Present</div>
+                    </div>
+                    <div class="location">Tigard, OR</div>
+                    <ul>
+                        <li>Manage multiple client projects simultaneously while meeting strict delivery deadlines</li>
+                        <li>Demonstrate meticulous attention to detail ensuring deliverables meet quality standards</li>
+                        <li>Communicate directly with clients to clarify project requirements and implement revisions efficiently</li>
+                        <li>Apply project management principles to balance competing priorities and client expectations</li>
+                    </ul>
+                </div>
+
+                <div class="resume-item">
+                    <div class="resume-item-header">
+                        <div>
+                            <span class="job-title">Sales Associate</span> | <span class="company">Nordstrom</span>
+                        </div>
+                        <div class="date">June 2024 – September 2024</div>
+                    </div>
+                    <div class="location">Tigard, OR</div>
+                    <ul>
+                        <li>Assisted with cash reconciliation procedures, ensuring accuracy and financial accountability</li>
+                        <li>Processed financial transactions while maintaining department operational standards</li>
+                        <li>Balanced customer service excellence with achieving sales performance targets</li>
+                    </ul>
+                </div>
+
+                <div class="resume-item">
+                    <div class="resume-item-header">
+                        <div>
+                            <span class="job-title">Sales Associate</span> | <span class="company">RocketFizz</span>
+                        </div>
+                        <div class="date">May 2021 – September 2023</div>
+                    </div>
+                    <div class="location">Beaverton, OR</div>
+                    <ul>
+                        <li>Independently managed store opening/closing procedures including daily cash reconciliation</li>
+                        <li>Maintained inventory accuracy through systematic product tracking, pricing, and order processing</li>
+                        <li>Analyzed sales trends and product movement to optimize inventory levels</li>
+                        <li>Demonstrated financial responsibility through independent management of cash operations</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Skills -->
+            <div class="resume-section">
+                <h2>Technical Skills & Competencies</h2>
+                
+                <h3 style="margin-top: 20px; margin-bottom: 15px; font-size: 1.1em; color: #1a1a1a;">Programming & Technical</h3>
+                <div class="skills-grid">
+                    <div class="skill-item">Python Programming</div>
+                    <div class="skill-item">Microsoft Excel (Financial Modeling)</div>
+                    <div class="skill-item">Data Analysis & Visualization</div>
+                    <div class="skill-item">Problem-Solving & Computational Thinking</div>
+                    <div class="skill-item">Engineering & Systems Design</div>
+                    <div class="skill-item">Technical Documentation</div>
+                </div>
+
+                <h3 style="margin-top: 30px; margin-bottom: 15px; font-size: 1.1em; color: #1a1a1a;">Financial & Analytical</h3>
+                <div class="skills-grid">
+                    <div class="skill-item">Financial Statement Analysis</div>
+                    <div class="skill-item">Quantitative Analysis & Statistics</div>
+                    <div class="skill-item">Financial Accounting Principles</div>
+                    <div class="skill-item">Economic Theory & Application</div>
+                    <div class="skill-item">Cash Management & Reconciliation</div>
+                    <div class="skill-item">Operations & Process Analysis</div>
+                </div>
+
+                <h3 style="margin-top: 30px; margin-bottom: 15px; font-size: 1.1em; color: #1a1a1a;">Professional & Interpersonal</h3>
+                <div class="skills-grid">
+                    <div class="skill-item">Business Communication & Presentation</div>
+                    <div class="skill-item">Project Management</div>
+                    <div class="skill-item">Client Relationship Management</div>
+                    <div class="skill-item">Cross-Functional Collaboration</div>
+                    <div class="skill-item">Detail-Oriented Problem Solving</div>
+                    <div class="skill-item">Deadline Management</div>
+                </div>
+            </div>
+
+            <!-- Activities -->
+            <div class="resume-section">
+                <h2>Leadership & Activities</h2>
+                <ul>
+                    <li><strong>Honors Scholar Program</strong> – Oregon State University College of Business</li>
+                    <li><strong>Intramural Soccer</strong> – Oregon State University</li>
+                    <li><strong>Varsity Soccer</strong> – Tigard High School</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 Isaac Lefohn. All rights reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
