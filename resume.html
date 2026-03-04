@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Isaac Lefohn's Resume - Finance Student at Oregon State University with technical and analytical background in Python, financial analysis, and quantitative skills.">
-    <meta name="keywords" content="Isaac Lefohn, Resume, Finance Student, Oregon State University, Python, Financial Analysis">
+    <meta name="description" content="Isaac Lefohn's Resume - Finance Student, Honors Scholar">
     <title>Resume | Isaac Lefohn</title>
     <link rel="stylesheet" href="styles.css">
     <style>
@@ -142,16 +141,26 @@
             font-size: 0.95em;
         }
 
+        .skills-section {
+            margin-bottom: 30px;
+        }
+
+        .skills-section h3 {
+            color: #1a1a1a;
+            margin-bottom: 12px;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
         .skills-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-top: 20px;
+            gap: 10px;
         }
 
         .skill-item {
             background: #f8f9fa;
-            padding: 12px 16px;
+            padding: 10px 14px;
             border-radius: 3px;
             border-left: 3px solid #c5a572;
             font-size: 0.95em;
@@ -160,6 +169,25 @@
         .download-btn {
             text-align: center;
             margin: 40px 0;
+        }
+
+        .activities-list {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .activities-list li {
+            padding: 8px 0;
+            color: #444;
+            font-size: 1em;
+            line-height: 1.6;
+        }
+
+        .activities-list li::before {
+            content: "•";
+            color: #c5a572;
+            font-weight: bold;
+            margin-right: 10px;
         }
 
         @media (max-width: 768px) {
@@ -197,7 +225,7 @@
     <nav>
         <div class="nav-container">
             <a href="index.html" class="logo">IL</a>
-            <button class="mobile-menu-btn" onclick="toggleMenu()">☰</button>
+            <button class="mobile-menu-btn" onclick="toggleMenu()">&#9776;</button>
             <ul class="nav-links" id="navLinks">
                 <li><a href="index.html">Home</a></li>
                 <li><a href="resume.html" class="active">Resume</a></li>
@@ -225,21 +253,21 @@
             <!-- Header -->
             <div class="resume-header">
                 <h1>ISAAC LEFOHN</h1>
-                <p class="tagline">Finance Student | Honors Scholar | Technical & Analytical Background</p>
+                <p class="tagline">Finance Student &nbsp;|&nbsp; Honors Scholar &nbsp;|&nbsp; Oregon State University</p>
                 <div class="resume-contact">
                     <span>Corvallis, OR</span>
-                    <span>•</span>
+                    <span>&bull;</span>
                     <span>(503) 847-7976</span>
-                    <span>•</span>
+                    <span>&bull;</span>
                     <span>kiwilefohn@gmail.com</span>
-                    <span>•</span>
-                    <span>linkedin.com/in/isaac-lefohn-472a152b0</span>
+                    <span>&bull;</span>
+                    <span>LinkedIn: isaac-lefohn-472a152b0</span>
                 </div>
             </div>
 
             <!-- Professional Summary -->
             <div class="summary">
-                Finance student at Oregon State University with a unique combination of technical and analytical skills. Strong foundation in financial accounting, economics, and quantitative analysis, complemented by programming experience in Python and engineering coursework. Demonstrated analytical capabilities through rigorous coursework in calculus, statistics, and computer science. Proven track record of accuracy and accountability in cash handling and financial reconciliation across multiple environments. Seeking opportunities in the financial industry where technical skills and financial acumen can drive innovative solutions.
+                Honors Scholar and Finance student at Oregon State University with a strong foundation in financial accounting, economics, and quantitative analysis. Five years of professional experience demonstrating financial accuracy, accountability, and client relationship management across multiple environments. Seeking summer internship opportunities in investment management, wealth management, banking, or investment banking.
             </div>
 
             <!-- Education -->
@@ -251,39 +279,31 @@
                             <div class="job-title">Bachelor of Science in Finance, Honors Scholar</div>
                             <div class="company">Oregon State University, College of Business</div>
                         </div>
-                        <div class="date">Expected Graduation: 2027</div>
+                        <div class="date">Expected 2027</div>
                     </div>
                     <div class="location">Corvallis, OR</div>
                 </div>
 
                 <div class="coursework-grid">
                     <div class="coursework-category">
-                        <h3>Core Finance & Business</h3>
+                        <h3>Core Finance &amp; Business</h3>
                         <ul class="coursework-list">
                             <li>Financial Accounting</li>
                             <li>Managerial Accounting (In Progress)</li>
                             <li>Finance (In Progress)</li>
                             <li>Introduction to Business</li>
+                            <li>Business Process Management</li>
                         </ul>
                     </div>
-                    
+
                     <div class="coursework-category">
-                        <h3>Economics & Quantitative</h3>
+                        <h3>Economics &amp; Quantitative</h3>
                         <ul class="coursework-list">
                             <li>Principles of Microeconomics</li>
                             <li>Principles of Macroeconomics</li>
                             <li>Differential Calculus</li>
                             <li>Integral Calculus</li>
-                            <li>Principles of Statistics I & II</li>
-                        </ul>
-                    </div>
-
-                    <div class="coursework-category">
-                        <h3>Technical & Engineering</h3>
-                        <ul class="coursework-list">
-                            <li>Engineering & Problem Solving</li>
-                            <li>Python Programming</li>
-                            <li>Scientific Reasoning</li>
+                            <li>Principles of Statistics I &amp; II</li>
                         </ul>
                     </div>
 
@@ -293,6 +313,17 @@
                             <li>Technical Writing</li>
                             <li>Writing in Business</li>
                             <li>Public Speaking</li>
+                            <li>Scientific Reasoning</li>
+                        </ul>
+                    </div>
+
+                    <div class="coursework-category">
+                        <h3>Upcoming Coursework</h3>
+                        <ul class="coursework-list">
+                            <li>Investments (FIN 341)</li>
+                            <li>Advanced Financial Management (FIN 342)</li>
+                            <li>Operations &amp; Supply Chain Management</li>
+                            <li>Business Information Systems</li>
                         </ul>
                     </div>
                 </div>
@@ -301,13 +332,13 @@
             <!-- Experience -->
             <div class="resume-section">
                 <h2>Professional Experience</h2>
-                
+
                 <div class="resume-item">
                     <div class="resume-item-header">
                         <div>
-                            <span class="job-title">Facility Manager</span> | <span class="company">Portland Indoor – Lil' Kickers</span>
+                            <span class="job-title">Facility Manager</span> | <span class="company">Portland Indoor &ndash; Lil' Kickers</span>
                         </div>
-                        <div class="date">June 2025 – Present</div>
+                        <div class="date">June 2025 &ndash; Present</div>
                     </div>
                     <div class="location">Portland, OR</div>
                     <ul>
@@ -323,13 +354,13 @@
                         <div>
                             <span class="job-title">Video Editor</span> | <span class="company">Virtuosity.Online</span>
                         </div>
-                        <div class="date">March 2020 – Present</div>
+                        <div class="date">March 2020 &ndash; Present</div>
                     </div>
                     <div class="location">Tigard, OR</div>
                     <ul>
                         <li>Manage multiple client projects simultaneously while meeting strict delivery deadlines</li>
-                        <li>Demonstrate meticulous attention to detail ensuring deliverables meet quality standards</li>
-                        <li>Apply project management principles to balance competing priorities and expectations</li>
+                        <li>Communicate directly with clients to clarify project requirements and implement revisions</li>
+                        <li>Apply project management principles to balance competing priorities and client expectations</li>
                     </ul>
                 </div>
 
@@ -338,7 +369,7 @@
                         <div>
                             <span class="job-title">Sales Associate</span> | <span class="company">Nordstrom</span>
                         </div>
-                        <div class="date">June 2024 – September 2024</div>
+                        <div class="date">June &ndash; September 2024</div>
                     </div>
                     <div class="location">Tigard, OR</div>
                     <ul>
@@ -353,60 +384,60 @@
                         <div>
                             <span class="job-title">Sales Associate</span> | <span class="company">RocketFizz</span>
                         </div>
-                        <div class="date">May 2021 – August 2025</div>
+                        <div class="date">May 2021 &ndash; August 2025</div>
                     </div>
                     <div class="location">Beaverton, OR</div>
                     <ul>
                         <li>Independently managed store opening/closing procedures including daily cash reconciliation</li>
                         <li>Maintained inventory accuracy through systematic product tracking, pricing, and order processing</li>
                         <li>Analyzed sales trends and product movement to optimize inventory levels</li>
-                        <li>Demonstrated financial responsibility through independent management of cash operations</li>
                     </ul>
                 </div>
             </div>
 
             <!-- Skills -->
             <div class="resume-section">
-                <h2>Technical Skills & Competencies</h2>
-                
-                <h3 style="margin-top: 20px; margin-bottom: 15px; font-size: 1.1em; color: #1a1a1a;">Programming & Technical</h3>
-                <div class="skills-grid">
-                    <div class="skill-item">Python Programming</div>
-                    <div class="skill-item">Microsoft Excel (Financial Modeling)</div>
-                    <div class="skill-item">Data Analysis & Visualization</div>
-                    <div class="skill-item">Problem-Solving & Computational Thinking</div>
-                    <div class="skill-item">Engineering & Systems Design</div>
-                    <div class="skill-item">Technical Documentation</div>
+                <h2>Skills</h2>
+
+                <div class="skills-section">
+                    <h3>Financial &amp; Analytical</h3>
+                    <div class="skills-grid">
+                        <div class="skill-item">Financial Statement Analysis</div>
+                        <div class="skill-item">Financial Accounting Principles</div>
+                        <div class="skill-item">Quantitative Analysis &amp; Statistics</div>
+                        <div class="skill-item">Cash Management &amp; Reconciliation</div>
+                        <div class="skill-item">Economic Theory &amp; Application</div>
+                    </div>
                 </div>
 
-                <h3 style="margin-top: 30px; margin-bottom: 15px; font-size: 1.1em; color: #1a1a1a;">Financial & Analytical</h3>
-                <div class="skills-grid">
-                    <div class="skill-item">Financial Statement Analysis</div>
-                    <div class="skill-item">Quantitative Analysis & Statistics</div>
-                    <div class="skill-item">Financial Accounting Principles</div>
-                    <div class="skill-item">Economic Theory & Application</div>
-                    <div class="skill-item">Cash Management & Reconciliation</div>
-                    <div class="skill-item">Operations & Process Analysis</div>
+                <div class="skills-section" style="margin-top: 25px;">
+                    <h3>Technical</h3>
+                    <div class="skills-grid">
+                        <div class="skill-item">Microsoft Excel (Financial Modeling)</div>
+                        <div class="skill-item">Data Analysis</div>
+                        <div class="skill-item">Python Programming</div>
+                        <div class="skill-item">Technical Documentation</div>
+                    </div>
                 </div>
 
-                <h3 style="margin-top: 30px; margin-bottom: 15px; font-size: 1.1em; color: #1a1a1a;">Professional & Interpersonal</h3>
-                <div class="skills-grid">
-                    <div class="skill-item">Business Communication & Presentation</div>
-                    <div class="skill-item">Project Management</div>
-                    <div class="skill-item">Client Relationship Management</div>
-                    <div class="skill-item">Cross-Functional Collaboration</div>
-                    <div class="skill-item">Detail-Oriented Problem Solving</div>
-                    <div class="skill-item">Deadline Management</div>
+                <div class="skills-section" style="margin-top: 25px;">
+                    <h3>Professional</h3>
+                    <div class="skills-grid">
+                        <div class="skill-item">Business Communication &amp; Presentation</div>
+                        <div class="skill-item">Project Management</div>
+                        <div class="skill-item">Client Relationship Management</div>
+                        <div class="skill-item">Detail-Oriented Problem Solving</div>
+                    </div>
                 </div>
             </div>
 
             <!-- Activities -->
             <div class="resume-section">
-                <h2>Leadership & Activities</h2>
-                <ul>
-                    <li><strong>Honors Scholar Program</strong> – Oregon State University College of Business</li>
-                    <li><strong>Intramural Soccer</strong> – Oregon State University</li>
-                    <li><strong>Varsity Soccer</strong> – Tigard High School</li>
+                <h2>Leadership &amp; Activities</h2>
+                <ul class="activities-list">
+                    <li><strong>Honors Scholar Program</strong> &ndash; Oregon State University College of Business</li>
+                    <li><strong>Intramural Soccer</strong> &ndash; Oregon State University</li>
+                    <li><strong>Varsity Soccer</strong> &ndash; Tigard High School</li>
                 </ul>
             </div>
         </div>
