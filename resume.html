@@ -242,11 +242,11 @@
         <p>Comprehensive overview of my education, experience, and skills</p>
     </div>
 
-    <!-- Download Button -->
+    <!-- Buttons -->
     <div class="container">
-        <div class="download-btn">
+        <div class="resume-btns">
             <a href="Isaac_Lefohn_Resume.pdf" download class="btn btn-primary">Download PDF Resume</a>
-            <a href="Isaac_Lefohn_Resume.pdf" target="_blank" class="btn btn-primary mobile-view-btn" style="display:none; margin-left: 12px;">View Resume</a>
+            <a href="Isaac_Lefohn_Resume.pdf" target="_blank" class="btn btn-primary mobile-view-btn">View Resume</a>
         </div>
 
         <!-- Resume PDF Embed — desktop only -->
@@ -258,18 +258,21 @@
                 <a href="Isaac_Lefohn_Resume.pdf">Download the PDF</a> to view it.</p>
             </iframe>
         </div>
-
-        <!-- Mobile fallback message -->
-        <div class="mobile-resume-msg" style="display:none; max-width: 600px; margin: 0 auto; text-align: center; padding: 40px 20px;">
-            <p style="color:#555; font-size:1em; margin-bottom: 20px;">For the best viewing experience, use the buttons above to download or open the PDF.</p>
-        </div>
     </div>
 
     <style>
+        .resume-btns {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin: 40px 0;
+        }
+        .mobile-view-btn { display: none; }
+
         @media (max-width: 768px) {
             .pdf-embed-wrapper { display: none !important; }
-            .mobile-resume-msg { display: block !important; }
-            .mobile-view-btn { display: inline-block !important; }
+            .mobile-view-btn { display: inline-block; }
         }
     </style>
 
