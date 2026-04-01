@@ -24,13 +24,6 @@
       },
       "package": "com.isaaclefohn.colorblockblast"
     },
-    "plugins": [
-      [
-        "react-native-google-mobile-ads",
-        {
-          "iosAppId": "ca-app-pub-9923892524770034~9844822777"
-        }
-      ]
-    ]
+    "plugins": []
   }
 }
