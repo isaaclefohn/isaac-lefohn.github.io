@@ -1,0 +1,19 @@
+{
+  "appName": "Color Block Blast",
+  "subtitle": "Puzzle Game & Brain Teaser",
+  "description": "Color Block Blast is the ultimate block puzzle game! Place colorful blocks on the grid, clear lines, and rack up massive combos. With 500+ levels, daily challenges, and competitive leaderboards, there's always a new challenge waiting.\n\nFEATURES:\n• 500+ handcrafted and procedurally generated levels\n• Satisfying combo system with up to 5x multipliers\n• Daily challenges with streak rewards\n• Power-ups: Bombs, Row Clears, and Color Clears\n• 4 beautiful themes to customize your experience\n• Global leaderboards — compete with players worldwide\n• Boss levels every 25 stages\n• Earn stars and unlock new content\n• Simple to learn, challenging to master\n\nFREE TO PLAY with optional in-app purchases. Remove ads for just $3.99!",
+  "keywords": "block puzzle, puzzle game, brain teaser, block blast, color blocks, line clear, combo, casual game, puzzle, strategy",
+  "category": "Games",
+  "subcategory": "Puzzle",
+  "contentRating": "4+",
+  "pricing": "Free",
+  "inAppPurchases": [
+    { "id": "com.isaaclefohn.colorblockblast.coins500", "name": "500 Coins", "price": "$0.99" },
+    { "id": "com.isaaclefohn.colorblockblast.coins2500", "name": "2,500 Coins", "price": "$3.99" },
+    { "id": "com.isaaclefohn.colorblockblast.coins10000", "name": "10,000 Coins", "price": "$9.99" },
+    { "id": "com.isaaclefohn.colorblockblast.gems100", "name": "100 Gems", "price": "$1.99" },
+    { "id": "com.isaaclefohn.colorblockblast.gems500", "name": "500 Gems", "price": "$7.99" },
+    { "id": "com.isaaclefohn.colorblockblast.starter_pack", "name": "Starter Pack", "price": "$4.99" },
+    { "id": "com.isaaclefohn.colorblockblast.remove_ads", "name": "Remove Ads", "price": "$3.99" }
+  ]
+}

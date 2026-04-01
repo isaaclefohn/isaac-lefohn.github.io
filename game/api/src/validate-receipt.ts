@@ -11,13 +11,13 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 // Product definitions for crediting
 const PRODUCT_CREDITS: Record<string, { type: string; amount: number }> = {
-  'com.blockblitz.coins500': { type: 'coins', amount: 500 },
-  'com.blockblitz.coins2000': { type: 'coins', amount: 2000 },
-  'com.blockblitz.coins5000': { type: 'coins', amount: 5000 },
-  'com.blockblitz.gems50': { type: 'gems', amount: 50 },
-  'com.blockblitz.gems200': { type: 'gems', amount: 200 },
-  'com.blockblitz.gems500': { type: 'gems', amount: 500 },
-  'com.blockblitz.adfree': { type: 'ad_free', amount: 1 },
+  'com.isaaclefohn.colorblockblast.coins500': { type: 'coins', amount: 500 },
+  'com.isaaclefohn.colorblockblast.coins2500': { type: 'coins', amount: 2500 },
+  'com.isaaclefohn.colorblockblast.coins10000': { type: 'coins', amount: 10000 },
+  'com.isaaclefohn.colorblockblast.gems100': { type: 'gems', amount: 100 },
+  'com.isaaclefohn.colorblockblast.gems500': { type: 'gems', amount: 500 },
+  'com.isaaclefohn.colorblockblast.starter_pack': { type: 'coins', amount: 5000 },
+  'com.isaaclefohn.colorblockblast.remove_ads': { type: 'ad_free', amount: 1 },
 };
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {

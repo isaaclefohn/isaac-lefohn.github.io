@@ -22,7 +22,7 @@ import { PowerUpType } from '../game/powerups/PowerUpManager';
 import { COLORS } from '../utils/constants';
 import { formatScore } from '../utils/formatters';
 import { calculateCoinReward } from '../game/engine/Scoring';
-import { canShowRewarded, onLevelCompleted, AD_REWARDS } from '../services/ads';
+import { canShowRewarded, onLevelCompleted, showRewardedAd, showInterstitialAd, AD_REWARDS } from '../services/ads';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RouteProp } from '@react-navigation/native';
 import type { RootStackParamList } from '../navigation/RootNavigator';
@@ -73,8 +73,10 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
     if (gameState?.status === 'won') {
       playSound('levelWin');
       setShowWinModal(true);
-      // Check if interstitial ad should show after win
-      onLevelCompleted();
+      // Show interstitial ad between levels if pacing allows
+      if (onLevelCompleted()) {
+        showInterstitialAd();
+      }
     } else if (gameState?.status === 'lost') {
       playSound('gameOver');
       setShowLoseModal(true);
@@ -185,10 +187,10 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
     navigation.navigate('Home');
   }, [navigation]);
 
-  const handleWatchAd = useCallback(() => {
-    // In production, this would show a real rewarded ad via AdMob
-    // For now, grant the reward directly (will be wired to AdMob later)
-    if (canShowRewarded()) {
+  const handleWatchAd = useCallback(async () => {
+    if (!canShowRewarded()) return;
+    const earned = await showRewardedAd();
+    if (earned) {
       addCoins(AD_REWARDS.coins.amount);
       playSound('select');
     }
