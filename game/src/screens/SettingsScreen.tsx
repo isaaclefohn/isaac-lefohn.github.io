@@ -3,7 +3,7 @@
  * Premium styled with animated entrance, profile avatar, and stats.
  */
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import {
   ScrollView,
   Animated,
 } from 'react-native';
+import { Tutorial } from '../components/Tutorial';
 import { useSettingsStore } from '../store/settingsStore';
 import { usePlayerStore } from '../store/playerStore';
 import { Button } from '../components/common/Button';
@@ -65,8 +66,9 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) =>
   const settings = useSettingsStore();
   const player = usePlayerStore();
 
-  // 6 animated sections: header, profile, audio, visual, stats, footer
-  const anims = useStaggeredEntrance(6);
+  // 7 animated sections: header, profile, audio, visual, help, stats, footer
+  const anims = useStaggeredEntrance(7);
+  const [showTutorial, setShowTutorial] = useState(false);
 
   const initials = (player.displayName || 'P').charAt(0).toUpperCase();
 
@@ -148,8 +150,22 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) =>
           </View>
         </Animated.View>
 
-        {/* Stats row */}
+        {/* Help section */}
         <Animated.View style={animatedStyle(anims[4])}>
+          <Text style={styles.sectionTitle}>Help</Text>
+          <View style={styles.sectionCard}>
+            <Button
+              title="How to Play"
+              icon="📖"
+              onPress={() => setShowTutorial(true)}
+              variant="ghost"
+              size="medium"
+            />
+          </View>
+        </Animated.View>
+
+        {/* Stats row */}
+        <Animated.View style={animatedStyle(anims[5])}>
           <Text style={styles.sectionTitle}>Stats</Text>
           <View style={styles.sectionCard}>
             <View style={styles.statsRow}>
@@ -165,13 +181,15 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) =>
         </Animated.View>
 
         {/* About footer */}
-        <Animated.View style={[styles.footer, animatedStyle(anims[5])]}>
+        <Animated.View style={[styles.footer, animatedStyle(anims[6])]}>
           <Text style={styles.footerIcon}>{'\uD83C\uDFAE'}</Text>
           <Text style={styles.footerAppName}>Color Block Blast</Text>
           <Text style={styles.footerVersion}>Version 1.0.0</Text>
           <Text style={styles.footerCopy}>Made with care</Text>
         </Animated.View>
       </ScrollView>
+
+      {showTutorial && <Tutorial onComplete={() => setShowTutorial(false)} />}
     </SafeAreaView>
   );
 };

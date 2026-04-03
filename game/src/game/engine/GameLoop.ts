@@ -98,7 +98,7 @@ export function processTurn(
   let newCombo: number;
 
   if (result.linesCleared > 0) {
-    scoreEvent = scoreClear(result.linesCleared, result.cellsCleared, state.combo);
+    scoreEvent = scoreClear(result.linesCleared, result.cellsCleared, state.combo, result.perfectClear);
     newCombo = scoreEvent.combo;
   } else {
     scoreEvent = scorePlacement(piece.cellCount);

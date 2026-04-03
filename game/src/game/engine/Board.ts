@@ -135,12 +135,21 @@ export function clearLines(grid: Grid, rows: number[], cols: number[]): ClearRes
  * Perform a full placement turn: place piece, find and clear lines.
  * Returns the resulting grid, lines cleared, and cells cleared.
  */
+export interface PlacementResult {
+  grid: Grid;
+  linesCleared: number;
+  cellsCleared: number;
+  clearedRows: number[];
+  clearedCols: number[];
+  perfectClear: boolean;
+}
+
 export function executePlacement(
   grid: Grid,
   piece: Piece,
   row: number,
   col: number
-): { grid: Grid; linesCleared: number; cellsCleared: number; clearedRows: number[]; clearedCols: number[] } {
+): PlacementResult {
   const afterPlace = placePiece(grid, piece, row, col);
   const { rows, cols } = findFullLines(afterPlace);
 
@@ -151,16 +160,20 @@ export function executePlacement(
       cellsCleared: 0,
       clearedRows: [],
       clearedCols: [],
+      perfectClear: false,
     };
   }
 
   const result = clearLines(afterPlace, rows, cols);
+  const isPerfectClear = countFilledCells(result.newGrid) === 0;
+
   return {
     grid: result.newGrid,
     linesCleared: rows.length + cols.length,
     cellsCleared: result.cellsCleared,
     clearedRows: rows,
     clearedCols: cols,
+    perfectClear: isPerfectClear,
   };
 }
 

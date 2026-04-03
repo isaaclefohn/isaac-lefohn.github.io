@@ -17,9 +17,12 @@ import { Modal } from '../components/common/Modal';
 import { ScorePopup } from '../components/animations/ScorePopup';
 import { ComboBanner } from '../components/animations/ComboBanner';
 import { Confetti } from '../components/animations/Confetti';
-import { Piece } from '../game/engine/Piece';
+import { Piece, getPieceCells } from '../game/engine/Piece';
+import { canPlace } from '../game/engine/Board';
+import { PieceRenderer } from '../game/rendering/PieceRenderer';
 import { PowerUpType } from '../game/powerups/PowerUpManager';
-import { COLORS, SHADOWS, RADII, SPACING } from '../utils/constants';
+import { CELL_SIZE, CELL_GAP, COLORS, SHADOWS, RADII, SPACING } from '../utils/constants';
+import type { DragEvent } from '../components/PieceTray';
 import { formatScore } from '../utils/formatters';
 import { calculateCoinReward } from '../game/engine/Scoring';
 import { canShowRewarded, onLevelCompleted, showRewardedAd, showInterstitialAd, AD_REWARDS } from '../services/ads';
@@ -61,6 +64,11 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
   const [lastPoints, setLastPoints] = useState(0);
   const [lastCombo, setLastCombo] = useState(0);
   const [ghostCells, setGhostCells] = useState<{ row: number; col: number; colorIndex: number }[]>([]);
+
+  // Drag-and-drop state
+  const [draggedPieceIndex, setDraggedPieceIndex] = useState<number | null>(null);
+  const [dragPosition, setDragPosition] = useState<{ x: number; y: number } | null>(null);
+  const boardOriginRef = useRef<{ x: number; y: number; width: number; height: number }>({ x: 0, y: 0, width: 0, height: 0 });
 
   // Board shake animation
   const boardShakeX = useRef(new Animated.Value(0)).current;
@@ -115,7 +123,19 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
       setLastCombo(event.combo);
       setShowScorePopup(true);
 
-      if (event.combo > 1) {
+      if (event.perfectClear) {
+        // Perfect clear — maximum celebration!
+        playSound('combo');
+        setShowComboBanner(true);
+        setShowConfetti(true);
+        shakeBoard(3);
+        setTimeout(() => setShowConfetti(false), 2500);
+      } else if (event.linesCleared >= 3) {
+        // Triple+ line clear — big celebration
+        playSound('combo');
+        setShowComboBanner(true);
+        shakeBoard(2);
+      } else if (event.combo > 1) {
         playSound('combo');
         setShowComboBanner(true);
         shakeBoard(Math.min(event.combo * 0.5, 2.5));
@@ -165,7 +185,80 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
     }
   }, [selectedPieceIndex, gameState, placePiece, activePowerUp, applyPowerUp, usePowerUp, playSound, shakeBoard, pulseBoard]);
 
-  const handleBoardLayout = useCallback((_x: number, _y: number) => {}, []);
+  const handleBoardLayout = useCallback((x: number, y: number, width: number, height: number) => {
+    boardOriginRef.current = { x, y, width, height };
+  }, []);
+
+  // Convert absolute screen position to board row/col, centering the piece on the finger
+  const screenToBoard = useCallback((screenX: number, screenY: number, piece: Piece) => {
+    const { x: bx, y: by } = boardOriginRef.current;
+    const cellTotal = CELL_SIZE + CELL_GAP;
+    // Offset the touch point so the center of the piece is under the finger
+    const cells = getPieceCells(piece);
+    const midRow = cells.length > 0 ? cells[Math.floor(cells.length / 2)].row : 0;
+    const midCol = cells.length > 0 ? cells[Math.floor(cells.length / 2)].col : 0;
+
+    const localX = screenX - bx - CELL_GAP;
+    const localY = screenY - by - CELL_GAP;
+    const col = Math.floor(localX / cellTotal) - midCol;
+    const row = Math.floor(localY / cellTotal) - midRow;
+    return { row, col };
+  }, []);
+
+  // Compute ghost cells for a piece at a given screen position
+  const computeDragGhost = useCallback((pieceIndex: number, screenX: number, screenY: number) => {
+    if (!gameState) return;
+    const piece = gameState.availablePieces[pieceIndex];
+    if (!piece) return;
+    const { row, col } = screenToBoard(screenX, screenY, piece);
+    if (canPlace(gameState.grid, piece, row, col)) {
+      const cells = getPieceCells(piece);
+      setGhostCells(cells.map(c => ({
+        row: row + c.row,
+        col: col + c.col,
+        colorIndex: piece.colorIndex,
+      })));
+    } else {
+      setGhostCells([]);
+    }
+  }, [gameState, screenToBoard]);
+
+  const handleDragStart = useCallback((event: DragEvent) => {
+    setActivePowerUp(null);
+    selectPiece(null);
+    setDraggedPieceIndex(event.pieceIndex);
+    setDragPosition({ x: event.x, y: event.y });
+    computeDragGhost(event.pieceIndex, event.x, event.y);
+    playSound('select');
+  }, [selectPiece, computeDragGhost, playSound]);
+
+  const handleDragMove = useCallback((event: DragEvent) => {
+    setDragPosition({ x: event.x, y: event.y });
+    computeDragGhost(event.pieceIndex, event.x, event.y);
+  }, [computeDragGhost]);
+
+  const handleDragEnd = useCallback((event: DragEvent) => {
+    if (!gameState) {
+      setDraggedPieceIndex(null);
+      setDragPosition(null);
+      setGhostCells([]);
+      return;
+    }
+    const piece = gameState.availablePieces[event.pieceIndex];
+    if (piece) {
+      const { row, col } = screenToBoard(event.x, event.y, piece);
+      if (canPlace(gameState.grid, piece, row, col)) {
+        const success = placePiece(event.pieceIndex, row, col);
+        if (success) {
+          playSound('place');
+          pulseBoard();
+        }
+      }
+    }
+    setDraggedPieceIndex(null);
+    setDragPosition(null);
+    setGhostCells([]);
+  }, [gameState, screenToBoard, placePiece, playSound, pulseBoard]);
 
   const handleActivatePowerUp = useCallback((type: PowerUpType) => {
     if (activePowerUp === type) {
@@ -278,6 +371,9 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
         pieces={gameState.availablePieces}
         selectedIndex={isPowerUpMode ? null : selectedPieceIndex}
         onSelectPiece={handleSelectPiece}
+        onDragStart={handleDragStart}
+        onDragMove={handleDragMove}
+        onDragEnd={handleDragEnd}
       />
 
       {/* Pause Menu */}
@@ -339,6 +435,24 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
           <Button title="Home" onPress={handleHome} variant="ghost" size="small" />
         </View>
       </Modal>
+      {/* Drag overlay — floating piece following the finger */}
+      {draggedPieceIndex !== null && dragPosition && gameState.availablePieces[draggedPieceIndex] && (
+        <View style={styles.dragOverlay} pointerEvents="none">
+          <View
+            style={{
+              position: 'absolute',
+              left: dragPosition.x - 40,
+              top: dragPosition.y - 60,
+            }}
+          >
+            <PieceRenderer
+              piece={gameState.availablePieces[draggedPieceIndex]}
+              selected
+              disabled={false}
+            />
+          </View>
+        </View>
+      )}
     </SafeAreaView>
   );
 };
@@ -445,5 +559,10 @@ const styles = StyleSheet.create({
     gap: 10,
     width: '100%',
     alignItems: 'center',
+  },
+  dragOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 9999,
+    elevation: 9999,
   },
 });

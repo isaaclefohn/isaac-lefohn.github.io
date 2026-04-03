@@ -1,10 +1,12 @@
 /**
  * Premium home screen with animated title, rich stats, and polished layout.
+ * All buttons visible, labeled with icons, sensibly aligned.
  */
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, Animated, Easing } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, Animated, Easing, Dimensions } from 'react-native';
 import { usePlayerStore } from '../store/playerStore';
+import { useSettingsStore } from '../store/settingsStore';
 import { Button } from '../components/common/Button';
 import { Tutorial } from '../components/Tutorial';
 import { COLORS, SHADOWS, RADII, SPACING } from '../utils/constants';
@@ -16,9 +18,12 @@ type HomeScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Home'>;
 };
 
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
 export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
-  const { highestLevel, coins, gems, totalScore } = usePlayerStore();
-  const [showTutorial, setShowTutorial] = useState(highestLevel === 0);
+  const { highestLevel, coins, gems, totalScore, currentStreak } = usePlayerStore();
+  const { tutorialCompleted, completeTutorial } = useSettingsStore();
+  const [showTutorial, setShowTutorial] = useState(!tutorialCompleted);
 
   // Entrance animations
   const titleOpacity = useRef(new Animated.Value(0)).current;
@@ -27,11 +32,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const statsOpacity = useRef(new Animated.Value(0)).current;
   const buttonsOpacity = useRef(new Animated.Value(0)).current;
   const buttonsTranslate = useRef(new Animated.Value(40)).current;
-  // Subtle pulsing glow on BLAST text
   const blastGlow = useRef(new Animated.Value(0.6)).current;
 
   useEffect(() => {
-    // Staggered entrance
     Animated.sequence([
       Animated.parallel([
         Animated.timing(titleOpacity, { toValue: 1, duration: 500, useNativeDriver: true }),
@@ -45,7 +48,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       ]),
     ]).start();
 
-    // Pulse the BLAST glow
     Animated.loop(
       Animated.sequence([
         Animated.timing(blastGlow, { toValue: 1, duration: 1200, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
@@ -56,7 +58,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
   const handleTutorialComplete = useCallback(() => {
     setShowTutorial(false);
-  }, []);
+    completeTutorial();
+  }, [completeTutorial]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -74,10 +77,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           <Animated.Text
             style={[
               styles.titleAccent,
-              {
-                transform: [{ scale: blastScale }],
-                opacity: blastGlow,
-              },
+              { transform: [{ scale: blastScale }], opacity: blastGlow },
             ]}
           >
             BLAST
@@ -103,6 +103,16 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             <Text style={styles.statValue}>{formatCompact(totalScore)}</Text>
             <Text style={styles.statLabel}>SCORE</Text>
           </View>
+          {currentStreak > 0 && (
+            <>
+              <View style={styles.statDivider} />
+              <View style={styles.statItem}>
+                <Text style={styles.statIcon}>🔥</Text>
+                <Text style={styles.statValue}>{currentStreak}</Text>
+                <Text style={styles.statLabel}>STREAK</Text>
+              </View>
+            </>
+          )}
         </Animated.View>
 
         {/* Main buttons */}
@@ -112,18 +122,20 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             { opacity: buttonsOpacity, transform: [{ translateY: buttonsTranslate }] },
           ]}
         >
+          {/* Primary play button - full width, large */}
           <Button
-            title={highestLevel > 0 ? `Level ${highestLevel + 1}` : 'Play'}
-            icon={highestLevel > 0 ? '▶' : '▶'}
+            title={highestLevel > 0 ? `Continue  \u2022  Level ${highestLevel + 1}` : 'Play'}
+            icon="▶"
             onPress={() => navigation.navigate('Game', { level: highestLevel > 0 ? highestLevel + 1 : 1 })}
             variant="primary"
             size="large"
             style={styles.mainButton}
           />
 
+          {/* Secondary row - Daily Challenge + Level Select */}
           <View style={styles.secondaryRow}>
             <Button
-              title="Daily"
+              title="Daily Challenge"
               icon="📅"
               onPress={() => navigation.navigate('DailyChallenge')}
               variant="secondary"
@@ -131,7 +143,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
               style={styles.halfButton}
             />
             <Button
-              title="Levels"
+              title="Select Level"
               icon="🗺"
               onPress={() => navigation.navigate('LevelSelect')}
               variant="secondary"
@@ -140,28 +152,38 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             />
           </View>
 
+          {/* Bottom row - Shop, Leaderboard, Settings - evenly spaced */}
           <View style={styles.bottomRow}>
-            <Button
-              title="Shop"
-              icon="🛒"
-              onPress={() => navigation.navigate('Shop')}
-              variant="ghost"
-              size="small"
-            />
-            <Button
-              title="Ranks"
-              icon="🏆"
-              onPress={() => navigation.navigate('Leaderboard')}
-              variant="ghost"
-              size="small"
-            />
-            <Button
-              title="Settings"
-              icon="⚙️"
-              onPress={() => navigation.navigate('Settings')}
-              variant="ghost"
-              size="small"
-            />
+            <View style={styles.bottomButtonWrapper}>
+              <Button
+                title="Shop"
+                icon="🛒"
+                onPress={() => navigation.navigate('Shop')}
+                variant="ghost"
+                size="small"
+                style={styles.bottomButton}
+              />
+            </View>
+            <View style={styles.bottomButtonWrapper}>
+              <Button
+                title="Rankings"
+                icon="🏆"
+                onPress={() => navigation.navigate('Leaderboard')}
+                variant="ghost"
+                size="small"
+                style={styles.bottomButton}
+              />
+            </View>
+            <View style={styles.bottomButtonWrapper}>
+              <Button
+                title="Settings"
+                icon="⚙️"
+                onPress={() => navigation.navigate('Settings')}
+                variant="ghost"
+                size="small"
+                style={styles.bottomButton}
+              />
+            </View>
           </View>
         </Animated.View>
 
@@ -194,7 +216,7 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.xl,
   },
   title: {
-    fontSize: 48,
+    fontSize: SCREEN_WIDTH < 375 ? 38 : 48,
     fontWeight: '900',
     color: COLORS.textPrimary,
     letterSpacing: 6,
@@ -203,7 +225,7 @@ const styles = StyleSheet.create({
     textShadowRadius: 8,
   },
   titleAccent: {
-    fontSize: 56,
+    fontSize: SCREEN_WIDTH < 375 ? 46 : 56,
     fontWeight: '900',
     color: COLORS.accent,
     letterSpacing: 10,
@@ -218,10 +240,11 @@ const styles = StyleSheet.create({
     borderRadius: RADII.lg,
     borderWidth: 1,
     borderColor: COLORS.surfaceBorder,
-    paddingVertical: 14,
-    paddingHorizontal: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 10,
     marginBottom: SPACING.xl,
     alignItems: 'center',
+    width: '100%',
     ...SHADOWS.small,
   },
   statItem: {
@@ -229,37 +252,37 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   statIcon: {
-    fontSize: 18,
+    fontSize: 16,
     marginBottom: 2,
   },
   statValue: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '800',
     color: COLORS.accentGold,
   },
   statLabel: {
-    fontSize: 9,
+    fontSize: 8,
     fontWeight: '700',
     color: COLORS.textMuted,
-    letterSpacing: 1.5,
+    letterSpacing: 1.2,
     marginTop: 1,
   },
   statDivider: {
     width: 1,
-    height: 36,
+    height: 32,
     backgroundColor: COLORS.surfaceBorder,
   },
   buttonGroup: {
     width: '100%',
     alignItems: 'center',
-    gap: 12,
+    gap: SPACING.sm,
   },
   mainButton: {
     width: '100%',
   },
   secondaryRow: {
     flexDirection: 'row',
-    gap: 12,
+    gap: SPACING.sm,
     width: '100%',
   },
   halfButton: {
@@ -267,8 +290,15 @@ const styles = StyleSheet.create({
   },
   bottomRow: {
     flexDirection: 'row',
-    gap: 12,
+    width: '100%',
     marginTop: SPACING.xs,
+    gap: SPACING.sm,
+  },
+  bottomButtonWrapper: {
+    flex: 1,
+  },
+  bottomButton: {
+    width: '100%',
   },
   levelIndicator: {
     fontSize: 12,

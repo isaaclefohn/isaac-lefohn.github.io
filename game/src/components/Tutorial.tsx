@@ -21,7 +21,7 @@ const TUTORIAL_STEPS: TutorialStep[] = [
   },
   {
     title: 'Select & Place',
-    description: 'Tap a piece from the tray below, then tap the board to place it. You get 3 pieces per round.',
+    description: 'Tap a piece then tap the board, or drag a piece directly onto the board. You get 3 pieces per round.',
     emoji: '\uD83D\uDC46',
   },
   {

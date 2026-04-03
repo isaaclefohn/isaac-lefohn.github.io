@@ -15,6 +15,7 @@ interface SettingsStore {
   musicVolume: number;
   showGridLines: boolean;
   showGhostPreview: boolean;
+  tutorialCompleted: boolean;
 
   toggleSound: () => void;
   toggleMusic: () => void;
@@ -23,6 +24,7 @@ interface SettingsStore {
   setMusicVolume: (volume: number) => void;
   toggleGridLines: () => void;
   toggleGhostPreview: () => void;
+  completeTutorial: () => void;
 }
 
 export const useSettingsStore = create<SettingsStore>()(
@@ -35,6 +37,7 @@ export const useSettingsStore = create<SettingsStore>()(
       musicVolume: 0.5,
       showGridLines: true,
       showGhostPreview: true,
+      tutorialCompleted: false,
 
       toggleSound: () => set((s) => ({ soundEnabled: !s.soundEnabled })),
       toggleMusic: () => set((s) => ({ musicEnabled: !s.musicEnabled })),
@@ -43,6 +46,7 @@ export const useSettingsStore = create<SettingsStore>()(
       setMusicVolume: (volume) => set({ musicVolume: Math.max(0, Math.min(1, volume)) }),
       toggleGridLines: () => set((s) => ({ showGridLines: !s.showGridLines })),
       toggleGhostPreview: () => set((s) => ({ showGhostPreview: !s.showGhostPreview })),
+      completeTutorial: () => set({ tutorialCompleted: true }),
     }),
     {
       name: 'color-block-blast-settings',
