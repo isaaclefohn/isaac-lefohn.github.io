@@ -78,6 +78,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
   const [showScorePopup, setShowScorePopup] = useState(false);
   const [showComboBanner, setShowComboBanner] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [doubleCoinsUsed, setDoubleCoinsUsed] = useState(false);
   const [lastPoints, setLastPoints] = useState(0);
   const [lastCombo, setLastCombo] = useState(0);
   const [ghostCells, setGhostCells] = useState<{ row: number; col: number; colorIndex: number }[]>([]);
@@ -316,7 +317,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
   const handlePause = useCallback(() => { pauseGame(); setShowPauseMenu(true); }, [pauseGame]);
   const handleResume = useCallback(() => { setShowPauseMenu(false); resumeGame(); }, [resumeGame]);
   const handleNextLevel = useCallback(() => { setShowWinModal(false); setShowConfetti(false); navigation.replace('Game', { level: level + 1 }); }, [navigation, level]);
-  const handleRetry = useCallback(() => { setShowLoseModal(false); setShowWinModal(false); setShowPauseMenu(false); setShowConfetti(false); setActivePowerUp(null); resetLevel(); }, [resetLevel]);
+  const handleRetry = useCallback(() => { setShowLoseModal(false); setShowWinModal(false); setShowPauseMenu(false); setShowConfetti(false); setActivePowerUp(null); setDoubleCoinsUsed(false); resetLevel(); }, [resetLevel]);
   const handleHome = useCallback(() => { navigation.navigate('Home'); }, [navigation]);
 
   const handleWatchAd = useCallback(async () => {
@@ -327,6 +328,14 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
       playSound('select');
     }
   }, [addCoins, playSound]);
+
+  const handleDoubleCoins = useCallback(() => {
+    if (doubleCoinsUsed) return;
+    const bonus = calculateCoinReward(stars);
+    addCoins(bonus);
+    setDoubleCoinsUsed(true);
+    playSound('combo');
+  }, [doubleCoinsUsed, stars, addCoins, playSound]);
 
   if (!gameState || !levelConfig) {
     return (
@@ -479,11 +488,19 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
         </View>
         <Text style={styles.modalScore}>{formatScore(gameState.score)}</Text>
         <View style={styles.rewardRow}>
-          <Text style={styles.rewardText}>+{calculateCoinReward(stars)}</Text>
+          <Text style={styles.rewardText}>+{calculateCoinReward(stars)}{doubleCoinsUsed ? ' x2!' : ''}</Text>
           <GameIcon name="coin" size={18} />
         </View>
         <View style={styles.modalButtons}>
           <Button title="Next Level" onPress={handleNextLevel} variant="primary" size="medium" />
+          {!doubleCoinsUsed && calculateCoinReward(stars) > 0 && (
+            <Button
+              title={`2x Coins (+${calculateCoinReward(stars)})`}
+              onPress={handleDoubleCoins}
+              variant="secondary"
+              size="medium"
+            />
+          )}
           <Button title="Retry" onPress={handleRetry} variant="secondary" size="small" />
           <Button title="Home" onPress={handleHome} variant="ghost" size="small" />
         </View>
