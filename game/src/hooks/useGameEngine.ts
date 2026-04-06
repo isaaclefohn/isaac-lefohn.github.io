@@ -26,7 +26,7 @@ export function useGameEngine() {
     getStars,
   } = useGameStore();
 
-  const { completeLevel, addCoins, updateStreak } = usePlayerStore();
+  const { completeLevel, addCoins, updateStreak, checkAchievements, recordGamePlayed } = usePlayerStore();
 
   // Start a level by number
   const loadLevel = useCallback((levelNumber: number) => {
@@ -35,9 +35,11 @@ export function useGameEngine() {
     updateStreak();
   }, [startLevel, updateStreak]);
 
-  // Handle level completion
+  // Handle level completion and game over
   useEffect(() => {
-    if (gameState?.status === 'won' && levelConfig) {
+    if (!gameState || !levelConfig) return;
+
+    if (gameState.status === 'won') {
       const stars = getStars();
       const coinReward = calculateCoinReward(stars);
 
@@ -51,6 +53,12 @@ export function useGameEngine() {
       if (coinReward > 0) {
         addCoins(coinReward);
       }
+
+      recordGamePlayed(gameState.combo ?? 0);
+      checkAchievements();
+    } else if (gameState.status === 'lost') {
+      recordGamePlayed(gameState.combo ?? 0);
+      checkAchievements();
     }
   }, [gameState?.status]); // eslint-disable-line react-hooks/exhaustive-deps
 

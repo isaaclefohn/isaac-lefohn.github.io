@@ -4,11 +4,14 @@
  */
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, Animated, Easing, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, Animated, Easing, Dimensions, TouchableOpacity } from 'react-native';
 import { usePlayerStore } from '../store/playerStore';
 import { useSettingsStore } from '../store/settingsStore';
 import { Button } from '../components/common/Button';
 import { Tutorial } from '../components/Tutorial';
+import { DailyRewardModal } from '../components/DailyRewardModal';
+import { AchievementModal } from '../components/AchievementModal';
+import { StatsModal } from '../components/StatsModal';
 import { GameIcon } from '../components/GameIcon';
 import { FloatingParticles } from '../components/animations/FloatingParticles';
 import { ScreenVignette } from '../components/animations/ScreenVignette';
@@ -35,9 +38,26 @@ const TITLE_BLOCKS = [
 ];
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
-  const { highestLevel, coins, gems, totalScore, currentStreak } = usePlayerStore();
+  const { highestLevel, coins, gems, totalScore, currentStreak, dailyRewardLastClaimed, unlockedAchievements, checkAchievements } = usePlayerStore();
   const { tutorialCompleted, completeTutorial } = useSettingsStore();
   const [showTutorial, setShowTutorial] = useState(!tutorialCompleted);
+  const [showDailyReward, setShowDailyReward] = useState(false);
+  const [showAchievements, setShowAchievements] = useState(false);
+  const [showStats, setShowStats] = useState(false);
+
+  // Show daily reward modal on first visit each day
+  useEffect(() => {
+    const today = new Date().toISOString().split('T')[0];
+    if (dailyRewardLastClaimed !== today && !showTutorial) {
+      const timer = setTimeout(() => setShowDailyReward(true), 800);
+      return () => clearTimeout(timer);
+    }
+  }, [dailyRewardLastClaimed, showTutorial]);
+
+  // Check achievements when screen loads
+  useEffect(() => {
+    checkAchievements();
+  }, []);
 
   // Entrance animations
   const titleOpacity = useRef(new Animated.Value(0)).current;
@@ -196,7 +216,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           </Animated.Text>
         </View>
 
-        {/* Stats bar */}
+        {/* Stats bar — tap to open stats dashboard */}
+        <TouchableOpacity activeOpacity={0.7} onPress={() => setShowStats(true)} style={{ width: '100%' }}>
         <Animated.View style={[styles.statsBar, { opacity: statsOpacity }]}>
           <View style={styles.statItem}>
             <GameIcon name="coin" size={20} />
@@ -226,6 +247,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             </>
           )}
         </Animated.View>
+        </TouchableOpacity>
 
         {/* Main buttons */}
         <Animated.View
@@ -266,12 +288,21 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             />
           </View>
 
-          {/* Bottom row - Shop, Leaderboard, Settings */}
+          {/* Bottom row - Shop, Trophies, Rankings, Settings */}
           <View style={styles.bottomRow}>
             <View style={styles.bottomButtonWrapper}>
               <Button
                 title="Shop"
                 onPress={() => navigation.navigate('Shop')}
+                variant="ghost"
+                size="small"
+                style={styles.bottomButton}
+              />
+            </View>
+            <View style={styles.bottomButtonWrapper}>
+              <Button
+                title="Trophies"
+                onPress={() => setShowAchievements(true)}
                 variant="ghost"
                 size="small"
                 style={styles.bottomButton}
@@ -310,6 +341,24 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       </View>
 
       {showTutorial && <Tutorial onComplete={handleTutorialComplete} />}
+
+      {/* Daily reward modal */}
+      <DailyRewardModal
+        visible={showDailyReward}
+        onClose={() => setShowDailyReward(false)}
+      />
+
+      {/* Achievement modal */}
+      <AchievementModal
+        visible={showAchievements}
+        onClose={() => setShowAchievements(false)}
+      />
+
+      {/* Stats dashboard modal */}
+      <StatsModal
+        visible={showStats}
+        onClose={() => setShowStats(false)}
+      />
     </SafeAreaView>
   );
 };
