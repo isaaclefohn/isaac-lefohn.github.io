@@ -10,6 +10,7 @@
 
 import React, { useEffect, useRef, useMemo } from 'react';
 import { View, Animated, StyleSheet, Easing } from 'react-native';
+import { useSettingsStore } from '../store/settingsStore';
 import { CELL_SIZE, CELL_GAP, CELL_RADIUS, COLORS } from '../utils/constants';
 
 interface PlacedCell {
@@ -301,7 +302,10 @@ export const BoardEffects: React.FC<BoardEffectsProps> = ({
   fillRatio,
   combo,
 }) => {
+  const { reducedMotion } = useSettingsStore();
   const totalSize = gridSize * (CELL_SIZE + CELL_GAP) + CELL_GAP;
+
+  if (reducedMotion) return null;
 
   return (
     <View style={[styles.container, { width: totalSize, height: totalSize }]} pointerEvents="none">

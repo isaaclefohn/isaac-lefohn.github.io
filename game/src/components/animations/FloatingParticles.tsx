@@ -5,6 +5,7 @@
 
 import React, { useEffect, useMemo, useRef } from 'react';
 import { View, Animated, StyleSheet, Dimensions, Easing } from 'react-native';
+import { useSettingsStore } from '../../store/settingsStore';
 import { COLORS } from '../../utils/constants';
 
 interface FloatingParticlesProps {
@@ -38,6 +39,8 @@ export const FloatingParticles: React.FC<FloatingParticlesProps> = ({
   count = 12,
   colors = PARTICLE_COLORS,
 }) => {
+  const { reducedMotion } = useSettingsStore();
+  if (reducedMotion) return null;
   const particles = useMemo<ParticleData[]>(() => {
     return Array.from({ length: count }, () => ({
       x: Math.random() * SCREEN_W,

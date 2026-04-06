@@ -6,6 +6,8 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Piece, getPieceSize } from '../engine/Piece';
+import { ColorblindPattern } from '../../components/ColorblindPattern';
+import { useSettingsStore } from '../../store/settingsStore';
 import { COLORS, CELL_RADIUS } from '../../utils/constants';
 
 interface PieceRendererProps {
@@ -29,6 +31,8 @@ export const PieceRenderer: React.FC<PieceRendererProps> = ({
   selected = false,
   disabled = false,
 }) => {
+  const { colorblindMode } = useSettingsStore();
+
   if (!piece) {
     return null;
   }
@@ -96,6 +100,7 @@ export const PieceRenderer: React.FC<PieceRendererProps> = ({
                   },
                 ]}
               />
+              {colorblindMode && <ColorblindPattern colorIndex={colorIdx} />}
             </View>
           );
         })

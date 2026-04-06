@@ -5,6 +5,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import { Animated, StyleSheet } from 'react-native';
+import { useSettingsStore } from '../../store/settingsStore';
 import { COLORS } from '../../utils/constants';
 
 interface ClearFlashProps {
@@ -18,10 +19,11 @@ export const ClearFlash: React.FC<ClearFlashProps> = ({
   color = COLORS.accent,
   intensity = 0.25,
 }) => {
+  const { reducedMotion } = useSettingsStore();
   const opacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    if (!visible) return;
+    if (!visible || reducedMotion) return;
 
     opacity.setValue(intensity);
     Animated.sequence([

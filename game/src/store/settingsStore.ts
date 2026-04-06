@@ -16,6 +16,8 @@ interface SettingsStore {
   showGridLines: boolean;
   showGhostPreview: boolean;
   tutorialCompleted: boolean;
+  colorblindMode: boolean;
+  reducedMotion: boolean;
 
   toggleSound: () => void;
   toggleMusic: () => void;
@@ -25,6 +27,8 @@ interface SettingsStore {
   toggleGridLines: () => void;
   toggleGhostPreview: () => void;
   completeTutorial: () => void;
+  toggleColorblindMode: () => void;
+  toggleReducedMotion: () => void;
 }
 
 export const useSettingsStore = create<SettingsStore>()(
@@ -38,6 +42,8 @@ export const useSettingsStore = create<SettingsStore>()(
       showGridLines: true,
       showGhostPreview: true,
       tutorialCompleted: false,
+      colorblindMode: false,
+      reducedMotion: false,
 
       toggleSound: () => set((s) => ({ soundEnabled: !s.soundEnabled })),
       toggleMusic: () => set((s) => ({ musicEnabled: !s.musicEnabled })),
@@ -47,6 +53,8 @@ export const useSettingsStore = create<SettingsStore>()(
       toggleGridLines: () => set((s) => ({ showGridLines: !s.showGridLines })),
       toggleGhostPreview: () => set((s) => ({ showGhostPreview: !s.showGhostPreview })),
       completeTutorial: () => set({ tutorialCompleted: true }),
+      toggleColorblindMode: () => set((s) => ({ colorblindMode: !s.colorblindMode })),
+      toggleReducedMotion: () => set((s) => ({ reducedMotion: !s.reducedMotion })),
     }),
     {
       name: 'color-block-blast-settings',

@@ -6,6 +6,7 @@
 
 import React, { useRef, useEffect, useMemo } from 'react';
 import { View, Animated, StyleSheet, Dimensions, Easing } from 'react-native';
+import { useSettingsStore } from '../../store/settingsStore';
 import { COLORS } from '../../utils/constants';
 
 interface ConfettiProps {
@@ -39,6 +40,8 @@ interface Particle {
 const SHAPES: ParticleShape[] = ['square', 'rect', 'circle', 'diamond'];
 
 export const Confetti: React.FC<ConfettiProps> = ({ visible, count = 50 }) => {
+  const { reducedMotion } = useSettingsStore();
+  if (reducedMotion) return null;
   const particles = useMemo<Particle[]>(() => {
     return Array.from({ length: count }, () => {
       const shape = SHAPES[Math.floor(Math.random() * SHAPES.length)];

@@ -146,6 +146,20 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) =>
               label="Ghost Preview"
               value={settings.showGhostPreview}
               onToggle={settings.toggleGhostPreview}
+            />
+            <Divider />
+            <SettingRow
+              icon="palette"
+              label="Colorblind Mode"
+              value={settings.colorblindMode}
+              onToggle={settings.toggleColorblindMode}
+            />
+            <Divider />
+            <SettingRow
+              icon="sparkle"
+              label="Reduced Motion"
+              value={settings.reducedMotion}
+              onToggle={settings.toggleReducedMotion}
               last
             />
           </View>

@@ -7,6 +7,8 @@
 import React, { useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Grid } from '../engine/Board';
+import { ColorblindPattern } from '../../components/ColorblindPattern';
+import { useSettingsStore } from '../../store/settingsStore';
 import { COLORS, CELL_SIZE, CELL_GAP, CELL_RADIUS } from '../../utils/constants';
 
 interface BoardRendererProps {
@@ -27,6 +29,7 @@ export const BoardRenderer: React.FC<BoardRendererProps> = ({
   ghostCells = [],
   showGridLines = true,
 }) => {
+  const { colorblindMode } = useSettingsStore();
   const totalSize = gridSize * (CELL_SIZE + CELL_GAP) + CELL_GAP;
 
   const ghostLookup = useMemo(() => {
@@ -80,6 +83,8 @@ export const BoardRenderer: React.FC<BoardRendererProps> = ({
                 <View style={[styles.highlight, { backgroundColor: `${lightColor}40` }]} />
                 {/* Inner glow dot */}
                 <View style={[styles.innerGlow, { backgroundColor: `${lightColor}30` }]} />
+                {/* Colorblind pattern overlay */}
+                {colorblindMode && <ColorblindPattern colorIndex={colorIdx} />}
               </View>
             );
           }
@@ -111,6 +116,7 @@ export const BoardRenderer: React.FC<BoardRendererProps> = ({
               >
                 {/* Ghost highlight */}
                 <View style={[styles.ghostHighlight, { backgroundColor: `${ghostLight}20` }]} />
+                {colorblindMode && <ColorblindPattern colorIndex={(ghostColor ?? 1) - 1} />}
               </View>
             );
           }
