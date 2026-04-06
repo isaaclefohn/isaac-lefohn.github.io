@@ -3,7 +3,7 @@
  */
 
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, Animated } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, Animated, Share } from 'react-native';
 import { useGameEngine } from '../hooks/useGameEngine';
 import { useSound } from '../hooks/useSound';
 import { usePlayerStore } from '../store/playerStore';
@@ -391,6 +391,15 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
     }
   }, [addCoins, playSound]);
 
+  const handleShare = useCallback(async () => {
+    if (!gameState || !levelConfig) return;
+    const starEmojis = '⭐'.repeat(stars);
+    const message = `I scored ${gameState.score.toLocaleString()} on Level ${levelConfig.levelNumber} in Color Block Blast! ${starEmojis}\n\nCan you beat my score?`;
+    try {
+      await Share.share({ message });
+    } catch {}
+  }, [gameState, levelConfig, stars]);
+
   const handleDoubleCoins = useCallback(() => {
     if (doubleCoinsUsed) return;
     const bonus = calculateCoinReward(stars);
@@ -577,7 +586,10 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
             />
           )}
           <Button title="Retry" onPress={handleRetry} variant="secondary" size="small" />
-          <Button title="Home" onPress={handleHome} variant="ghost" size="small" />
+          <View style={styles.shareRow}>
+            <Button title="Share" onPress={handleShare} variant="ghost" size="small" />
+            <Button title="Home" onPress={handleHome} variant="ghost" size="small" />
+          </View>
         </View>
       </Modal>
 
@@ -727,6 +739,11 @@ const styles = StyleSheet.create({
     gap: 10,
     width: '100%',
     alignItems: 'center',
+  },
+  shareRow: {
+    flexDirection: 'row',
+    gap: 10,
+    justifyContent: 'center',
   },
   trayRow: {
     width: '100%',
