@@ -10,6 +10,7 @@ import { Modal } from './common/Modal';
 import { Button } from './common/Button';
 import { GameIcon } from './GameIcon';
 import { DAILY_REWARDS, usePlayerStore } from '../store/playerStore';
+import { scheduleDailyRewardReminder } from '../services/notifications';
 import { COLORS, RADII, SPACING, SHADOWS } from '../utils/constants';
 
 interface DailyRewardModalProps {
@@ -39,6 +40,8 @@ export const DailyRewardModal: React.FC<DailyRewardModalProps> = ({ visible, onC
   const handleClaim = () => {
     const reward = claimDailyReward();
     if (reward) {
+      // Schedule next daily reward notification
+      scheduleDailyRewardReminder().catch(() => {});
       onClose();
     }
   };

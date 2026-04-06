@@ -15,6 +15,7 @@ import { StatsModal } from '../components/StatsModal';
 import { GameIcon } from '../components/GameIcon';
 import { FloatingParticles } from '../components/animations/FloatingParticles';
 import { ScreenVignette } from '../components/animations/ScreenVignette';
+import { requestNotificationPermissions, scheduleStreakReminder, clearBadge } from '../services/notifications';
 import { COLORS, SHADOWS, RADII, SPACING } from '../utils/constants';
 import { formatCompact } from '../utils/formatters';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -54,9 +55,17 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     }
   }, [dailyRewardLastClaimed, showTutorial]);
 
-  // Check achievements when screen loads
+  // Check achievements and set up notifications when screen loads
   useEffect(() => {
     checkAchievements();
+    // Request notification permissions (non-blocking)
+    requestNotificationPermissions().catch(() => {});
+    // Clear badge on app open
+    clearBadge().catch(() => {});
+    // Schedule streak reminder if player has an active streak
+    if (currentStreak >= 2) {
+      scheduleStreakReminder(currentStreak).catch(() => {});
+    }
   }, []);
 
   // Entrance animations
