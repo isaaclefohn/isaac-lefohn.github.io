@@ -73,7 +73,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
     canUndo,
   } = useGameEngine();
 
-  const { playSound } = useSound();
+  const { playSound, playPlacement } = useSound();
   const { powerUps, usePowerUp, coins, gems, addCoins, levelHighScores } = usePlayerStore();
 
   const [showWinModal, setShowWinModal] = useState(false);
@@ -279,11 +279,11 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
     if (selectedPieceIndex === null) return;
     const success = placePiece(selectedPieceIndex, row, col);
     if (success) {
-      playSound('place');
+      playPlacement(col, gameState.gridSize);
       pulseBoard();
       setGhostCells([]);
     }
-  }, [selectedPieceIndex, gameState, placePiece, activePowerUp, applyPowerUp, usePowerUp, playSound, shakeBoard, pulseBoard]);
+  }, [selectedPieceIndex, gameState, placePiece, activePowerUp, applyPowerUp, usePowerUp, playSound, playPlacement, shakeBoard, pulseBoard]);
 
   const handleBoardLayout = useCallback((x: number, y: number, width: number, height: number) => {
     boardOriginRef.current = { x, y, width, height };
@@ -361,7 +361,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
       if (canPlace(gameState.grid, piece, row, col)) {
         const success = placePiece(event.pieceIndex, row, col);
         if (success) {
-          playSound('place');
+          playPlacement(col, gameState.gridSize);
           pulseBoard();
         }
       }
@@ -369,7 +369,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
     setDraggedPieceIndex(null);
     setDragPosition(null);
     setGhostCells([]);
-  }, [gameState, screenToBoard, placePiece, playSound, pulseBoard]);
+  }, [gameState, screenToBoard, placePiece, playPlacement, pulseBoard]);
 
   const handleActivatePowerUp = useCallback((type: PowerUpType) => {
     if (activePowerUp === type) {

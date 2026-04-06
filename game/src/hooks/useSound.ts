@@ -148,5 +148,32 @@ export function useSound() {
     }
   }, [soundEnabled, playHaptic]);
 
-  return { playSound, playHaptic };
+  /** Play a placement sound with haptic variation based on column (spatial feedback) */
+  const playPlacement = useCallback(async (col: number, gridSize: number) => {
+    if (!hapticsEnabled) return;
+
+    // Vary haptic intensity based on column position (left = light, right = heavy)
+    const ratio = col / Math.max(1, gridSize - 1);
+    try {
+      if (ratio < 0.33) {
+        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      } else if (ratio < 0.66) {
+        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      } else {
+        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+      }
+    } catch {}
+
+    // Play audio if available
+    if (!soundEnabled) return;
+    const sound = soundsRef.current.get('place');
+    if (sound) {
+      try {
+        await sound.setPositionAsync(0);
+        await sound.playAsync();
+      } catch {}
+    }
+  }, [hapticsEnabled, soundEnabled]);
+
+  return { playSound, playHaptic, playPlacement };
 }
