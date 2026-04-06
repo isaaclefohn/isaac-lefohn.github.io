@@ -8,6 +8,8 @@ import { View, StyleSheet } from 'react-native';
 import { Piece, getPieceSize } from '../engine/Piece';
 import { ColorblindPattern } from '../../components/ColorblindPattern';
 import { useSettingsStore } from '../../store/settingsStore';
+import { usePlayerStore } from '../../store/playerStore';
+import { getTheme } from './ThemeManager';
 import { COLORS, CELL_RADIUS } from '../../utils/constants';
 
 interface PieceRendererProps {
@@ -18,9 +20,6 @@ interface PieceRendererProps {
   disabled?: boolean;
 }
 
-const BLOCK_COLORS = COLORS.blocks;
-const BLOCK_LIGHT = COLORS.blocksLight;
-const BLOCK_DARK = COLORS.blocksDark;
 const TRAY_CELL_SIZE = 28;
 const TRAY_GAP = 3;
 
@@ -32,6 +31,11 @@ export const PieceRenderer: React.FC<PieceRendererProps> = ({
   disabled = false,
 }) => {
   const { colorblindMode } = useSettingsStore();
+  const { equippedTheme } = usePlayerStore();
+  const theme = getTheme(equippedTheme);
+  const BLOCK_COLORS = theme.blockColors;
+  const BLOCK_LIGHT = theme.blockColorsLight;
+  const BLOCK_DARK = theme.blockColorsDark;
 
   if (!piece) {
     return null;

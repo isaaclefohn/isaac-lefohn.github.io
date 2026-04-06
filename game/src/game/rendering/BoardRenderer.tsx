@@ -9,6 +9,8 @@ import { View, StyleSheet } from 'react-native';
 import { Grid } from '../engine/Board';
 import { ColorblindPattern } from '../../components/ColorblindPattern';
 import { useSettingsStore } from '../../store/settingsStore';
+import { usePlayerStore } from '../../store/playerStore';
+import { getTheme } from './ThemeManager';
 import { COLORS, CELL_SIZE, CELL_GAP, CELL_RADIUS } from '../../utils/constants';
 
 interface BoardRendererProps {
@@ -19,10 +21,6 @@ interface BoardRendererProps {
   showGridLines?: boolean;
 }
 
-const BLOCK_COLORS = COLORS.blocks;
-const BLOCK_LIGHT = COLORS.blocksLight;
-const BLOCK_DARK = COLORS.blocksDark;
-
 export const BoardRenderer: React.FC<BoardRendererProps> = ({
   grid,
   gridSize,
@@ -30,6 +28,11 @@ export const BoardRenderer: React.FC<BoardRendererProps> = ({
   showGridLines = true,
 }) => {
   const { colorblindMode } = useSettingsStore();
+  const { equippedTheme } = usePlayerStore();
+  const theme = getTheme(equippedTheme);
+  const BLOCK_COLORS = theme.blockColors;
+  const BLOCK_LIGHT = theme.blockColorsLight;
+  const BLOCK_DARK = theme.blockColorsDark;
   const totalSize = gridSize * (CELL_SIZE + CELL_GAP) + CELL_GAP;
 
   const ghostLookup = useMemo(() => {
@@ -41,7 +44,7 @@ export const BoardRenderer: React.FC<BoardRendererProps> = ({
   }, [ghostCells]);
 
   return (
-    <View style={[styles.board, { width: totalSize, height: totalSize }]}>
+    <View style={[styles.board, { width: totalSize, height: totalSize, backgroundColor: theme.surface }]}>
       {Array.from({ length: gridSize }, (_, row) =>
         Array.from({ length: gridSize }, (_, col) => {
           const cellValue = grid[row][col];
@@ -131,7 +134,7 @@ export const BoardRenderer: React.FC<BoardRendererProps> = ({
                 {
                   left: x,
                   top: y,
-                  backgroundColor: showGridLines ? COLORS.gridEmpty : COLORS.surface,
+                  backgroundColor: showGridLines ? theme.gridEmpty : theme.surface,
                 },
               ]}
             />
