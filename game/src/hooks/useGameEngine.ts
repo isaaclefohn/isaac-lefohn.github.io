@@ -28,7 +28,7 @@ export function useGameEngine() {
     canUndo,
   } = useGameStore();
 
-  const { completeLevel, addCoins, updateStreak, checkAchievements, recordGamePlayed } = usePlayerStore();
+  const { completeLevel, addCoins, updateStreak, checkAchievements, recordGamePlayed, recordZenGame, recordFailure, resetFailures } = usePlayerStore();
 
   // Start a level by number
   const loadLevel = useCallback((levelNumber: number) => {
@@ -48,6 +48,8 @@ export function useGameEngine() {
   useEffect(() => {
     if (!gameState || !levelConfig) return;
 
+    const isZen = levelConfig.levelNumber === 0;
+
     if (gameState.status === 'won') {
       const stars = getStars();
       const coinReward = calculateCoinReward(stars);
@@ -64,9 +66,15 @@ export function useGameEngine() {
       }
 
       recordGamePlayed(gameState.combo ?? 0);
+      resetFailures();
       checkAchievements();
     } else if (gameState.status === 'lost') {
-      recordGamePlayed(gameState.combo ?? 0);
+      if (isZen) {
+        recordZenGame(gameState.score, gameState.linesCleared, gameState.combo ?? 0);
+      } else {
+        recordGamePlayed(gameState.combo ?? 0);
+        recordFailure(levelConfig.levelNumber);
+      }
       checkAchievements();
     }
   }, [gameState?.status]); // eslint-disable-line react-hooks/exhaustive-deps

@@ -44,6 +44,9 @@ export const StatsModal: React.FC<StatsModalProps> = ({ visible, onClose }) => {
     totalPowerUpsUsed,
     levelStars,
     unlockedAchievements,
+    zenHighScore,
+    zenGamesPlayed,
+    zenBestLinesCleared,
   } = usePlayerStore();
 
   const totalStars = Object.values(levelStars).reduce((a, b) => a + b, 0);
@@ -88,6 +91,18 @@ export const StatsModal: React.FC<StatsModalProps> = ({ visible, onClose }) => {
           <StatRow icon="crown" label="Longest Streak" value={`${longestStreak} day${longestStreak !== 1 ? 's' : ''}`} color={COLORS.accentGold} />
           <StatRow icon="trophy" label="Achievements" value={`${unlockedAchievements.length} / 15`} />
         </View>
+
+        {/* Zen Mode section */}
+        {zenGamesPlayed > 0 && (
+          <>
+            <Text style={styles.sectionTitle}>ZEN MODE</Text>
+            <View style={styles.section}>
+              <StatRow icon="sparkle" label="High Score" value={zenHighScore.toLocaleString()} color={COLORS.accentGold} />
+              <StatRow icon="map" label="Games Played" value={zenGamesPlayed} />
+              <StatRow icon="lightning" label="Best Lines" value={zenBestLinesCleared} color={COLORS.blocks[1]} />
+            </View>
+          </>
+        )}
 
         {/* Wealth section */}
         <Text style={styles.sectionTitle}>WEALTH</Text>

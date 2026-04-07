@@ -71,6 +71,15 @@ interface PlayerStoreState {
   totalGamesPlayed: number;
   totalPowerUpsUsed: number;
   bestCombo: number;
+  // Zen mode
+  zenHighScore: number;
+  zenGamesPlayed: number;
+  zenBestLinesCleared: number;
+  // Lucky Spin
+  lastSpinDate: string | null;
+  // Adaptive difficulty
+  consecutiveFailures: number;
+  lastFailedLevel: number;
 }
 
 interface PlayerStore extends PlayerStoreState {
@@ -90,6 +99,10 @@ interface PlayerStore extends PlayerStoreState {
   claimDailyReward: () => { coins: number; gems?: number; powerUp?: string } | null;
   checkAchievements: () => Achievement[];
   recordGamePlayed: (combo: number) => void;
+  recordZenGame: (score: number, linesCleared: number, combo: number) => void;
+  recordSpin: () => void;
+  recordFailure: (level: number) => void;
+  resetFailures: () => void;
 }
 
 const getToday = () => new Date().toISOString().split('T')[0];
@@ -119,6 +132,12 @@ export const usePlayerStore = create<PlayerStore>()(
       totalGamesPlayed: 0,
       totalPowerUpsUsed: 0,
       bestCombo: 0,
+      zenHighScore: 0,
+      zenGamesPlayed: 0,
+      zenBestLinesCleared: 0,
+      lastSpinDate: null,
+      consecutiveFailures: 0,
+      lastFailedLevel: 0,
 
       addCoins: (amount) =>
         set((s) => ({ coins: s.coins + amount })),
@@ -265,6 +284,31 @@ export const usePlayerStore = create<PlayerStore>()(
           totalGamesPlayed: s.totalGamesPlayed + 1,
           bestCombo: Math.max(s.bestCombo, combo),
         }));
+      },
+
+      recordZenGame: (score: number, linesCleared: number, combo: number) => {
+        set((s) => ({
+          zenHighScore: Math.max(s.zenHighScore, score),
+          zenGamesPlayed: s.zenGamesPlayed + 1,
+          zenBestLinesCleared: Math.max(s.zenBestLinesCleared, linesCleared),
+          totalGamesPlayed: s.totalGamesPlayed + 1,
+          bestCombo: Math.max(s.bestCombo, combo),
+        }));
+      },
+
+      recordSpin: () => {
+        set({ lastSpinDate: getToday() });
+      },
+
+      recordFailure: (level: number) => {
+        set((s) => ({
+          consecutiveFailures: s.lastFailedLevel === level ? s.consecutiveFailures + 1 : 1,
+          lastFailedLevel: level,
+        }));
+      },
+
+      resetFailures: () => {
+        set({ consecutiveFailures: 0, lastFailedLevel: 0 });
       },
     }),
     {

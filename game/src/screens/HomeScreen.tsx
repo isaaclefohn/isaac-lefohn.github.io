@@ -12,6 +12,7 @@ import { Tutorial } from '../components/Tutorial';
 import { DailyRewardModal } from '../components/DailyRewardModal';
 import { AchievementModal } from '../components/AchievementModal';
 import { StatsModal } from '../components/StatsModal';
+import { LuckySpinModal } from '../components/LuckySpinModal';
 import { GameIcon } from '../components/GameIcon';
 import { FloatingParticles } from '../components/animations/FloatingParticles';
 import { ScreenVignette } from '../components/animations/ScreenVignette';
@@ -39,12 +40,16 @@ const TITLE_BLOCKS = [
 ];
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
-  const { highestLevel, coins, gems, totalScore, currentStreak, dailyRewardLastClaimed, unlockedAchievements, checkAchievements } = usePlayerStore();
+  const { highestLevel, coins, gems, totalScore, currentStreak, dailyRewardLastClaimed, unlockedAchievements, checkAchievements, lastSpinDate } = usePlayerStore();
   const { tutorialCompleted, completeTutorial } = useSettingsStore();
   const [showTutorial, setShowTutorial] = useState(!tutorialCompleted);
   const [showDailyReward, setShowDailyReward] = useState(false);
   const [showAchievements, setShowAchievements] = useState(false);
   const [showStats, setShowStats] = useState(false);
+  const [showSpin, setShowSpin] = useState(false);
+
+  const today = new Date().toISOString().split('T')[0];
+  const canSpin = lastSpinDate !== today;
 
   // Show daily reward modal on first visit each day
   useEffect(() => {
@@ -304,8 +309,17 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             />
           </View>
 
-          {/* Bottom row - Shop, Trophies, Rankings, Settings */}
+          {/* Bottom row - Spin, Shop, Trophies, Rankings, Settings */}
           <View style={styles.bottomRow}>
+            <View style={styles.bottomButtonWrapper}>
+              <Button
+                title={canSpin ? 'Spin!' : 'Spin'}
+                onPress={() => setShowSpin(true)}
+                variant={canSpin ? 'secondary' : 'ghost'}
+                size="small"
+                style={styles.bottomButton}
+              />
+            </View>
             <View style={styles.bottomButtonWrapper}>
               <Button
                 title="Shop"
@@ -374,6 +388,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       <StatsModal
         visible={showStats}
         onClose={() => setShowStats(false)}
+      />
+
+      {/* Lucky Spin modal */}
+      <LuckySpinModal
+        visible={showSpin}
+        onClose={() => setShowSpin(false)}
       />
     </SafeAreaView>
   );

@@ -26,6 +26,8 @@ import { MilestoneBanner } from '../components/animations/MilestoneBanner';
 import { FloatingParticles } from '../components/animations/FloatingParticles';
 import { ClearFlash } from '../components/animations/ClearFlash';
 import { ScreenVignette } from '../components/animations/ScreenVignette';
+import { TutorialOverlay } from '../components/TutorialOverlay';
+import { useSettingsStore } from '../store/settingsStore';
 import { CELL_SIZE, CELL_GAP, COLORS, SHADOWS, RADII, SPACING } from '../utils/constants';
 import { formatScore } from '../utils/formatters';
 import { calculateCoinReward } from '../game/engine/Scoring';
@@ -74,7 +76,10 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
   } = useGameEngine();
 
   const { playSound, playPlacement } = useSound();
-  const { powerUps, usePowerUp, coins, gems, addCoins, levelHighScores } = usePlayerStore();
+  const { powerUps, usePowerUp, coins, gems, addCoins, addPowerUp, levelHighScores, zenHighScore, consecutiveFailures, lastFailedLevel } = usePlayerStore();
+  const { tutorialCompleted, completeTutorial } = useSettingsStore();
+
+  const showTutorial = !isEndless && level === 1 && !tutorialCompleted;
 
   const [showWinModal, setShowWinModal] = useState(false);
   const [showLoseModal, setShowLoseModal] = useState(false);
@@ -94,6 +99,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
   const [showMilestone, setShowMilestone] = useState(false);
   const milestoneShownRef = useRef(false);
   const [hintCells, setHintCells] = useState<{ row: number; col: number; colorIndex: number }[]>([]);
+  const [rescueClaimed, setRescueClaimed] = useState(false);
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastActionRef = useRef(Date.now());
   const [clearedRows, setClearedRows] = useState<number[]>([]);
@@ -611,12 +617,30 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
             <Text style={styles.endlessStatText}>Pieces placed: {gameState.piecesPlaced}</Text>
             <Text style={styles.endlessStatText}>Lines cleared: {gameState.linesCleared}</Text>
             <Text style={styles.endlessStatText}>Best combo: {gameState.combo}x</Text>
+            {zenHighScore > 0 && (
+              <Text style={[styles.endlessStatText, gameState.score >= zenHighScore && { color: COLORS.accentGold, fontWeight: '800' }]}>
+                {gameState.score >= zenHighScore ? 'New best!' : `Best: ${formatScore(zenHighScore)}`}
+              </Text>
+            )}
           </View>
         ) : (
           <Text style={styles.modalTarget}>
             Target: {formatScore(levelConfig.objective.target)}
           </Text>
         )}
+        {/* Rescue offer after 2+ failures on same level */}
+        {!isEndless && consecutiveFailures >= 2 && lastFailedLevel === level && !rescueClaimed && (
+          <View style={styles.rescueCard}>
+            <Text style={styles.rescueText}>Struggling? Here's a free Bomb to help!</Text>
+            <Button
+              title="Claim Free Bomb"
+              onPress={() => { addPowerUp('bomb', 1); setRescueClaimed(true); playSound('combo'); }}
+              variant="secondary"
+              size="small"
+            />
+          </View>
+        )}
+
         <View style={styles.modalButtons}>
           <Button title={isEndless ? 'Play Again' : 'Try Again'} onPress={handleRetry} variant="primary" size="medium" />
           {!isEndless && canShowRewarded() && (
@@ -633,6 +657,9 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
           </View>
         </View>
       </Modal>
+      {/* Tutorial overlay for first-time players */}
+      <TutorialOverlay visible={showTutorial} onComplete={completeTutorial} />
+
       {/* Drag overlay — floating piece following the finger */}
       {draggedPieceIndex !== null && dragPosition && gameState.availablePieces[draggedPieceIndex] && (() => {
         const dragPiece = gameState.availablePieces[draggedPieceIndex];
@@ -787,6 +814,22 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
     fontWeight: '600',
     letterSpacing: 0.5,
+  },
+  rescueCard: {
+    backgroundColor: `${COLORS.accentGold}12`,
+    borderRadius: RADII.md,
+    borderWidth: 1,
+    borderColor: `${COLORS.accentGold}30`,
+    padding: 12,
+    alignItems: 'center',
+    marginBottom: 12,
+    gap: 8,
+  },
+  rescueText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: COLORS.accentGold,
+    textAlign: 'center',
   },
   dragOverlay: {
     ...StyleSheet.absoluteFillObject,
