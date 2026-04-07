@@ -13,6 +13,7 @@ import { DailyRewardModal } from '../components/DailyRewardModal';
 import { AchievementModal } from '../components/AchievementModal';
 import { StatsModal } from '../components/StatsModal';
 import { LuckySpinModal } from '../components/LuckySpinModal';
+import { PiggyBankModal } from '../components/PiggyBankModal';
 import { GameIcon } from '../components/GameIcon';
 import { FloatingParticles } from '../components/animations/FloatingParticles';
 import { ScreenVignette } from '../components/animations/ScreenVignette';
@@ -40,13 +41,14 @@ const TITLE_BLOCKS = [
 ];
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
-  const { highestLevel, coins, gems, totalScore, currentStreak, dailyRewardLastClaimed, unlockedAchievements, checkAchievements, lastSpinDate } = usePlayerStore();
+  const { highestLevel, coins, gems, totalScore, currentStreak, dailyRewardLastClaimed, unlockedAchievements, checkAchievements, lastSpinDate, piggyBankCoins } = usePlayerStore();
   const { tutorialCompleted, completeTutorial } = useSettingsStore();
   const [showTutorial, setShowTutorial] = useState(!tutorialCompleted);
   const [showDailyReward, setShowDailyReward] = useState(false);
   const [showAchievements, setShowAchievements] = useState(false);
   const [showStats, setShowStats] = useState(false);
   const [showSpin, setShowSpin] = useState(false);
+  const [showPiggyBank, setShowPiggyBank] = useState(false);
 
   const today = new Date().toISOString().split('T')[0];
   const canSpin = lastSpinDate !== today;
@@ -322,6 +324,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             </View>
             <View style={styles.bottomButtonWrapper}>
               <Button
+                title={piggyBankCoins > 0 ? `Bank (${piggyBankCoins})` : 'Bank'}
+                onPress={() => setShowPiggyBank(true)}
+                variant={piggyBankCoins >= 100 ? 'secondary' : 'ghost'}
+                size="small"
+                style={styles.bottomButton}
+              />
+            </View>
+            <View style={styles.bottomButtonWrapper}>
+              <Button
                 title="Shop"
                 onPress={() => navigation.navigate('Shop')}
                 variant="ghost"
@@ -394,6 +405,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       <LuckySpinModal
         visible={showSpin}
         onClose={() => setShowSpin(false)}
+      />
+
+      {/* Piggy Bank modal */}
+      <PiggyBankModal
+        visible={showPiggyBank}
+        onClose={() => setShowPiggyBank(false)}
       />
     </SafeAreaView>
   );

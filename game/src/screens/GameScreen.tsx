@@ -13,6 +13,7 @@ import { PieceTray, DragEvent } from '../components/PieceTray';
 import { PieceRenderer } from '../game/rendering/PieceRenderer';
 import { Piece, getPieceCells, getPieceSize } from '../game/engine/Piece';
 import { canPlace, findBestPlacement } from '../game/engine/Board';
+import { getWorldForLevel } from '../game/levels/Worlds';
 import { ScoreDisplay } from '../components/ScoreDisplay';
 import { PowerUpBar } from '../components/PowerUpBar';
 import { CurrencyDisplay } from '../components/CurrencyDisplay';
@@ -110,6 +111,15 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
   const [draggedPieceIndex, setDraggedPieceIndex] = useState<number | null>(null);
   const [dragPosition, setDragPosition] = useState<{ x: number; y: number } | null>(null);
   const boardOriginRef = useRef<{ x: number; y: number; width: number; height: number }>({ x: 0, y: 0, width: 0, height: 0 });
+
+  // World theme for ambient visuals
+  const currentWorld = isEndless ? null : getWorldForLevel(level);
+  const worldParticleColors = currentWorld ? [
+    `${currentWorld.color}18`,
+    `${currentWorld.color}12`,
+    `${COLORS.accentGold}10`,
+    `${COLORS.accent}08`,
+  ] : undefined;
 
   // Board tension — intensifies visuals as board fills
   const { tension, level: tensionLevel } = useBoardTension(gameState?.grid);
@@ -409,12 +419,22 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
 
   const handleShare = useCallback(async () => {
     if (!gameState || !levelConfig) return;
-    const starEmojis = '⭐'.repeat(stars);
-    const message = `I scored ${gameState.score.toLocaleString()} on Level ${levelConfig.levelNumber} in Color Block Blast! ${starEmojis}\n\nCan you beat my score?`;
+    let message: string;
+    if (isEndless) {
+      message = `I scored ${gameState.score.toLocaleString()} in Zen Mode!\n\n` +
+        `Lines: ${gameState.linesCleared} | Pieces: ${gameState.piecesPlaced}\n\n` +
+        `Color Block Blast - Can you beat my score?`;
+    } else {
+      const starEmojis = '⭐'.repeat(stars);
+      const worldName = currentWorld?.name ?? '';
+      message = `I scored ${gameState.score.toLocaleString()} on Level ${levelConfig.levelNumber} ${starEmojis}\n` +
+        (worldName ? `World: ${worldName}\n` : '') +
+        `\nColor Block Blast - Can you beat my score?`;
+    }
     try {
       await Share.share({ message });
     } catch {}
-  }, [gameState, levelConfig, stars]);
+  }, [gameState, levelConfig, stars, isEndless, currentWorld]);
 
   const handleDoubleCoins = useCallback(() => {
     if (doubleCoinsUsed) return;
@@ -452,8 +472,8 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
         />
       )}
 
-      {/* Ambient particles */}
-      <FloatingParticles count={8} />
+      {/* Ambient particles — themed to current world */}
+      <FloatingParticles count={8} colors={worldParticleColors} />
 
       {/* Clear flash overlay */}
       <ClearFlash visible={showClearFlash} color={clearFlashColor} />
@@ -592,6 +612,15 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
           <GameIcon name="sparkle" size={48} color={COLORS.accentGold} />
         </View>
         <Text style={styles.modalTitle}>Level Complete!</Text>
+        {/* World unlock celebration */}
+        {!isEndless && level + 1 <= 500 && getWorldForLevel(level + 1).id !== getWorldForLevel(level).id && (
+          <View style={styles.worldUnlockBanner}>
+            <GameIcon name={getWorldForLevel(level + 1).icon as any} size={16} color={getWorldForLevel(level + 1).color} />
+            <Text style={[styles.worldUnlockText, { color: getWorldForLevel(level + 1).color }]}>
+              {getWorldForLevel(level + 1).name} Unlocked!
+            </Text>
+          </View>
+        )}
         <View style={styles.modalStars}>
           {[1, 2, 3].map((s) => (
             <GameIcon key={s} name={s <= stars ? 'star' : 'star-outline'} size={40} />
@@ -828,6 +857,23 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: COLORS.textMuted,
     fontWeight: '600',
+    letterSpacing: 0.5,
+  },
+  worldUnlockBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: `${COLORS.surface}`,
+    borderRadius: RADII.md,
+    borderWidth: 1,
+    borderColor: COLORS.surfaceBorder,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    marginBottom: 8,
+  },
+  worldUnlockText: {
+    fontSize: 14,
+    fontWeight: '800',
     letterSpacing: 0.5,
   },
   tensionVignette: {

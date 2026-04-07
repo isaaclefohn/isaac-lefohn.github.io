@@ -28,7 +28,7 @@ export function useGameEngine() {
     canUndo,
   } = useGameStore();
 
-  const { completeLevel, addCoins, updateStreak, checkAchievements, recordGamePlayed, recordZenGame, recordFailure, resetFailures } = usePlayerStore();
+  const { completeLevel, addCoins, updateStreak, checkAchievements, recordGamePlayed, recordZenGame, recordFailure, resetFailures, addPiggyBankCoins } = usePlayerStore();
 
   // Start a level by number
   const loadLevel = useCallback((levelNumber: number) => {
@@ -63,6 +63,9 @@ export function useGameEngine() {
 
       if (coinReward > 0) {
         addCoins(coinReward);
+        // Piggy bank gets 10-20% of coin reward as bonus savings
+        const piggyBonus = Math.max(1, Math.round(coinReward * (0.1 + stars * 0.03)));
+        addPiggyBankCoins(piggyBonus);
       }
 
       recordGamePlayed(gameState.combo ?? 0);

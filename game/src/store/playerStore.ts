@@ -80,6 +80,9 @@ interface PlayerStoreState {
   // Adaptive difficulty
   consecutiveFailures: number;
   lastFailedLevel: number;
+  // Piggy Bank
+  piggyBankCoins: number;
+  piggyBankLastBroken: string | null;
 }
 
 interface PlayerStore extends PlayerStoreState {
@@ -103,6 +106,8 @@ interface PlayerStore extends PlayerStoreState {
   recordSpin: () => void;
   recordFailure: (level: number) => void;
   resetFailures: () => void;
+  addPiggyBankCoins: (amount: number) => void;
+  breakPiggyBank: () => number;
 }
 
 const getToday = () => new Date().toISOString().split('T')[0];
@@ -138,6 +143,8 @@ export const usePlayerStore = create<PlayerStore>()(
       lastSpinDate: null,
       consecutiveFailures: 0,
       lastFailedLevel: 0,
+      piggyBankCoins: 0,
+      piggyBankLastBroken: null,
 
       addCoins: (amount) =>
         set((s) => ({ coins: s.coins + amount })),
@@ -309,6 +316,16 @@ export const usePlayerStore = create<PlayerStore>()(
 
       resetFailures: () => {
         set({ consecutiveFailures: 0, lastFailedLevel: 0 });
+      },
+
+      addPiggyBankCoins: (amount: number) => {
+        set((s) => ({ piggyBankCoins: s.piggyBankCoins + amount }));
+      },
+
+      breakPiggyBank: () => {
+        const { piggyBankCoins } = get();
+        set({ piggyBankCoins: 0, piggyBankLastBroken: getToday() });
+        return piggyBankCoins;
       },
     }),
     {
