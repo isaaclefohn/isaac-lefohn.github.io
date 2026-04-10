@@ -21,6 +21,7 @@ export const FEATURE_GATES: FeatureGate[] = [
   { id: 'shop', name: 'Shop', unlockLevel: 6, unlockMessage: 'Shop unlocked! Buy power-ups and customize your board.' },
   { id: 'lucky_spin', name: 'Lucky Spin', unlockLevel: 4, unlockMessage: 'Lucky Spin unlocked! Spin the wheel daily for free rewards.' },
   { id: 'piggy_bank', name: 'Piggy Bank', unlockLevel: 10, unlockMessage: 'Piggy Bank unlocked! Earn bonus savings from every level.' },
+  { id: 'weekly_challenge', name: 'Weekly Challenge', unlockLevel: 10, unlockMessage: 'Weekly Challenge unlocked! Compete on the same board every week.' },
   { id: 'friend_challenge', name: 'Friend Challenge', unlockLevel: 15, unlockMessage: 'Friend Challenges unlocked! Challenge friends to beat your score.' },
   { id: 'achievements', name: 'Achievements', unlockLevel: 7, unlockMessage: 'Achievements unlocked! Complete goals to earn rewards.' },
 ];

@@ -88,6 +88,14 @@ interface PlayerStoreState {
   battlePassPremium: boolean;
   battlePassClaimedTiers: number[];
   battlePassSeason: number;
+  // Weekly Challenge
+  weeklyBestScore: number;
+  weeklyBestStars: number;
+  weeklyLastWeekId: string | null;
+  // Gift Box
+  lastGiftDate: string | null;
+  gamesPlayedToday: number;
+  gamesPlayedDate: string | null;
 }
 
 interface PlayerStore extends PlayerStoreState {
@@ -116,6 +124,11 @@ interface PlayerStore extends PlayerStoreState {
   addBattlePassXP: (amount: number) => void;
   claimBattlePassTier: (tier: number) => void;
   upgradeBattlePass: () => void;
+  // Weekly Challenge
+  completeWeeklyChallenge: (weekId: string, stars: number, score: number) => void;
+  // Gift Box
+  claimGift: () => void;
+  incrementGamesPlayedToday: () => void;
 }
 
 const getToday = () => new Date().toISOString().split('T')[0];
@@ -157,6 +170,12 @@ export const usePlayerStore = create<PlayerStore>()(
       battlePassPremium: false,
       battlePassClaimedTiers: [],
       battlePassSeason: 1,
+      weeklyBestScore: 0,
+      weeklyBestStars: 0,
+      weeklyLastWeekId: null,
+      lastGiftDate: null,
+      gamesPlayedToday: 0,
+      gamesPlayedDate: null,
 
       addCoins: (amount) =>
         set((s) => ({ coins: s.coins + amount })),
@@ -352,6 +371,26 @@ export const usePlayerStore = create<PlayerStore>()(
 
       upgradeBattlePass: () => {
         set({ battlePassPremium: true });
+      },
+
+      completeWeeklyChallenge: (weekId: string, stars: number, score: number) => {
+        set((s) => ({
+          weeklyBestScore: s.weeklyLastWeekId === weekId ? Math.max(s.weeklyBestScore, score) : score,
+          weeklyBestStars: s.weeklyLastWeekId === weekId ? Math.max(s.weeklyBestStars, stars) : stars,
+          weeklyLastWeekId: weekId,
+        }));
+      },
+
+      claimGift: () => {
+        set({ lastGiftDate: getToday() });
+      },
+
+      incrementGamesPlayedToday: () => {
+        const today = getToday();
+        set((s) => ({
+          gamesPlayedToday: s.gamesPlayedDate === today ? s.gamesPlayedToday + 1 : 1,
+          gamesPlayedDate: today,
+        }));
       },
     }),
     {

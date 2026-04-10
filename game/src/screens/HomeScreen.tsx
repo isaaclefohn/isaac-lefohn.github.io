@@ -14,9 +14,13 @@ import { AchievementModal } from '../components/AchievementModal';
 import { StatsModal } from '../components/StatsModal';
 import { LuckySpinModal } from '../components/LuckySpinModal';
 import { PiggyBankModal } from '../components/PiggyBankModal';
+import { GiftBoxModal } from '../components/GiftBoxModal';
+import { PlayerProfileCard } from '../components/PlayerProfileCard';
 import { GameIcon } from '../components/GameIcon';
 import { EventBanner } from '../components/EventBanner';
 import { isFeatureUnlocked, getNextUnlock } from '../game/progression/FeatureGating';
+import { shouldShowGift, generateGiftBox, GiftBox } from '../game/rewards/GiftBox';
+import { getActiveSeasonalTheme } from '../game/themes/SeasonalThemes';
 import { FloatingParticles } from '../components/animations/FloatingParticles';
 import { ScreenVignette } from '../components/animations/ScreenVignette';
 import { requestNotificationPermissions, scheduleStreakReminder, scheduleRetentionNotifications, clearBadge } from '../services/notifications';
@@ -43,7 +47,7 @@ const TITLE_BLOCKS = [
 ];
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
-  const { highestLevel, coins, gems, totalScore, currentStreak, dailyRewardLastClaimed, unlockedAchievements, checkAchievements, lastSpinDate, piggyBankCoins } = usePlayerStore();
+  const { highestLevel, coins, gems, totalScore, currentStreak, dailyRewardLastClaimed, unlockedAchievements, checkAchievements, lastSpinDate, piggyBankCoins, lastGiftDate, gamesPlayedToday, claimGift } = usePlayerStore();
   const { tutorialCompleted, completeTutorial, notificationsEnabled } = useSettingsStore();
   const [showTutorial, setShowTutorial] = useState(!tutorialCompleted);
   const [showDailyReward, setShowDailyReward] = useState(false);
@@ -51,6 +55,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const [showStats, setShowStats] = useState(false);
   const [showSpin, setShowSpin] = useState(false);
   const [showPiggyBank, setShowPiggyBank] = useState(false);
+  const [showGiftBox, setShowGiftBox] = useState(false);
+  const [currentGift, setCurrentGift] = useState<GiftBox | null>(null);
+  const [showProfile, setShowProfile] = useState(false);
+
+  const seasonalTheme = getActiveSeasonalTheme();
 
   const today = new Date().toISOString().split('T')[0];
   const canSpin = lastSpinDate !== today;
@@ -64,7 +73,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     }
   }, [dailyRewardLastClaimed, showTutorial]);
 
-  // Check achievements and set up notifications when screen loads
+  // Check achievements, notifications, and gift box on screen load
   useEffect(() => {
     checkAchievements();
     // Request notification permissions (non-blocking)
@@ -72,12 +81,17 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     // Clear badge on app open
     clearBadge().catch(() => {});
     if (notificationsEnabled) {
-      // Schedule streak reminder if player has an active streak
       if (currentStreak >= 2) {
         scheduleStreakReminder(currentStreak).catch(() => {});
       }
-      // Schedule retention notifications (re-engagement at 2hr, 24hr, 72hr)
       scheduleRetentionNotifications().catch(() => {});
+    }
+    // Check for gift box eligibility
+    if (shouldShowGift(highestLevel, gamesPlayedToday, lastGiftDate)) {
+      const gift = generateGiftBox(highestLevel);
+      setCurrentGift(gift);
+      const timer = setTimeout(() => setShowGiftBox(true), 1500);
+      return () => clearTimeout(timer);
     }
   }, []);
 
@@ -292,12 +306,31 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             <Animated.View style={[styles.playGlowOuter, { opacity: Animated.multiply(playGlowPulse, 0.5) }]} />
           </View>
 
-          {/* Secondary row - Daily Challenge + Level Select + Zen */}
+          {/* Seasonal theme indicator */}
+          {seasonalTheme && (
+            <View style={[styles.seasonBanner, { borderColor: `${seasonalTheme.accent}40` }]}>
+              <GameIcon name={seasonalTheme.icon as any} size={14} color={seasonalTheme.accent} />
+              <Text style={[styles.seasonText, { color: seasonalTheme.accent }]}>
+                {seasonalTheme.name} Event
+              </Text>
+            </View>
+          )}
+
+          {/* Secondary row - Daily Challenge + Weekly + Level Select + Zen */}
           <View style={styles.secondaryRow}>
             {isFeatureUnlocked('daily_challenge', highestLevel) && (
               <Button
                 title="Daily"
                 onPress={() => navigation.navigate('DailyChallenge')}
+                variant="secondary"
+                size="medium"
+                style={styles.thirdButton}
+              />
+            )}
+            {isFeatureUnlocked('weekly_challenge', highestLevel) && (
+              <Button
+                title="Weekly"
+                onPress={() => navigation.navigate('WeeklyChallenge')}
                 variant="secondary"
                 size="medium"
                 style={styles.thirdButton}
@@ -383,6 +416,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             )}
             <View style={styles.bottomButtonWrapper}>
               <Button
+                title="Profile"
+                onPress={() => setShowProfile(true)}
+                variant="ghost"
+                size="small"
+                style={styles.bottomButton}
+              />
+            </View>
+            <View style={styles.bottomButtonWrapper}>
+              <Button
                 title="Settings"
                 onPress={() => navigation.navigate('Settings')}
                 variant="ghost"
@@ -444,6 +486,22 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       <PiggyBankModal
         visible={showPiggyBank}
         onClose={() => setShowPiggyBank(false)}
+      />
+
+      {/* Gift Box modal */}
+      <GiftBoxModal
+        visible={showGiftBox}
+        gift={currentGift}
+        onClose={() => {
+          setShowGiftBox(false);
+          claimGift();
+        }}
+      />
+
+      {/* Player Profile modal */}
+      <PlayerProfileCard
+        visible={showProfile}
+        onClose={() => setShowProfile(false)}
       />
     </SafeAreaView>
   );
@@ -663,6 +721,22 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '600',
     color: COLORS.textMuted,
+    letterSpacing: 0.5,
+  },
+  seasonBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    borderRadius: RADII.round,
+    borderWidth: 1,
+    marginBottom: SPACING.xs,
+  },
+  seasonText: {
+    fontSize: 12,
+    fontWeight: '800',
     letterSpacing: 0.5,
   },
 });

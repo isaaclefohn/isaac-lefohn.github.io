@@ -10,6 +10,7 @@ import { getLevel, getEndlessConfig } from '../game/levels/LevelGenerator';
 import { calculateCoinReward } from '../game/engine/Scoring';
 import { getScoreMultiplier, getXPMultiplier, getCoinMultiplier } from '../game/events/LiveEvents';
 import { recordCompletionForRating, maybePromptRating } from '../services/appRating';
+import { getWeeklyChallengeConfig, getCurrentWeekId, WEEKLY_COIN_REWARDS, WEEKLY_GEM_BONUS } from '../game/challenges/WeeklyChallenge';
 
 export function useGameEngine() {
   const {
@@ -31,12 +32,17 @@ export function useGameEngine() {
     continueGame,
   } = useGameStore();
 
-  const { completeLevel, addCoins, updateStreak, checkAchievements, recordGamePlayed, recordZenGame, recordFailure, resetFailures, addPiggyBankCoins, addBattlePassXP } = usePlayerStore();
+  const { completeLevel, addCoins, addGems, updateStreak, checkAchievements, recordGamePlayed, recordZenGame, recordFailure, resetFailures, addPiggyBankCoins, addBattlePassXP, completeWeeklyChallenge, incrementGamesPlayedToday } = usePlayerStore();
 
-  // Start a level by number
+  // Start a level by number (negative = weekly challenge)
   const loadLevel = useCallback((levelNumber: number) => {
-    const config = getLevel(levelNumber);
-    startLevel(config);
+    if (levelNumber === -1) {
+      const config = getWeeklyChallengeConfig();
+      startLevel(config);
+    } else {
+      const config = getLevel(levelNumber);
+      startLevel(config);
+    }
     updateStreak();
   }, [startLevel, updateStreak]);
 
@@ -52,42 +58,55 @@ export function useGameEngine() {
     if (!gameState || !levelConfig) return;
 
     const isZen = levelConfig.levelNumber === 0;
+    const isWeekly = levelConfig.levelNumber === -1;
 
     if (gameState.status === 'won') {
       const stars = getStars();
-      const coinReward = calculateCoinReward(stars);
-
-      completeLevel(
-        levelConfig.levelNumber,
-        stars,
-        gameState.score,
-        gameState.linesCleared
-      );
-
-      // Apply live event multipliers
       const coinMult = getCoinMultiplier();
       const xpMult = getXPMultiplier();
 
-      if (coinReward > 0) {
-        const boostedCoins = Math.round(coinReward * coinMult);
-        addCoins(boostedCoins);
-        // Piggy bank gets 10-20% of coin reward as bonus savings
-        const piggyBonus = Math.max(1, Math.round(boostedCoins * (0.1 + stars * 0.03)));
-        addPiggyBankCoins(piggyBonus);
+      if (isWeekly) {
+        // Weekly challenge completion
+        const weekId = getCurrentWeekId();
+        completeWeeklyChallenge(weekId, stars, gameState.score);
+        const weeklyCoins = WEEKLY_COIN_REWARDS[stars as 1 | 2 | 3] ?? 0;
+        if (weeklyCoins > 0) {
+          addCoins(Math.round(weeklyCoins * coinMult));
+        }
+        if (stars === 3) {
+          addGems(WEEKLY_GEM_BONUS);
+        }
+        addBattlePassXP(Math.round(75 * xpMult)); // Weekly challenge XP bonus
+      } else {
+        // Normal level completion
+        const coinReward = calculateCoinReward(stars);
+        completeLevel(
+          levelConfig.levelNumber,
+          stars,
+          gameState.score,
+          gameState.linesCleared
+        );
+
+        if (coinReward > 0) {
+          const boostedCoins = Math.round(coinReward * coinMult);
+          addCoins(boostedCoins);
+          const piggyBonus = Math.max(1, Math.round(boostedCoins * (0.1 + stars * 0.03)));
+          addPiggyBankCoins(piggyBonus);
+        }
+
+        // Battle Pass XP: 50 base + 15 per star + 5 per line cleared (with event boost)
+        const bpXP = Math.round((50 + stars * 15 + Math.min(gameState.linesCleared * 5, 100)) * xpMult);
+        addBattlePassXP(bpXP);
       }
 
       recordGamePlayed(gameState.combo ?? 0);
+      incrementGamesPlayedToday();
       resetFailures();
-
-      // Battle Pass XP: 50 base + 15 per star + 5 per line cleared (with event boost)
-      const bpXP = Math.round((50 + stars * 15 + Math.min(gameState.linesCleared * 5, 100)) * xpMult);
-      addBattlePassXP(bpXP);
-
       checkAchievements();
 
       // Track for app rating prompt — prompt after 3-star wins
       recordCompletionForRating().catch(() => {});
-      if (stars === 3) {
+      if (stars === 3 && !isWeekly) {
         setTimeout(() => {
           maybePromptRating(levelConfig.levelNumber).catch(() => {});
         }, 2000);
@@ -95,13 +114,18 @@ export function useGameEngine() {
     } else if (gameState.status === 'lost') {
       if (isZen) {
         recordZenGame(gameState.score, gameState.linesCleared, gameState.combo ?? 0);
-        // Zen mode XP: 20 base + lines bonus (with event boost)
         const zenXpMult = getXPMultiplier();
         addBattlePassXP(Math.round((20 + Math.min(gameState.linesCleared * 3, 60)) * zenXpMult));
+      } else if (isWeekly) {
+        // Weekly challenge loss still records score
+        const weekId = getCurrentWeekId();
+        completeWeeklyChallenge(weekId, 0, gameState.score);
+        recordGamePlayed(gameState.combo ?? 0);
       } else {
         recordGamePlayed(gameState.combo ?? 0);
         recordFailure(levelConfig.levelNumber);
       }
+      incrementGamesPlayedToday();
       checkAchievements();
     }
   }, [gameState?.status]); // eslint-disable-line react-hooks/exhaustive-deps

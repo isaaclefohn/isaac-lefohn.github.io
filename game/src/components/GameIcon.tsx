@@ -44,7 +44,8 @@ export type IconName =
   | 'shield'
   | 'home'
   | 'back'
-  | 'gamepad';
+  | 'gamepad'
+  | 'clock';
 
 interface GameIconProps {
   name: IconName;
@@ -774,6 +775,41 @@ export const GameIcon: React.FC<GameIconProps> = ({ name, size = 20, color }) =>
               <View style={{ width: s * 0.08, height: s * 0.08, borderRadius: s * 0.04, backgroundColor: COLORS.accentGold }} />
               <View style={{ width: s * 0.08, height: s * 0.08, borderRadius: s * 0.04, backgroundColor: COLORS.info }} />
             </View>
+          </View>
+        </View>
+      );
+
+    case 'clock':
+      return (
+        <View style={[iconStyles.center, { width: s, height: s }]}>
+          <View style={{
+            width: s * 0.7, height: s * 0.7,
+            borderRadius: s * 0.35,
+            borderWidth: s * 0.07,
+            borderColor: color || COLORS.textSecondary,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+            {/* Minute hand */}
+            <View style={{
+              width: s * 0.06,
+              height: s * 0.22,
+              backgroundColor: color || COLORS.textSecondary,
+              borderRadius: s * 0.03,
+              position: 'absolute',
+              bottom: '50%',
+            }} />
+            {/* Hour hand */}
+            <View style={{
+              width: s * 0.06,
+              height: s * 0.16,
+              backgroundColor: color || COLORS.textSecondary,
+              borderRadius: s * 0.03,
+              position: 'absolute',
+              right: '50%',
+              transform: [{ rotate: '90deg' }],
+              transformOrigin: 'right center',
+            }} />
           </View>
         </View>
       );
