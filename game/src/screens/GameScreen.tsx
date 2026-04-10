@@ -21,6 +21,7 @@ import { GameIcon } from '../components/GameIcon';
 import { Button } from '../components/common/Button';
 import { Modal } from '../components/common/Modal';
 import { ScorePopup } from '../components/animations/ScorePopup';
+import { ScoreFlyUp } from '../components/animations/ScoreFlyUp';
 import { ComboBanner } from '../components/animations/ComboBanner';
 import { Confetti } from '../components/animations/Confetti';
 import { PowerUpType, previewBomb, previewRowClear, previewColorClear } from '../game/powerups/PowerUpManager';
@@ -118,6 +119,9 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
   const [unlockedFeature, setUnlockedFeature] = useState<FeatureGate | null>(null);
   const [showFeatureUnlock, setShowFeatureUnlock] = useState(false);
   const [powerUpPreview, setPowerUpPreview] = useState<{ row: number; col: number; colorIndex: number }[]>([]);
+  const [flyUpData, setFlyUpData] = useState<{ points: number; row: number; col: number; isCombo: boolean; key: number } | null>(null);
+  const flyUpKeyRef = useRef(0);
+  const lastPlacementRef = useRef<{ row: number; col: number }>({ row: 4, col: 4 });
 
   // Drag-and-drop state
   const [draggedPieceIndex, setDraggedPieceIndex] = useState<number | null>(null);
@@ -202,6 +206,18 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
       setLastPoints(event.points);
       setLastCombo(event.combo);
       setShowScorePopup(true);
+
+      // Show fly-up at placement position
+      if (event.breakdown.clearBonus > 0) {
+        flyUpKeyRef.current++;
+        setFlyUpData({
+          points: event.points,
+          row: lastPlacementRef.current.row,
+          col: lastPlacementRef.current.col,
+          isCombo: event.combo > 1,
+          key: flyUpKeyRef.current,
+        });
+      }
 
       if (event.perfectClear) {
         playSound('combo');
@@ -340,6 +356,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
     if (selectedPieceIndex === null) return;
     const success = placePiece(selectedPieceIndex, row, col);
     if (success) {
+      lastPlacementRef.current = { row, col };
       playPlacement(col, gameState.gridSize);
       pulseBoard();
       setGhostCells([]);
@@ -422,6 +439,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
       if (canPlace(gameState.grid, piece, row, col)) {
         const success = placePiece(event.pieceIndex, row, col);
         if (success) {
+          lastPlacementRef.current = { row, col };
           playPlacement(col, gameState.gridSize);
           pulseBoard();
         }
@@ -602,6 +620,16 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
         />
         <ComboBanner combo={lastCombo} visible={showComboBanner} />
         <ComboDisplay combo={gameState.combo} multiplier={gameState.lastScoreEvent?.multiplier ?? 1} />
+        {flyUpData && (
+          <ScoreFlyUp
+            key={flyUpData.key}
+            points={flyUpData.points}
+            row={flyUpData.row}
+            col={flyUpData.col}
+            isCombo={flyUpData.isCombo}
+            onComplete={() => setFlyUpData(null)}
+          />
+        )}
         <MilestoneBanner message={milestoneMsg} visible={showMilestone} />
       </Animated.View>
 
@@ -690,6 +718,9 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
         <View style={styles.odometerWrap}>
           <ScoreOdometer value={gameState.score} fontSize={36} color={COLORS.textPrimary} />
         </View>
+        {!isEndless && gameState.score > (levelHighScores[level] ?? 0) && (levelHighScores[level] ?? 0) > 0 && (
+          <Text style={styles.newBestLabel}>NEW BEST!</Text>
+        )}
         <View style={styles.rewardRow}>
           <Text style={styles.rewardText}>+{calculateCoinReward(stars)}{doubleCoinsUsed ? ' x2!' : ''}</Text>
           <GameIcon name="coin" size={18} />
@@ -1034,5 +1065,12 @@ const styles = StyleSheet.create({
   odometerWrap: {
     marginBottom: 4,
     alignItems: 'center',
+  },
+  newBestLabel: {
+    fontSize: 12,
+    fontWeight: '900',
+    color: COLORS.accentGold,
+    letterSpacing: 2,
+    marginBottom: 4,
   },
 });
