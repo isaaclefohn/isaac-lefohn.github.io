@@ -29,6 +29,9 @@ import { FloatingParticles } from '../components/animations/FloatingParticles';
 import { ClearFlash } from '../components/animations/ClearFlash';
 import { ScreenVignette } from '../components/animations/ScreenVignette';
 import { TutorialOverlay } from '../components/TutorialOverlay';
+import { ComboDisplay } from '../components/ComboDisplay';
+import { ScoreOdometer } from '../components/ScoreOdometer';
+import { getActiveEvents } from '../game/events/LiveEvents';
 import { useSettingsStore } from '../store/settingsStore';
 import { CELL_SIZE, CELL_GAP, COLORS, SHADOWS, RADII, SPACING } from '../utils/constants';
 import { formatScore } from '../utils/formatters';
@@ -490,11 +493,24 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
       {/* Confetti overlay */}
       <Confetti visible={showConfetti} />
 
+      {/* Live event indicator */}
+      {getActiveEvents().length > 0 && (
+        <View style={styles.eventIndicator}>
+          <View style={[styles.eventDot, { backgroundColor: getActiveEvents()[0].color }]} />
+          <Text style={[styles.eventIndicatorText, { color: getActiveEvents()[0].color }]}>
+            {getActiveEvents()[0].name}
+          </Text>
+        </View>
+      )}
+
       {/* Header */}
       <View style={styles.header}>
         <Button title={'\u2039'} onPress={handleHome} variant="ghost" size="small" />
         <CurrencyDisplay coins={coins} gems={gems} compact />
-        <Button title={'\u23F8'} onPress={handlePause} variant="ghost" size="small" />
+        <View style={styles.headerRight}>
+          <Button title={'\u21BB'} onPress={handleRetry} variant="ghost" size="small" />
+          <Button title={'\u23F8'} onPress={handlePause} variant="ghost" size="small" />
+        </View>
       </View>
 
       {/* Score display */}
@@ -550,6 +566,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
           onComplete={() => setShowScorePopup(false)}
         />
         <ComboBanner combo={lastCombo} visible={showComboBanner} />
+        <ComboDisplay combo={gameState.combo} multiplier={gameState.lastScoreEvent?.multiplier ?? 1} />
         <MilestoneBanner message={milestoneMsg} visible={showMilestone} />
       </Animated.View>
 
@@ -635,7 +652,9 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
             <GameIcon key={s} name={s <= stars ? 'star' : 'star-outline'} size={40} />
           ))}
         </View>
-        <Text style={styles.modalScore}>{formatScore(gameState.score)}</Text>
+        <View style={styles.odometerWrap}>
+          <ScoreOdometer value={gameState.score} fontSize={36} color={COLORS.textPrimary} />
+        </View>
         <View style={styles.rewardRow}>
           <Text style={styles.rewardText}>+{calculateCoinReward(stars)}{doubleCoinsUsed ? ' x2!' : ''}</Text>
           <GameIcon name="coin" size={18} />
@@ -937,5 +956,32 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     zIndex: 9999,
     elevation: 9999,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+  },
+  eventIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 3,
+  },
+  eventDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  eventIndicatorText: {
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  odometerWrap: {
+    marginBottom: 4,
+    alignItems: 'center',
   },
 });

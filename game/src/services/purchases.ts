@@ -89,13 +89,13 @@ export const PRODUCTS: Product[] = [
   {
     id: 'com.isaaclefohn.colorblockblast.starter_pack',
     title: 'Starter Pack',
-    description: '2,000 coins, 200 gems, 3x each power-up',
+    description: 'No ads + 2,000 coins, 200 gems, 3x each power-up',
     price: '$4.99',
     type: 'non_consumable',
     reward: {
       type: 'bundle',
       amount: 1,
-      bonus: { coins: 2000, gems: 200, bomb: 3, rowClear: 3, colorClear: 3 },
+      bonus: { coins: 2000, gems: 200, bomb: 3, rowClear: 3, colorClear: 3, adFree: 1 },
     },
     badge: 'starter',
   },

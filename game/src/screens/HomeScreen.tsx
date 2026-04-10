@@ -15,6 +15,7 @@ import { StatsModal } from '../components/StatsModal';
 import { LuckySpinModal } from '../components/LuckySpinModal';
 import { PiggyBankModal } from '../components/PiggyBankModal';
 import { GameIcon } from '../components/GameIcon';
+import { EventBanner } from '../components/EventBanner';
 import { FloatingParticles } from '../components/animations/FloatingParticles';
 import { ScreenVignette } from '../components/animations/ScreenVignette';
 import { requestNotificationPermissions, scheduleStreakReminder, clearBadge } from '../services/notifications';
@@ -310,6 +311,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
               style={styles.thirdButton}
             />
           </View>
+
+          {/* Live event banners */}
+          <EventBanner />
 
           {/* Bottom row - Spin, Shop, Trophies, Rankings, Settings */}
           <View style={styles.bottomRow}>

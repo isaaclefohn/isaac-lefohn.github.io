@@ -8,6 +8,7 @@ import { useGameStore } from '../store/gameStore';
 import { usePlayerStore } from '../store/playerStore';
 import { getLevel, getEndlessConfig } from '../game/levels/LevelGenerator';
 import { calculateCoinReward } from '../game/engine/Scoring';
+import { getScoreMultiplier, getXPMultiplier, getCoinMultiplier } from '../game/events/LiveEvents';
 
 export function useGameEngine() {
   const {
@@ -62,26 +63,32 @@ export function useGameEngine() {
         gameState.linesCleared
       );
 
+      // Apply live event multipliers
+      const coinMult = getCoinMultiplier();
+      const xpMult = getXPMultiplier();
+
       if (coinReward > 0) {
-        addCoins(coinReward);
+        const boostedCoins = Math.round(coinReward * coinMult);
+        addCoins(boostedCoins);
         // Piggy bank gets 10-20% of coin reward as bonus savings
-        const piggyBonus = Math.max(1, Math.round(coinReward * (0.1 + stars * 0.03)));
+        const piggyBonus = Math.max(1, Math.round(boostedCoins * (0.1 + stars * 0.03)));
         addPiggyBankCoins(piggyBonus);
       }
 
       recordGamePlayed(gameState.combo ?? 0);
       resetFailures();
 
-      // Battle Pass XP: 50 base + 15 per star + 5 per line cleared
-      const bpXP = 50 + stars * 15 + Math.min(gameState.linesCleared * 5, 100);
+      // Battle Pass XP: 50 base + 15 per star + 5 per line cleared (with event boost)
+      const bpXP = Math.round((50 + stars * 15 + Math.min(gameState.linesCleared * 5, 100)) * xpMult);
       addBattlePassXP(bpXP);
 
       checkAchievements();
     } else if (gameState.status === 'lost') {
       if (isZen) {
         recordZenGame(gameState.score, gameState.linesCleared, gameState.combo ?? 0);
-        // Zen mode XP: 20 base + lines bonus
-        addBattlePassXP(20 + Math.min(gameState.linesCleared * 3, 60));
+        // Zen mode XP: 20 base + lines bonus (with event boost)
+        const zenXpMult = getXPMultiplier();
+        addBattlePassXP(Math.round((20 + Math.min(gameState.linesCleared * 3, 60)) * zenXpMult));
       } else {
         recordGamePlayed(gameState.combo ?? 0);
         recordFailure(levelConfig.levelNumber);

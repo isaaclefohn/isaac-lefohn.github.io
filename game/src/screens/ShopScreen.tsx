@@ -226,6 +226,7 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({ navigation }) => {
                 if (b.bomb) player.addPowerUp('bomb', b.bomb);
                 if (b.rowClear) player.addPowerUp('rowClear', b.rowClear);
                 if (b.colorClear) player.addPowerUp('colorClear', b.colorClear);
+                if (b.adFree) player.setAdFree(true);
               }
             }
           },
