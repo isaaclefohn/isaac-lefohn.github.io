@@ -118,6 +118,9 @@ interface PlayerStoreState {
   // World Completion
   claimedWorldClears: number[];
   claimedWorldPerfects: number[];
+  // Login Calendar
+  calendarLastDay: number;
+  calendarMonth: string | null;
 }
 
 interface PlayerStore extends PlayerStoreState {
@@ -173,6 +176,8 @@ interface PlayerStore extends PlayerStoreState {
   // World Completion
   claimWorldClear: (worldId: number) => void;
   claimWorldPerfect: (worldId: number) => void;
+  // Login Calendar
+  claimCalendarDay: (day: number, month: string) => void;
 }
 
 const getToday = () => new Date().toISOString().split('T')[0];
@@ -234,6 +239,8 @@ export const usePlayerStore = create<PlayerStore>()(
       powerUpLevels: { bomb: 1, rowClear: 1, colorClear: 1 },
       claimedWorldClears: [],
       claimedWorldPerfects: [],
+      calendarLastDay: 0,
+      calendarMonth: null,
 
       addCoins: (amount) =>
         set((s) => ({ coins: s.coins + amount })),
@@ -551,6 +558,10 @@ export const usePlayerStore = create<PlayerStore>()(
             ? s.claimedWorldPerfects
             : [...s.claimedWorldPerfects, worldId],
         }));
+      },
+
+      claimCalendarDay: (day: number, month: string) => {
+        set({ calendarLastDay: day, calendarMonth: month });
       },
     }),
     {

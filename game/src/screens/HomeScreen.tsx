@@ -32,6 +32,7 @@ import { checkStickerUnlocks } from '../game/systems/StickerAlbum';
 import { SkillRatingDisplay } from '../components/SkillRatingDisplay';
 import { AchievementShowcase } from '../components/AchievementShowcase';
 import { OfflineRewardModal } from '../components/OfflineRewardModal';
+import { LoginCalendarModal } from '../components/LoginCalendarModal';
 import { calculateOfflineReward, OfflineReward } from '../game/rewards/OfflineRewards';
 import { FloatingParticles } from '../components/animations/FloatingParticles';
 import { ScreenVignette } from '../components/animations/ScreenVignette';
@@ -77,6 +78,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const [showAlbum, setShowAlbum] = useState(false);
   const [showShowcase, setShowShowcase] = useState(false);
   const [showOfflineReward, setShowOfflineReward] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
   const [offlineReward, setOfflineReward] = useState<OfflineReward | null>(null);
 
   const seasonalTheme = getActiveSeasonalTheme();
@@ -511,6 +513,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             )}
             <View style={styles.bottomButtonWrapper}>
               <Button
+                title="Calendar"
+                onPress={() => setShowCalendar(true)}
+                variant="ghost"
+                size="small"
+                style={styles.bottomButton}
+              />
+            </View>
+            <View style={styles.bottomButtonWrapper}>
+              <Button
                 title="Profile"
                 onPress={() => setShowProfile(true)}
                 variant="ghost"
@@ -610,6 +621,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       <StickerAlbumModal
         visible={showAlbum}
         onClose={() => setShowAlbum(false)}
+      />
+
+      {/* Login calendar modal */}
+      <LoginCalendarModal
+        visible={showCalendar}
+        onClose={() => setShowCalendar(false)}
       />
 
       {/* Offline reward modal */}
