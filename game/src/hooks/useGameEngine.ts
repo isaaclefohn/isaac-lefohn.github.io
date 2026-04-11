@@ -12,6 +12,7 @@ import { getScoreMultiplier, getXPMultiplier, getCoinMultiplier } from '../game/
 import { recordCompletionForRating, maybePromptRating } from '../services/appRating';
 import { getWeeklyChallengeConfig, getCurrentWeekId, WEEKLY_COIN_REWARDS, WEEKLY_GEM_BONUS } from '../game/challenges/WeeklyChallenge';
 import { calculateSRChange } from '../game/systems/SkillRating';
+import { calculateReplayReward } from '../game/rewards/ReplayRewards';
 
 export function useGameEngine() {
   const {
@@ -33,7 +34,7 @@ export function useGameEngine() {
     continueGame,
   } = useGameStore();
 
-  const { completeLevel, addCoins, addGems, updateStreak, checkAchievements, recordGamePlayed, recordZenGame, recordFailure, resetFailures, addPiggyBankCoins, addBattlePassXP, completeWeeklyChallenge, incrementGamesPlayedToday, updateQuestProgress, updateSkillRating, skillRating } = usePlayerStore();
+  const { completeLevel, addCoins, addGems, updateStreak, checkAchievements, recordGamePlayed, recordZenGame, recordFailure, resetFailures, addPiggyBankCoins, addBattlePassXP, completeWeeklyChallenge, incrementGamesPlayedToday, updateQuestProgress, updateSkillRating, skillRating, levelHighScores, levelStars } = usePlayerStore();
 
   // Start a level by number (negative = weekly challenge)
   const loadLevel = useCallback((levelNumber: number) => {
@@ -98,6 +99,22 @@ export function useGameEngine() {
         // Battle Pass XP: 50 base + 15 per star + 5 per line cleared (with event boost)
         const bpXP = Math.round((50 + stars * 15 + Math.min(gameState.linesCleared * 5, 100)) * xpMult);
         addBattlePassXP(bpXP);
+
+        // Replay reward — bonus coins for improving on a previously completed level
+        const prevBest = levelHighScores[levelConfig.levelNumber] ?? 0;
+        const prevStars = levelStars[levelConfig.levelNumber] ?? 0;
+        if (prevBest > 0) {
+          const replayReward = calculateReplayReward({
+            newScore: gameState.score,
+            previousBestScore: prevBest,
+            newStars: stars,
+            previousBestStars: prevStars,
+            threeStarThreshold: levelConfig.starThresholds?.[2] ?? 0,
+          });
+          if (replayReward) {
+            addCoins(replayReward.coins);
+          }
+        }
       }
 
       recordGamePlayed(gameState.combo ?? 0);

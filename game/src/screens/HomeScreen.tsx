@@ -31,6 +31,8 @@ import { StickerAlbumModal } from '../components/StickerAlbumModal';
 import { checkStickerUnlocks } from '../game/systems/StickerAlbum';
 import { SkillRatingDisplay } from '../components/SkillRatingDisplay';
 import { AchievementShowcase } from '../components/AchievementShowcase';
+import { OfflineRewardModal } from '../components/OfflineRewardModal';
+import { calculateOfflineReward, OfflineReward } from '../game/rewards/OfflineRewards';
 import { FloatingParticles } from '../components/animations/FloatingParticles';
 import { ScreenVignette } from '../components/animations/ScreenVignette';
 import { requestNotificationPermissions, scheduleStreakReminder, scheduleRetentionNotifications, clearBadge } from '../services/notifications';
@@ -57,7 +59,7 @@ const TITLE_BLOCKS = [
 ];
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
-  const { highestLevel, coins, gems, totalScore, currentStreak, dailyRewardLastClaimed, unlockedAchievements, checkAchievements, lastSpinDate, piggyBankCoins, lastGiftDate, gamesPlayedToday, claimGift, lastPlayDate, collectedStickers, collectSticker, totalLinesCleared, bestCombo, totalGamesPlayed, longestStreak } = usePlayerStore();
+  const { highestLevel, coins, gems, totalScore, currentStreak, dailyRewardLastClaimed, unlockedAchievements, checkAchievements, lastSpinDate, piggyBankCoins, lastGiftDate, gamesPlayedToday, claimGift, lastPlayDate, collectedStickers, collectSticker, totalLinesCleared, bestCombo, totalGamesPlayed, longestStreak, addCoins } = usePlayerStore();
   const { tutorialCompleted, completeTutorial, notificationsEnabled, comebackShownDate, setComebackShownDate } = useSettingsStore();
   const [showTutorial, setShowTutorial] = useState(!tutorialCompleted);
   const [showDailyReward, setShowDailyReward] = useState(false);
@@ -74,6 +76,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const [streakMilestone, setStreakMilestone] = useState<StreakMilestone | null>(null);
   const [showAlbum, setShowAlbum] = useState(false);
   const [showShowcase, setShowShowcase] = useState(false);
+  const [showOfflineReward, setShowOfflineReward] = useState(false);
+  const [offlineReward, setOfflineReward] = useState<OfflineReward | null>(null);
 
   const seasonalTheme = getActiveSeasonalTheme();
 
@@ -131,6 +135,17 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         setComebackReward(reward);
         const timer = setTimeout(() => setShowComeback(true), 2000);
         setComebackShownDate(today);
+        return () => clearTimeout(timer);
+      }
+    }
+    // Check for offline/idle rewards (>30 min away)
+    if (lastPlayDate) {
+      const lastPlayMs = new Date(lastPlayDate).getTime();
+      const nowMs = Date.now();
+      const reward = calculateOfflineReward(lastPlayMs, nowMs, highestLevel);
+      if (reward) {
+        setOfflineReward(reward);
+        const timer = setTimeout(() => setShowOfflineReward(true), 2500);
         return () => clearTimeout(timer);
       }
     }
@@ -595,6 +610,18 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       <StickerAlbumModal
         visible={showAlbum}
         onClose={() => setShowAlbum(false)}
+      />
+
+      {/* Offline reward modal */}
+      <OfflineRewardModal
+        visible={showOfflineReward}
+        reward={offlineReward}
+        onClaim={() => {
+          if (offlineReward) {
+            addCoins(offlineReward.coins);
+          }
+          setShowOfflineReward(false);
+        }}
       />
 
       {/* Achievement Showcase modal */}
