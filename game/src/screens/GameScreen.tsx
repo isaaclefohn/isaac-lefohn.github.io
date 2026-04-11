@@ -41,6 +41,8 @@ import { GameTip, TipId } from '../components/GameTip';
 import { isBossLevel } from '../game/levels/LevelGenerator';
 import { getLuckyLevelReward, LuckyLevelReward } from '../game/rewards/LuckyLevel';
 import { LuckyLevelModal } from '../components/LuckyLevelModal';
+import { WorldCompleteModal } from '../components/WorldCompleteModal';
+import { getWorldCompletionStatus, getWorldReward, WorldReward } from '../game/rewards/WorldRewards';
 import { calculateSRChange, getSkillTier } from '../game/systems/SkillRating';
 import { CELL_SIZE, CELL_GAP, COLORS, SHADOWS, RADII, SPACING } from '../utils/constants';
 import { formatScore } from '../utils/formatters';
@@ -92,7 +94,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
   } = useGameEngine();
 
   const { playSound, playPlacement } = useSound();
-  const { powerUps, usePowerUp, coins, gems, addCoins, addPowerUp, spendGems, levelHighScores, zenHighScore, consecutiveFailures, lastFailedLevel, displayName, highestLevel, skillRating } = usePlayerStore();
+  const { powerUps, usePowerUp, coins, gems, addCoins, addGems, addPowerUp, spendGems, levelHighScores, levelStars, zenHighScore, consecutiveFailures, lastFailedLevel, displayName, highestLevel, skillRating, claimedWorldClears, claimedWorldPerfects, claimWorldClear, claimWorldPerfect } = usePlayerStore();
   const { tutorialCompleted, completeTutorial, shownTips, markTipShown } = useSettingsStore();
 
   const showTutorial = !isEndless && level === 1 && !tutorialCompleted;
@@ -131,6 +133,9 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
   const [luckyReward, setLuckyReward] = useState<LuckyLevelReward | null>(null);
   const [showLuckyLevel, setShowLuckyLevel] = useState(false);
   const [srChange, setSrChange] = useState<number | null>(null);
+  const [worldReward, setWorldReward] = useState<WorldReward | null>(null);
+  const [worldRewardPerfect, setWorldRewardPerfect] = useState(false);
+  const [showWorldComplete, setShowWorldComplete] = useState(false);
 
   // Difficulty label for the current level
   const difficultyInfo = !isEndless && level > 0
@@ -226,6 +231,20 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
         if (lucky) {
           setLuckyReward(lucky);
           setTimeout(() => setShowLuckyLevel(true), 1800);
+        }
+        // Check for world completion (with updated stars including this win)
+        const worldIndex = Math.ceil(level / 50);
+        const world = getWorldForLevel(level);
+        const updatedStars = { ...levelStars, [level]: Math.max(levelStars[level] ?? 0, stars) };
+        const worldStatus = getWorldCompletionStatus(worldIndex, updatedStars);
+        if (worldStatus.perfected && !claimedWorldPerfects.includes(world.id)) {
+          setWorldReward(getWorldReward(worldIndex));
+          setWorldRewardPerfect(true);
+          setTimeout(() => setShowWorldComplete(true), 2400);
+        } else if (worldStatus.cleared && !claimedWorldClears.includes(world.id)) {
+          setWorldReward(getWorldReward(worldIndex));
+          setWorldRewardPerfect(false);
+          setTimeout(() => setShowWorldComplete(true), 2400);
         }
       }
     } else if (gameState?.status === 'lost') {
@@ -995,6 +1014,30 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
         reward={luckyReward}
         level={level}
         onClose={() => setShowLuckyLevel(false)}
+      />
+
+      {/* World completion modal */}
+      <WorldCompleteModal
+        visible={showWorldComplete}
+        reward={worldReward}
+        isPerfect={worldRewardPerfect}
+        onClaim={() => {
+          if (worldReward) {
+            const rewardData = worldRewardPerfect ? worldReward.perfectReward : worldReward.clearReward;
+            addCoins(rewardData.coins);
+            addGems(rewardData.gems);
+            if (worldRewardPerfect) {
+              addPowerUp('bomb', worldReward.perfectReward.powerUps.bomb);
+              addPowerUp('rowClear', worldReward.perfectReward.powerUps.rowClear);
+              addPowerUp('colorClear', worldReward.perfectReward.powerUps.colorClear);
+              claimWorldPerfect(worldReward.worldId);
+            } else {
+              claimWorldClear(worldReward.worldId);
+            }
+          }
+          setShowWorldComplete(false);
+        }}
+        onClose={() => setShowWorldComplete(false)}
       />
 
       {/* Tutorial overlay for first-time players */}

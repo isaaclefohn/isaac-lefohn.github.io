@@ -19,6 +19,7 @@ import { CurrencyDisplay } from '../components/CurrencyDisplay';
 import { Button } from '../components/common/Button';
 import { PRODUCTS, getCoinProducts, getGemProducts, getBundleProducts, getPremiumProducts, Product } from '../services/purchases';
 import { POWER_UP_CONFIGS, PowerUpType } from '../game/powerups/PowerUpManager';
+import { POWER_UP_UPGRADES, getUpgradeInfo, canAffordUpgrade } from '../game/powerups/PowerUpUpgrades';
 import { THEMES, BLOCK_SKINS, GameTheme, BlockSkin } from '../game/rendering/ThemeManager';
 import { GameIcon } from '../components/GameIcon';
 import { COLORS, SHADOWS, SPACING, RADII } from '../utils/constants';
@@ -339,44 +340,115 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({ navigation }) => {
 
         {/* Power-ups Tab */}
         {activeTab === 'powerups' && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Power-Ups</Text>
-            <Text style={styles.sectionSubtitle}>Spend coins to stock up</Text>
-            {(Object.keys(POWER_UP_CONFIGS) as PowerUpType[]).map((type) => {
-              const config = POWER_UP_CONFIGS[type];
-              const canAfford = player.coins >= config.coinCost;
-              return (
-                <View key={type} style={styles.shopItem}>
-                  <View style={styles.itemInfo}>
-                    <View style={styles.iconContainer}>
-                      <GameIcon
-                        name={type === 'bomb' ? 'bomb' : type === 'rowClear' ? 'lightning' : 'palette'}
-                        size={26}
-                      />
-                    </View>
-                    <View style={styles.itemTextBlock}>
-                      <Text style={styles.itemName}>{config.name}</Text>
-                      <Text style={styles.itemDesc}>{config.description}</Text>
-                      <View style={styles.ownedRow}>
-                        <Text style={styles.itemOwned}>
-                          Owned: {player.powerUps[type]}
-                        </Text>
+          <>
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Power-Ups</Text>
+              <Text style={styles.sectionSubtitle}>Spend coins to stock up</Text>
+              {(Object.keys(POWER_UP_CONFIGS) as PowerUpType[]).map((type) => {
+                const config = POWER_UP_CONFIGS[type];
+                const canAfford = player.coins >= config.coinCost;
+                return (
+                  <View key={type} style={styles.shopItem}>
+                    <View style={styles.itemInfo}>
+                      <View style={styles.iconContainer}>
+                        <GameIcon
+                          name={type === 'bomb' ? 'bomb' : type === 'rowClear' ? 'lightning' : 'palette'}
+                          size={26}
+                        />
+                      </View>
+                      <View style={styles.itemTextBlock}>
+                        <Text style={styles.itemName}>{config.name}</Text>
+                        <Text style={styles.itemDesc}>{config.description}</Text>
+                        <View style={styles.ownedRow}>
+                          <Text style={styles.itemOwned}>
+                            Owned: {player.powerUps[type]}
+                          </Text>
+                        </View>
                       </View>
                     </View>
+                    <Button
+                      title={`${config.coinCost} coins`}
+                      onPress={() => handleBuyPowerUp(type)}
+                      variant="primary"
+                      size="small"
+                      disabled={!canAfford}
+                      style={styles.priceButton}
+                      textStyle={styles.priceButtonText}
+                    />
                   </View>
-                  <Button
-                    title={`${config.coinCost} coins`}
-                    onPress={() => handleBuyPowerUp(type)}
-                    variant="primary"
-                    size="small"
-                    disabled={!canAfford}
-                    style={styles.priceButton}
-                    textStyle={styles.priceButtonText}
-                  />
-                </View>
-              );
-            })}
-          </View>
+                );
+              })}
+            </View>
+
+            <SectionDivider label="Permanent" />
+
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Upgrades</Text>
+              <Text style={styles.sectionSubtitle}>Permanently enhance your power-ups</Text>
+              {(Object.keys(POWER_UP_UPGRADES) as PowerUpType[]).map((type) => {
+                const currentLevel = player.powerUpLevels[type];
+                const { current, next, maxLevel } = getUpgradeInfo(type, currentLevel);
+                const affordable = next ? canAffordUpgrade(type, currentLevel, player.coins, player.gems) : false;
+                const isMaxed = currentLevel >= maxLevel;
+
+                return (
+                  <View key={`upgrade-${type}`} style={[styles.shopItem, isMaxed && styles.equippedItem]}>
+                    <View style={styles.itemInfo}>
+                      <View style={styles.iconContainer}>
+                        <GameIcon
+                          name={type === 'bomb' ? 'bomb' : type === 'rowClear' ? 'lightning' : 'palette'}
+                          size={26}
+                        />
+                      </View>
+                      <View style={styles.itemTextBlock}>
+                        <Text style={styles.itemName}>{current.name}</Text>
+                        <Text style={styles.itemDesc}>{current.description}</Text>
+                        <View style={styles.upgradePips}>
+                          {Array.from({ length: maxLevel }).map((_, i) => (
+                            <View
+                              key={i}
+                              style={[
+                                styles.upgradePip,
+                                i < currentLevel
+                                  ? { backgroundColor: COLORS.accentGold }
+                                  : { backgroundColor: COLORS.gridEmpty },
+                              ]}
+                            />
+                          ))}
+                        </View>
+                        {next && (
+                          <Text style={styles.upgradeNext}>
+                            Next: {next.description}
+                          </Text>
+                        )}
+                      </View>
+                    </View>
+                    {isMaxed ? (
+                      <Text style={styles.maxedLabel}>MAX</Text>
+                    ) : next ? (
+                      <Button
+                        title={`${next.coinCost}c + ${next.gemCost}g`}
+                        onPress={() => {
+                          if (affordable) {
+                            player.spendCoins(next.coinCost);
+                            player.spendGems(next.gemCost);
+                            player.upgradePowerUp(type);
+                          } else {
+                            Alert.alert('Not enough resources', `You need ${next.coinCost} coins and ${next.gemCost} gems.`);
+                          }
+                        }}
+                        variant="secondary"
+                        size="small"
+                        disabled={!affordable}
+                        style={styles.priceButton}
+                        textStyle={styles.priceButtonText}
+                      />
+                    ) : null}
+                  </View>
+                );
+              })}
+            </View>
+          </>
         )}
 
         {/* Cosmetics Tab */}
@@ -723,6 +795,30 @@ const styles = StyleSheet.create({
     color: COLORS.background,
     letterSpacing: 0.8,
     textTransform: 'uppercase',
+  },
+
+  // -- Upgrade pips --
+  upgradePips: {
+    flexDirection: 'row',
+    gap: 3,
+    marginTop: 4,
+  },
+  upgradePip: {
+    width: 14,
+    height: 4,
+    borderRadius: 2,
+  },
+  upgradeNext: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: COLORS.textMuted,
+    marginTop: 2,
+  },
+  maxedLabel: {
+    fontSize: 12,
+    fontWeight: '900',
+    color: COLORS.success,
+    letterSpacing: 1,
   },
 
   // -- Theme previews --

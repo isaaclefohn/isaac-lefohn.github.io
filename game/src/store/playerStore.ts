@@ -113,6 +113,11 @@ interface PlayerStoreState {
   claimedStarChests: string[];
   // Skill Rating
   skillRating: number;
+  // Power-Up Upgrades
+  powerUpLevels: { bomb: number; rowClear: number; colorClear: number };
+  // World Completion
+  claimedWorldClears: number[];
+  claimedWorldPerfects: number[];
 }
 
 interface PlayerStore extends PlayerStoreState {
@@ -163,6 +168,11 @@ interface PlayerStore extends PlayerStoreState {
   claimStarChest: (chestId: string) => void;
   // Skill Rating
   updateSkillRating: (change: number) => void;
+  // Power-Up Upgrades
+  upgradePowerUp: (type: 'bomb' | 'rowClear' | 'colorClear') => void;
+  // World Completion
+  claimWorldClear: (worldId: number) => void;
+  claimWorldPerfect: (worldId: number) => void;
 }
 
 const getToday = () => new Date().toISOString().split('T')[0];
@@ -221,6 +231,9 @@ export const usePlayerStore = create<PlayerStore>()(
       claimedAlbumPages: [],
       claimedStarChests: [],
       skillRating: 100,
+      powerUpLevels: { bomb: 1, rowClear: 1, colorClear: 1 },
+      claimedWorldClears: [],
+      claimedWorldPerfects: [],
 
       addCoins: (amount) =>
         set((s) => ({ coins: s.coins + amount })),
@@ -513,6 +526,31 @@ export const usePlayerStore = create<PlayerStore>()(
 
       updateSkillRating: (change: number) => {
         set((s) => ({ skillRating: Math.max(0, s.skillRating + change) }));
+      },
+
+      upgradePowerUp: (type) => {
+        set((s) => ({
+          powerUpLevels: {
+            ...s.powerUpLevels,
+            [type]: Math.min(s.powerUpLevels[type] + 1, 5),
+          },
+        }));
+      },
+
+      claimWorldClear: (worldId: number) => {
+        set((s) => ({
+          claimedWorldClears: s.claimedWorldClears.includes(worldId)
+            ? s.claimedWorldClears
+            : [...s.claimedWorldClears, worldId],
+        }));
+      },
+
+      claimWorldPerfect: (worldId: number) => {
+        set((s) => ({
+          claimedWorldPerfects: s.claimedWorldPerfects.includes(worldId)
+            ? s.claimedWorldPerfects
+            : [...s.claimedWorldPerfects, worldId],
+        }));
       },
     }),
     {
