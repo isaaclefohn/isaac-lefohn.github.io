@@ -6,6 +6,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { InboxMessage } from '../game/systems/Inbox';
 
 /** Daily reward amounts — day 7 is more valuable than days 1-6 combined */
 export const DAILY_REWARDS = [
@@ -141,6 +142,15 @@ interface PlayerStoreState {
     playerScore: number;
   } | null;
   tournamentBestScore: number;
+  // Inbox
+  inboxMessages: InboxMessage[];
+  inboxClaimed: string[];
+  inboxDismissed: string[];
+  // VIP membership
+  vipUntil: number | null;
+  vipDailyClaimedDate: string | null;
+  // Level skip tokens
+  levelSkipTokens: number;
 }
 
 interface PlayerStore extends PlayerStoreState {
@@ -211,6 +221,16 @@ interface PlayerStore extends PlayerStoreState {
   // Tournaments
   enterTournament: (tier: 'bronze' | 'silver' | 'gold' | 'diamond', playerScore: number) => void;
   finishTournament: (finalRank: number) => void;
+  // Inbox
+  addInboxMessage: (message: InboxMessage) => void;
+  claimInboxReward: (messageId: string) => void;
+  dismissInboxMessage: (messageId: string) => void;
+  // VIP membership
+  activateVIP: (durationMs: number) => void;
+  claimVIPDaily: (date: string) => void;
+  // Level skip tokens
+  addLevelSkipTokens: (count: number) => void;
+  useLevelSkipToken: () => boolean;
 }
 
 const getToday = () => new Date().toISOString().split('T')[0];
@@ -284,6 +304,12 @@ export const usePlayerStore = create<PlayerStore>()(
       treasureChestsOpened: 0,
       activeTournament: null,
       tournamentBestScore: 0,
+      inboxMessages: [],
+      inboxClaimed: [],
+      inboxDismissed: [],
+      vipUntil: null,
+      vipDailyClaimedDate: null,
+      levelSkipTokens: 0,
 
       addCoins: (amount) =>
         set((s) => ({ coins: s.coins + amount })),
@@ -660,6 +686,52 @@ export const usePlayerStore = create<PlayerStore>()(
               ? finalRank
               : Math.min(s.tournamentBestScore, finalRank),
         }));
+      },
+
+      addInboxMessage: (message: InboxMessage) => {
+        set((s) => ({
+          inboxMessages: s.inboxMessages.some((m) => m.id === message.id)
+            ? s.inboxMessages
+            : [message, ...s.inboxMessages],
+        }));
+      },
+
+      claimInboxReward: (messageId: string) => {
+        set((s) => ({
+          inboxClaimed: s.inboxClaimed.includes(messageId)
+            ? s.inboxClaimed
+            : [...s.inboxClaimed, messageId],
+        }));
+      },
+
+      dismissInboxMessage: (messageId: string) => {
+        set((s) => ({
+          inboxDismissed: s.inboxDismissed.includes(messageId)
+            ? s.inboxDismissed
+            : [...s.inboxDismissed, messageId],
+        }));
+      },
+
+      activateVIP: (durationMs: number) => {
+        set((s) => {
+          const baseline = s.vipUntil && s.vipUntil > Date.now() ? s.vipUntil : Date.now();
+          return { vipUntil: baseline + durationMs };
+        });
+      },
+
+      claimVIPDaily: (date: string) => {
+        set({ vipDailyClaimedDate: date });
+      },
+
+      addLevelSkipTokens: (count: number) => {
+        set((s) => ({ levelSkipTokens: s.levelSkipTokens + count }));
+      },
+
+      useLevelSkipToken: () => {
+        const { levelSkipTokens } = get();
+        if (levelSkipTokens <= 0) return false;
+        set({ levelSkipTokens: levelSkipTokens - 1 });
+        return true;
       },
     }),
     {

@@ -42,6 +42,10 @@ import { LeaderboardModal } from '../components/LeaderboardModal';
 import { PIECES_REQUIRED } from '../game/rewards/TreasureHunt';
 import { TournamentModal } from '../components/TournamentModal';
 import { getHighestTier } from '../game/modes/Tournament';
+import { InboxModal } from '../components/InboxModal';
+import { VIPModal } from '../components/VIPModal';
+import { getUnclaimedCount, generateWelcomeMessage } from '../game/systems/Inbox';
+import { isVIPActive } from '../game/systems/VIPMembership';
 import { calculateOfflineReward, OfflineReward } from '../game/rewards/OfflineRewards';
 import { FloatingParticles } from '../components/animations/FloatingParticles';
 import { ScreenVignette } from '../components/animations/ScreenVignette';
@@ -93,8 +97,30 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const [showTreasure, setShowTreasure] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showTournament, setShowTournament] = useState(false);
+  const [showInbox, setShowInbox] = useState(false);
+  const [showVIP, setShowVIP] = useState(false);
   const treasureMapPieces = usePlayerStore((s) => s.treasureMapPieces);
   const activeTournament = usePlayerStore((s) => s.activeTournament);
+  const inboxMessages = usePlayerStore((s) => s.inboxMessages);
+  const inboxClaimed = usePlayerStore((s) => s.inboxClaimed);
+  const inboxDismissed = usePlayerStore((s) => s.inboxDismissed);
+  const vipUntil = usePlayerStore((s) => s.vipUntil);
+  const addInboxMessage = usePlayerStore((s) => s.addInboxMessage);
+
+  const unclaimedCount = getUnclaimedCount({
+    messages: inboxMessages,
+    claimedIds: inboxClaimed,
+    dismissedIds: inboxDismissed,
+  });
+  const vipActive = isVIPActive(vipUntil);
+
+  // Seed the welcome inbox message on first launch
+  useEffect(() => {
+    if (inboxMessages.length === 0 && !inboxDismissed.includes('welcome')) {
+      addInboxMessage(generateWelcomeMessage());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [offlineReward, setOfflineReward] = useState<OfflineReward | null>(null);
 
   const seasonalTheme = getActiveSeasonalTheme();
@@ -575,6 +601,24 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                 />
               </View>
             )}
+            <View style={styles.bottomButtonWrapper}>
+              <Button
+                title={unclaimedCount > 0 ? `Inbox (${unclaimedCount})` : 'Inbox'}
+                onPress={() => setShowInbox(true)}
+                variant={unclaimedCount > 0 ? 'secondary' : 'ghost'}
+                size="small"
+                style={styles.bottomButton}
+              />
+            </View>
+            <View style={styles.bottomButtonWrapper}>
+              <Button
+                title={vipActive ? 'VIP' : 'Go VIP'}
+                onPress={() => setShowVIP(true)}
+                variant={vipActive ? 'secondary' : 'ghost'}
+                size="small"
+                style={styles.bottomButton}
+              />
+            </View>
             {isFeatureUnlocked('achievements', highestLevel) && (
               <View style={styles.bottomButtonWrapper}>
                 <Button
@@ -748,6 +792,18 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       <TournamentModal
         visible={showTournament}
         onClose={() => setShowTournament(false)}
+      />
+
+      {/* Inbox modal */}
+      <InboxModal
+        visible={showInbox}
+        onClose={() => setShowInbox(false)}
+      />
+
+      {/* VIP modal */}
+      <VIPModal
+        visible={showVIP}
+        onClose={() => setShowVIP(false)}
       />
 
       {/* Offline reward modal */}
