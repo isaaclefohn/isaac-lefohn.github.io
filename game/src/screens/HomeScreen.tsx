@@ -37,6 +37,9 @@ import { DailyDealModal } from '../components/DailyDealModal';
 import { getTodaysDeal, getTodayDealKey, isDealClaimed } from '../game/rewards/DailyDeal';
 import { BossRushModal } from '../components/BossRushModal';
 import { isBossRushUnlocked } from '../game/modes/BossRush';
+import { TreasureHuntModal } from '../components/TreasureHuntModal';
+import { LeaderboardModal } from '../components/LeaderboardModal';
+import { PIECES_REQUIRED } from '../game/rewards/TreasureHunt';
 import { calculateOfflineReward, OfflineReward } from '../game/rewards/OfflineRewards';
 import { FloatingParticles } from '../components/animations/FloatingParticles';
 import { ScreenVignette } from '../components/animations/ScreenVignette';
@@ -85,6 +88,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const [showCalendar, setShowCalendar] = useState(false);
   const [showDailyDeal, setShowDailyDeal] = useState(false);
   const [showBossRush, setShowBossRush] = useState(false);
+  const [showTreasure, setShowTreasure] = useState(false);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const treasureMapPieces = usePlayerStore((s) => s.treasureMapPieces);
   const [offlineReward, setOfflineReward] = useState<OfflineReward | null>(null);
 
   const seasonalTheme = getActiveSeasonalTheme();
@@ -528,6 +534,32 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                 />
               </View>
             )}
+            {isFeatureUnlocked('shop', highestLevel) && (
+              <View style={styles.bottomButtonWrapper}>
+                <Button
+                  title={
+                    treasureMapPieces >= PIECES_REQUIRED
+                      ? 'Treasure!'
+                      : `Treasure ${Math.min(treasureMapPieces, PIECES_REQUIRED)}/${PIECES_REQUIRED}`
+                  }
+                  onPress={() => setShowTreasure(true)}
+                  variant={treasureMapPieces >= PIECES_REQUIRED ? 'secondary' : 'ghost'}
+                  size="small"
+                  style={styles.bottomButton}
+                />
+              </View>
+            )}
+            {isFeatureUnlocked('weekly_challenge', highestLevel) && (
+              <View style={styles.bottomButtonWrapper}>
+                <Button
+                  title="Ranks"
+                  onPress={() => setShowLeaderboard(true)}
+                  variant="ghost"
+                  size="small"
+                  style={styles.bottomButton}
+                />
+              </View>
+            )}
             {isFeatureUnlocked('achievements', highestLevel) && (
               <View style={styles.bottomButtonWrapper}>
                 <Button
@@ -683,6 +715,18 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           // Start with the first boss level
           navigation.navigate('Game', { level: 25 });
         }}
+      />
+
+      {/* Treasure Hunt modal */}
+      <TreasureHuntModal
+        visible={showTreasure}
+        onClose={() => setShowTreasure(false)}
+      />
+
+      {/* Leaderboard modal */}
+      <LeaderboardModal
+        visible={showLeaderboard}
+        onClose={() => setShowLeaderboard(false)}
       />
 
       {/* Offline reward modal */}

@@ -34,7 +34,7 @@ export function useGameEngine() {
     continueGame,
   } = useGameStore();
 
-  const { completeLevel, addCoins, addGems, updateStreak, checkAchievements, recordGamePlayed, recordZenGame, recordFailure, resetFailures, addPiggyBankCoins, addBattlePassXP, completeWeeklyChallenge, incrementGamesPlayedToday, updateQuestProgress, updateSkillRating, skillRating, levelHighScores, levelStars } = usePlayerStore();
+  const { completeLevel, addCoins, addGems, updateStreak, checkAchievements, recordGamePlayed, recordZenGame, recordFailure, resetFailures, addPiggyBankCoins, addBattlePassXP, completeWeeklyChallenge, incrementGamesPlayedToday, updateQuestProgress, updateSkillRating, skillRating, levelHighScores, levelStars, addTreasureMapPiece } = usePlayerStore();
 
   // Start a level by number (negative = weekly challenge)
   const loadLevel = useCallback((levelNumber: number) => {
@@ -121,6 +121,15 @@ export function useGameEngine() {
       incrementGamesPlayedToday();
       resetFailures();
       checkAchievements();
+
+      // Treasure hunt: chance to earn a map piece on level clear (40% with 3 stars, 20% otherwise)
+      if (!isZen) {
+        const rand = Math.random();
+        const threshold = stars >= 3 ? 0.4 : 0.2;
+        if (rand < threshold) {
+          addTreasureMapPiece();
+        }
+      }
 
       // Update daily quest progress
       updateQuestProgress('score_earned', gameState.score);

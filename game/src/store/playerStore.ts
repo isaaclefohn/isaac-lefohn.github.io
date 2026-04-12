@@ -130,6 +130,9 @@ interface PlayerStoreState {
   bossRushBestScore: number;
   bossRushBestBosses: number;
   bossRushRunsCompleted: number;
+  // Treasure Hunt
+  treasureMapPieces: number;
+  treasureChestsOpened: number;
 }
 
 interface PlayerStore extends PlayerStoreState {
@@ -194,6 +197,9 @@ interface PlayerStore extends PlayerStoreState {
   purchaseAvatar: (id: string) => void;
   // Boss Rush
   recordBossRushResult: (bosses: number, score: number) => void;
+  // Treasure Hunt
+  addTreasureMapPiece: () => void;
+  openTreasureChest: () => void;
 }
 
 const getToday = () => new Date().toISOString().split('T')[0];
@@ -263,6 +269,8 @@ export const usePlayerStore = create<PlayerStore>()(
       bossRushBestScore: 0,
       bossRushBestBosses: 0,
       bossRushRunsCompleted: 0,
+      treasureMapPieces: 0,
+      treasureChestsOpened: 0,
 
       addCoins: (amount) =>
         set((s) => ({ coins: s.coins + amount })),
@@ -605,6 +613,17 @@ export const usePlayerStore = create<PlayerStore>()(
           bossRushBestScore: Math.max(s.bossRushBestScore, score),
           bossRushBestBosses: Math.max(s.bossRushBestBosses, bosses),
           bossRushRunsCompleted: s.bossRushRunsCompleted + 1,
+        }));
+      },
+
+      addTreasureMapPiece: () => {
+        set((s) => ({ treasureMapPieces: s.treasureMapPieces + 1 }));
+      },
+
+      openTreasureChest: () => {
+        set((s) => ({
+          treasureMapPieces: Math.max(0, s.treasureMapPieces - 5),
+          treasureChestsOpened: s.treasureChestsOpened + 1,
         }));
       },
     }),
