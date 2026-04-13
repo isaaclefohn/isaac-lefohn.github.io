@@ -49,6 +49,9 @@ import { PowerUpFusionModal } from '../components/PowerUpFusionModal';
 import { SeasonalEventModal } from '../components/SeasonalEventModal';
 import { getActiveEvent } from '../game/events/SeasonalEvent';
 import { MysteryShopModal } from '../components/MysteryShopModal';
+import { BlockMasteryModal } from '../components/BlockMasteryModal';
+import { DailyRouletteModal } from '../components/DailyRouletteModal';
+import { hasSpunToday } from '../game/challenges/DailyRoulette';
 import { getUnclaimedCount, generateWelcomeMessage } from '../game/systems/Inbox';
 import { isVIPActive } from '../game/systems/VIPMembership';
 import { calculateOfflineReward, OfflineReward } from '../game/rewards/OfflineRewards';
@@ -78,7 +81,7 @@ const TITLE_BLOCKS = [
 ];
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
-  const { highestLevel, coins, gems, totalScore, currentStreak, dailyRewardLastClaimed, unlockedAchievements, checkAchievements, lastSpinDate, piggyBankCoins, lastGiftDate, gamesPlayedToday, claimGift, lastPlayDate, collectedStickers, collectSticker, totalLinesCleared, bestCombo, totalGamesPlayed, longestStreak, addCoins, lastDealClaimed } = usePlayerStore();
+  const { highestLevel, coins, gems, totalScore, currentStreak, dailyRewardLastClaimed, unlockedAchievements, checkAchievements, lastSpinDate, piggyBankCoins, lastGiftDate, gamesPlayedToday, claimGift, lastPlayDate, collectedStickers, collectSticker, totalLinesCleared, bestCombo, totalGamesPlayed, longestStreak, addCoins, lastDealClaimed, rouletteLastDate } = usePlayerStore();
   const { tutorialCompleted, completeTutorial, notificationsEnabled, comebackShownDate, setComebackShownDate } = useSettingsStore();
   const [showTutorial, setShowTutorial] = useState(!tutorialCompleted);
   const [showDailyReward, setShowDailyReward] = useState(false);
@@ -108,7 +111,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const [showFusion, setShowFusion] = useState(false);
   const [showSeasonalEvent, setShowSeasonalEvent] = useState(false);
   const [showMysteryShop, setShowMysteryShop] = useState(false);
+  const [showBlockMastery, setShowBlockMastery] = useState(false);
+  const [showDailyRoulette, setShowDailyRoulette] = useState(false);
   const activeSeason = getActiveEvent();
+  const rouletteAvailable = !hasSpunToday(
+    rouletteLastDate,
+    new Date().toISOString().split('T')[0],
+  );
   const treasureMapPieces = usePlayerStore((s) => s.treasureMapPieces);
   const activeTournament = usePlayerStore((s) => s.activeTournament);
   const inboxMessages = usePlayerStore((s) => s.inboxMessages);
@@ -667,6 +676,24 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                 style={styles.bottomButton}
               />
             </View>
+            <View style={styles.bottomButtonWrapper}>
+              <Button
+                title={rouletteAvailable ? 'Spin!' : 'Spin'}
+                onPress={() => setShowDailyRoulette(true)}
+                variant={rouletteAvailable ? 'secondary' : 'ghost'}
+                size="small"
+                style={styles.bottomButton}
+              />
+            </View>
+            <View style={styles.bottomButtonWrapper}>
+              <Button
+                title="Mastery"
+                onPress={() => setShowBlockMastery(true)}
+                variant="ghost"
+                size="small"
+                style={styles.bottomButton}
+              />
+            </View>
             {isFeatureUnlocked('achievements', highestLevel) && (
               <View style={styles.bottomButtonWrapper}>
                 <Button
@@ -876,6 +903,18 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       <MysteryShopModal
         visible={showMysteryShop}
         onClose={() => setShowMysteryShop(false)}
+      />
+
+      {/* Block Mastery modal */}
+      <BlockMasteryModal
+        visible={showBlockMastery}
+        onClose={() => setShowBlockMastery(false)}
+      />
+
+      {/* Daily Roulette modal */}
+      <DailyRouletteModal
+        visible={showDailyRoulette}
+        onClose={() => setShowDailyRoulette(false)}
       />
 
       {/* Offline reward modal */}

@@ -35,7 +35,7 @@ export function useGameEngine() {
     continueGame,
   } = useGameStore();
 
-  const { completeLevel, addCoins, addGems, updateStreak, checkAchievements, recordGamePlayed, recordZenGame, recordFailure, resetFailures, addPiggyBankCoins, addBattlePassXP, completeWeeklyChallenge, incrementGamesPlayedToday, updateQuestProgress, updateSkillRating, skillRating, levelHighScores, levelStars, addTreasureMapPiece, addSeasonalPoints } = usePlayerStore();
+  const { completeLevel, addCoins, addGems, updateStreak, checkAchievements, recordGamePlayed, recordZenGame, recordFailure, resetFailures, addPiggyBankCoins, addBattlePassXP, completeWeeklyChallenge, incrementGamesPlayedToday, updateQuestProgress, updateSkillRating, skillRating, levelHighScores, levelStars, addTreasureMapPiece, addSeasonalPoints, addBlockMasteryXP } = usePlayerStore();
 
   // Start a level by number (negative = weekly challenge)
   const loadLevel = useCallback((levelNumber: number) => {
@@ -139,6 +139,14 @@ export function useGameEngine() {
           gameState.linesCleared * activeSeasonalEvent.pointsPerLine +
           activeSeasonalEvent.pointsPerLevel;
         addSeasonalPoints(getEventInstanceId(activeSeasonalEvent), seasonalPoints);
+      }
+
+      // Block mastery XP: distribute XP across all colors based on lines cleared
+      // (simple fair distribution — more accurate per-color tracking could be added later)
+      const masteryXP = Math.max(2, gameState.linesCleared * 3 + stars * 4);
+      const masteryColors = ['red', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink'] as const;
+      for (const color of masteryColors) {
+        addBlockMasteryXP(color, masteryXP);
       }
 
       // Update daily quest progress

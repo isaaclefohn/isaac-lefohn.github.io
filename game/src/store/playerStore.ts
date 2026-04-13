@@ -162,6 +162,18 @@ interface PlayerStoreState {
   // Mystery shop
   mysteryShopBucket: number;
   mysteryShopPurchases: string[];
+  // Block mastery XP per color
+  blockMastery: {
+    red: number;
+    orange: number;
+    yellow: number;
+    green: number;
+    blue: number;
+    purple: number;
+    pink: number;
+  };
+  // Daily Roulette
+  rouletteLastDate: string | null;
 }
 
 interface PlayerStore extends PlayerStoreState {
@@ -252,6 +264,10 @@ interface PlayerStore extends PlayerStoreState {
   claimSeasonalMilestone: (key: string) => void;
   // Mystery shop
   recordMysteryPurchase: (bucket: number, itemId: string) => void;
+  // Block mastery
+  addBlockMasteryXP: (color: 'red' | 'orange' | 'yellow' | 'green' | 'blue' | 'purple' | 'pink', xp: number) => void;
+  // Daily Roulette
+  claimDailyRoulette: (date: string) => void;
 }
 
 const getToday = () => new Date().toISOString().split('T')[0];
@@ -338,6 +354,8 @@ export const usePlayerStore = create<PlayerStore>()(
       seasonalMilestonesClaimed: [],
       mysteryShopBucket: 0,
       mysteryShopPurchases: [],
+      blockMastery: { red: 0, orange: 0, yellow: 0, green: 0, blue: 0, purple: 0, pink: 0 },
+      rouletteLastDate: null,
 
       addCoins: (amount) =>
         set((s) => ({ coins: s.coins + amount })),
@@ -823,6 +841,19 @@ export const usePlayerStore = create<PlayerStore>()(
           if (s.mysteryShopPurchases.includes(itemId)) return s;
           return { mysteryShopPurchases: [...s.mysteryShopPurchases, itemId] };
         });
+      },
+
+      addBlockMasteryXP: (color, xp) => {
+        set((s) => ({
+          blockMastery: {
+            ...s.blockMastery,
+            [color]: (s.blockMastery[color] ?? 0) + xp,
+          },
+        }));
+      },
+
+      claimDailyRoulette: (date: string) => {
+        set({ rouletteLastDate: date });
       },
     }),
     {
