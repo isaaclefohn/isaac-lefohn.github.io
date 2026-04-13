@@ -21,6 +21,8 @@ import { GameIcon } from '../components/GameIcon';
 import { Button } from '../components/common/Button';
 import { Modal } from '../components/common/Modal';
 import { ScorePopup } from '../components/animations/ScorePopup';
+import { HypeText } from '../components/animations/HypeText';
+import { RadialBurst } from '../components/animations/RadialBurst';
 import { ScoreFlyUp } from '../components/animations/ScoreFlyUp';
 import { ComboBanner } from '../components/animations/ComboBanner';
 import { Confetti } from '../components/animations/Confetti';
@@ -106,6 +108,11 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
   const [showScorePopup, setShowScorePopup] = useState(false);
   const [showComboBanner, setShowComboBanner] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [showHype, setShowHype] = useState(false);
+  const [hypeText, setHypeText] = useState('');
+  const [hypeColor, setHypeColor] = useState<string>(COLORS.accent);
+  const [showBurst, setShowBurst] = useState(false);
+  const [burstColor, setBurstColor] = useState<string>('#FBBF24');
   const [doubleCoinsUsed, setDoubleCoinsUsed] = useState(false);
   const [lastPoints, setLastPoints] = useState(0);
   const [lastCombo, setLastCombo] = useState(0);
@@ -292,6 +299,11 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
         setClearFlashColor(COLORS.accentGold);
         setShowClearFlash(true);
         shakeBoard(3);
+        setHypeText('PERFECT!');
+        setHypeColor(COLORS.accentGold);
+        setShowHype(true);
+        setBurstColor(COLORS.accentGold);
+        setShowBurst(true);
         setTimeout(() => setShowConfetti(false), 2500);
         setTimeout(() => setShowClearFlash(false), 400);
       } else if (event.linesCleared >= 3) {
@@ -300,6 +312,23 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
         setClearFlashColor(COLORS.accent);
         setShowClearFlash(true);
         shakeBoard(2);
+        setHypeText(event.linesCleared >= 5 ? 'INCREDIBLE!' : 'AMAZING!');
+        setHypeColor(COLORS.accent);
+        setShowHype(true);
+        setBurstColor(COLORS.accent);
+        setShowBurst(true);
+        setTimeout(() => setShowClearFlash(false), 400);
+      } else if (event.combo >= 4) {
+        setHypeText('MEGA COMBO!');
+        setHypeColor(COLORS.accentGold);
+        setShowHype(true);
+        setBurstColor(COLORS.accentGold);
+        setShowBurst(true);
+        playSound('combo');
+        setShowComboBanner(true);
+        setClearFlashColor(COLORS.accent);
+        setShowClearFlash(true);
+        shakeBoard(Math.min(event.combo * 0.5, 2.5));
         setTimeout(() => setShowClearFlash(false), 400);
       } else if (event.combo > 1) {
         playSound('combo');
@@ -742,6 +771,17 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
           onComplete={() => setShowScorePopup(false)}
         />
         <ComboBanner combo={lastCombo} visible={showComboBanner} />
+        <HypeText
+          text={hypeText}
+          color={hypeColor}
+          visible={showHype}
+          onComplete={() => setShowHype(false)}
+        />
+        <RadialBurst
+          visible={showBurst}
+          color={burstColor}
+          onComplete={() => setShowBurst(false)}
+        />
         <ComboDisplay combo={gameState.combo} multiplier={gameState.lastScoreEvent?.multiplier ?? 1} />
         {flyUpData && (
           <ScoreFlyUp
