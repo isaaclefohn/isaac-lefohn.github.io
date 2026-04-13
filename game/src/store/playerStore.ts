@@ -174,6 +174,11 @@ interface PlayerStoreState {
   };
   // Daily Roulette
   rouletteLastDate: string | null;
+  // Starter Pack monetization
+  starterPackUnlockedAt: number | null;
+  starterPackClaimed: boolean;
+  // Flash offers — per-bucket purchase tracking
+  flashOfferPurchases: string[];
 }
 
 interface PlayerStore extends PlayerStoreState {
@@ -268,6 +273,11 @@ interface PlayerStore extends PlayerStoreState {
   addBlockMasteryXP: (color: 'red' | 'orange' | 'yellow' | 'green' | 'blue' | 'purple' | 'pink', xp: number) => void;
   // Daily Roulette
   claimDailyRoulette: (date: string) => void;
+  // Starter Pack
+  unlockStarterPack: () => void;
+  claimStarterPack: () => void;
+  // Flash offers
+  recordFlashOfferPurchase: (key: string) => void;
 }
 
 const getToday = () => new Date().toISOString().split('T')[0];
@@ -356,6 +366,9 @@ export const usePlayerStore = create<PlayerStore>()(
       mysteryShopPurchases: [],
       blockMastery: { red: 0, orange: 0, yellow: 0, green: 0, blue: 0, purple: 0, pink: 0 },
       rouletteLastDate: null,
+      starterPackUnlockedAt: null,
+      starterPackClaimed: false,
+      flashOfferPurchases: [],
 
       addCoins: (amount) =>
         set((s) => ({ coins: s.coins + amount })),
@@ -854,6 +867,25 @@ export const usePlayerStore = create<PlayerStore>()(
 
       claimDailyRoulette: (date: string) => {
         set({ rouletteLastDate: date });
+      },
+
+      unlockStarterPack: () => {
+        set((s) => {
+          if (s.starterPackUnlockedAt !== null || s.starterPackClaimed) return s;
+          return { starterPackUnlockedAt: Date.now() };
+        });
+      },
+
+      claimStarterPack: () => {
+        set({ starterPackClaimed: true });
+      },
+
+      recordFlashOfferPurchase: (key: string) => {
+        set((s) => ({
+          flashOfferPurchases: s.flashOfferPurchases.includes(key)
+            ? s.flashOfferPurchases
+            : [...s.flashOfferPurchases, key],
+        }));
       },
     }),
     {

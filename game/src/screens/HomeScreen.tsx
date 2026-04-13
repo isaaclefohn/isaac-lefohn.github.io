@@ -52,6 +52,13 @@ import { MysteryShopModal } from '../components/MysteryShopModal';
 import { BlockMasteryModal } from '../components/BlockMasteryModal';
 import { DailyRouletteModal } from '../components/DailyRouletteModal';
 import { hasSpunToday } from '../game/challenges/DailyRoulette';
+import { StarterPackModal } from '../components/StarterPackModal';
+import { FlashOfferModal } from '../components/FlashOfferModal';
+import {
+  isStarterPackAvailable,
+  STARTER_PACK_UNLOCK_LEVEL,
+} from '../game/monetization/StarterPack';
+import { getCurrentFlashOffer } from '../game/monetization/LimitedOffers';
 import { getUnclaimedCount, generateWelcomeMessage } from '../game/systems/Inbox';
 import { isVIPActive } from '../game/systems/VIPMembership';
 import { calculateOfflineReward, OfflineReward } from '../game/rewards/OfflineRewards';
@@ -113,7 +120,18 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const [showMysteryShop, setShowMysteryShop] = useState(false);
   const [showBlockMastery, setShowBlockMastery] = useState(false);
   const [showDailyRoulette, setShowDailyRoulette] = useState(false);
+  const [showStarterPack, setShowStarterPack] = useState(false);
+  const [showFlashOffer, setShowFlashOffer] = useState(false);
   const activeSeason = getActiveEvent();
+  const starterPackUnlockedAt = usePlayerStore((s) => s.starterPackUnlockedAt);
+  const starterPackClaimed = usePlayerStore((s) => s.starterPackClaimed);
+  const unlockStarterPack = usePlayerStore((s) => s.unlockStarterPack);
+  const starterPackVisible = isStarterPackAvailable(
+    starterPackUnlockedAt,
+    starterPackClaimed,
+    highestLevel,
+  );
+  const currentFlashOffer = getCurrentFlashOffer();
   const rouletteAvailable = !hasSpunToday(
     rouletteLastDate,
     new Date().toISOString().split('T')[0],
@@ -140,6 +158,17 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Auto-unlock starter pack timer once the player hits the unlock level
+  useEffect(() => {
+    if (
+      highestLevel >= STARTER_PACK_UNLOCK_LEVEL &&
+      starterPackUnlockedAt === null &&
+      !starterPackClaimed
+    ) {
+      unlockStarterPack();
+    }
+  }, [highestLevel, starterPackUnlockedAt, starterPackClaimed, unlockStarterPack]);
   const [offlineReward, setOfflineReward] = useState<OfflineReward | null>(null);
 
   const seasonalTheme = getActiveSeasonalTheme();
@@ -488,6 +517,63 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           {/* Daily quests */}
           {isFeatureUnlocked('daily_challenge', highestLevel) && (
             <DailyQuestsCard visible={true} />
+          )}
+
+          {/* Starter Pack banner — one-time offer for new players */}
+          {starterPackVisible && (
+            <TouchableOpacity
+              style={styles.starterBanner}
+              onPress={() => setShowStarterPack(true)}
+              activeOpacity={0.85}
+            >
+              <View style={styles.dealBannerLeft}>
+                <GameIcon name="gift" size={22} color={COLORS.accent} />
+                <View>
+                  <Text style={styles.starterBannerTitle}>Starter Pack — 88% OFF</Text>
+                  <Text style={styles.dealBannerSub}>One-time offer. Tap to claim!</Text>
+                </View>
+              </View>
+              <View style={styles.starterBannerArrow}>
+                <Text style={styles.dealBannerArrowText}>›</Text>
+              </View>
+            </TouchableOpacity>
+          )}
+
+          {/* Flash Offer banner — rotating limited deal */}
+          {isFeatureUnlocked('shop', highestLevel) && (
+            <TouchableOpacity
+              style={styles.flashBanner}
+              onPress={() => setShowFlashOffer(true)}
+              activeOpacity={0.85}
+            >
+              <View style={styles.dealBannerLeft}>
+                <GameIcon
+                  name={currentFlashOffer.icon as any}
+                  size={22}
+                  color={currentFlashOffer.accentColor}
+                />
+                <View>
+                  <Text
+                    style={[styles.flashBannerTitle, { color: currentFlashOffer.accentColor }]}
+                  >
+                    {currentFlashOffer.name} — {currentFlashOffer.discount}% off
+                  </Text>
+                  <Text style={styles.dealBannerSub}>Flash offer ends soon</Text>
+                </View>
+              </View>
+              <View
+                style={[
+                  styles.flashBannerArrow,
+                  { backgroundColor: `${currentFlashOffer.accentColor}30` },
+                ]}
+              >
+                <Text
+                  style={[styles.dealBannerArrowText, { color: currentFlashOffer.accentColor }]}
+                >
+                  ›
+                </Text>
+              </View>
+            </TouchableOpacity>
           )}
 
           {/* Daily deal banner */}
@@ -941,6 +1027,18 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         milestone={streakMilestone}
         onClose={() => setShowStreakMilestone(false)}
       />
+
+      {/* Starter Pack monetization modal */}
+      <StarterPackModal
+        visible={showStarterPack}
+        onClose={() => setShowStarterPack(false)}
+      />
+
+      {/* Flash Offer monetization modal */}
+      <FlashOfferModal
+        visible={showFlashOffer}
+        onClose={() => setShowFlashOffer(false)}
+      />
     </SafeAreaView>
   );
 };
@@ -1162,6 +1260,58 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     color: COLORS.accentGold,
     marginTop: -3,
+  },
+  starterBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderRadius: RADII.md,
+    backgroundColor: `${COLORS.accent}18`,
+    borderWidth: 1,
+    borderColor: `${COLORS.accent}55`,
+    width: '100%',
+    marginTop: 6,
+  },
+  starterBannerTitle: {
+    fontSize: 13,
+    fontWeight: '900',
+    color: COLORS.accent,
+    letterSpacing: 0.5,
+  },
+  starterBannerArrow: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: `${COLORS.accent}30`,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  flashBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: RADII.md,
+    backgroundColor: `${COLORS.surface}C0`,
+    borderWidth: 1,
+    borderColor: COLORS.surfaceBorder,
+    width: '100%',
+    marginTop: 6,
+  },
+  flashBannerTitle: {
+    fontSize: 13,
+    fontWeight: '900',
+    letterSpacing: 0.5,
+  },
+  flashBannerArrow: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   bottomButtonWrapper: {
     flex: 1,
