@@ -13,6 +13,7 @@ import { recordCompletionForRating, maybePromptRating } from '../services/appRat
 import { getWeeklyChallengeConfig, getCurrentWeekId, WEEKLY_COIN_REWARDS, WEEKLY_GEM_BONUS } from '../game/challenges/WeeklyChallenge';
 import { calculateSRChange } from '../game/systems/SkillRating';
 import { calculateReplayReward } from '../game/rewards/ReplayRewards';
+import { getActiveEvent, getEventInstanceId } from '../game/events/SeasonalEvent';
 
 export function useGameEngine() {
   const {
@@ -34,7 +35,7 @@ export function useGameEngine() {
     continueGame,
   } = useGameStore();
 
-  const { completeLevel, addCoins, addGems, updateStreak, checkAchievements, recordGamePlayed, recordZenGame, recordFailure, resetFailures, addPiggyBankCoins, addBattlePassXP, completeWeeklyChallenge, incrementGamesPlayedToday, updateQuestProgress, updateSkillRating, skillRating, levelHighScores, levelStars, addTreasureMapPiece } = usePlayerStore();
+  const { completeLevel, addCoins, addGems, updateStreak, checkAchievements, recordGamePlayed, recordZenGame, recordFailure, resetFailures, addPiggyBankCoins, addBattlePassXP, completeWeeklyChallenge, incrementGamesPlayedToday, updateQuestProgress, updateSkillRating, skillRating, levelHighScores, levelStars, addTreasureMapPiece, addSeasonalPoints } = usePlayerStore();
 
   // Start a level by number (negative = weekly challenge)
   const loadLevel = useCallback((levelNumber: number) => {
@@ -129,6 +130,15 @@ export function useGameEngine() {
         if (rand < threshold) {
           addTreasureMapPiece();
         }
+      }
+
+      // Seasonal event points: earned per line + per level completion
+      const activeSeasonalEvent = getActiveEvent();
+      if (activeSeasonalEvent && !isZen) {
+        const seasonalPoints =
+          gameState.linesCleared * activeSeasonalEvent.pointsPerLine +
+          activeSeasonalEvent.pointsPerLevel;
+        addSeasonalPoints(getEventInstanceId(activeSeasonalEvent), seasonalPoints);
       }
 
       // Update daily quest progress

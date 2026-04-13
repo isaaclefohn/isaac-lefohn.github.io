@@ -155,6 +155,13 @@ interface PlayerStoreState {
   claimedQuestChains: string[];
   // Mega power-ups (from fusion)
   megaPowerUps: { megabomb: number; megaRow: number; megaColor: number };
+  // Seasonal events
+  seasonalEventId: string | null;
+  seasonalEventPoints: number;
+  seasonalMilestonesClaimed: string[];
+  // Mystery shop
+  mysteryShopBucket: number;
+  mysteryShopPurchases: string[];
 }
 
 interface PlayerStore extends PlayerStoreState {
@@ -240,6 +247,11 @@ interface PlayerStore extends PlayerStoreState {
   // Fusion & trade
   fusePowerUp: (source: 'bomb' | 'rowClear' | 'colorClear', sourceCost: number, result: 'megabomb' | 'megaRow' | 'megaColor') => boolean;
   tradePowerUp: (from: 'bomb' | 'rowClear' | 'colorClear', fromCost: number, to: 'bomb' | 'rowClear' | 'colorClear', toAmount: number) => boolean;
+  // Seasonal events
+  addSeasonalPoints: (instanceId: string, points: number) => void;
+  claimSeasonalMilestone: (key: string) => void;
+  // Mystery shop
+  recordMysteryPurchase: (bucket: number, itemId: string) => void;
 }
 
 const getToday = () => new Date().toISOString().split('T')[0];
@@ -321,6 +333,11 @@ export const usePlayerStore = create<PlayerStore>()(
       levelSkipTokens: 0,
       claimedQuestChains: [],
       megaPowerUps: { megabomb: 0, megaRow: 0, megaColor: 0 },
+      seasonalEventId: null,
+      seasonalEventPoints: 0,
+      seasonalMilestonesClaimed: [],
+      mysteryShopBucket: 0,
+      mysteryShopPurchases: [],
 
       addCoins: (amount) =>
         set((s) => ({ coins: s.coins + amount })),
@@ -774,6 +791,38 @@ export const usePlayerStore = create<PlayerStore>()(
           },
         }));
         return true;
+      },
+
+      addSeasonalPoints: (instanceId: string, points: number) => {
+        set((s) => {
+          // Reset on new instance
+          if (s.seasonalEventId !== instanceId) {
+            return {
+              seasonalEventId: instanceId,
+              seasonalEventPoints: points,
+              seasonalMilestonesClaimed: [],
+            };
+          }
+          return { seasonalEventPoints: s.seasonalEventPoints + points };
+        });
+      },
+
+      claimSeasonalMilestone: (key: string) => {
+        set((s) => ({
+          seasonalMilestonesClaimed: s.seasonalMilestonesClaimed.includes(key)
+            ? s.seasonalMilestonesClaimed
+            : [...s.seasonalMilestonesClaimed, key],
+        }));
+      },
+
+      recordMysteryPurchase: (bucket: number, itemId: string) => {
+        set((s) => {
+          if (s.mysteryShopBucket !== bucket) {
+            return { mysteryShopBucket: bucket, mysteryShopPurchases: [itemId] };
+          }
+          if (s.mysteryShopPurchases.includes(itemId)) return s;
+          return { mysteryShopPurchases: [...s.mysteryShopPurchases, itemId] };
+        });
       },
     }),
     {

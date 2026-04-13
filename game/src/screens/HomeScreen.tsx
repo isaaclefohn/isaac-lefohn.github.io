@@ -46,6 +46,9 @@ import { InboxModal } from '../components/InboxModal';
 import { VIPModal } from '../components/VIPModal';
 import { QuestChainModal } from '../components/QuestChainModal';
 import { PowerUpFusionModal } from '../components/PowerUpFusionModal';
+import { SeasonalEventModal } from '../components/SeasonalEventModal';
+import { getActiveEvent } from '../game/events/SeasonalEvent';
+import { MysteryShopModal } from '../components/MysteryShopModal';
 import { getUnclaimedCount, generateWelcomeMessage } from '../game/systems/Inbox';
 import { isVIPActive } from '../game/systems/VIPMembership';
 import { calculateOfflineReward, OfflineReward } from '../game/rewards/OfflineRewards';
@@ -103,6 +106,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const [showVIP, setShowVIP] = useState(false);
   const [showQuestChains, setShowQuestChains] = useState(false);
   const [showFusion, setShowFusion] = useState(false);
+  const [showSeasonalEvent, setShowSeasonalEvent] = useState(false);
+  const [showMysteryShop, setShowMysteryShop] = useState(false);
+  const activeSeason = getActiveEvent();
   const treasureMapPieces = usePlayerStore((s) => s.treasureMapPieces);
   const activeTournament = usePlayerStore((s) => s.activeTournament);
   const inboxMessages = usePlayerStore((s) => s.inboxMessages);
@@ -641,6 +647,26 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                 style={styles.bottomButton}
               />
             </View>
+            {activeSeason && (
+              <View style={styles.bottomButtonWrapper}>
+                <Button
+                  title={activeSeason.name}
+                  onPress={() => setShowSeasonalEvent(true)}
+                  variant="secondary"
+                  size="small"
+                  style={styles.bottomButton}
+                />
+              </View>
+            )}
+            <View style={styles.bottomButtonWrapper}>
+              <Button
+                title="Mystery"
+                onPress={() => setShowMysteryShop(true)}
+                variant="ghost"
+                size="small"
+                style={styles.bottomButton}
+              />
+            </View>
             {isFeatureUnlocked('achievements', highestLevel) && (
               <View style={styles.bottomButtonWrapper}>
                 <Button
@@ -838,6 +864,18 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       <PowerUpFusionModal
         visible={showFusion}
         onClose={() => setShowFusion(false)}
+      />
+
+      {/* Seasonal Event modal */}
+      <SeasonalEventModal
+        visible={showSeasonalEvent}
+        onClose={() => setShowSeasonalEvent(false)}
+      />
+
+      {/* Mystery Shop modal */}
+      <MysteryShopModal
+        visible={showMysteryShop}
+        onClose={() => setShowMysteryShop(false)}
       />
 
       {/* Offline reward modal */}
