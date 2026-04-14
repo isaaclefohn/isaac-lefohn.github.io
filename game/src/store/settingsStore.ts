@@ -7,14 +7,31 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+/**
+ * Graphics quality presets. 'low' disables the per-cell highlight/innerGlow
+ * decorative Views for a battery-friendly flat look on older devices;
+ * 'high' keeps the premium chrome. Future presets (ultra) can add extras.
+ */
+export type GraphicsQuality = 'low' | 'high';
+
+/**
+ * Haptic intensity tiers. 'off' disables haptics entirely (alias for the
+ * existing hapticsEnabled false). 'soft' uses only light feedback; 'normal'
+ * uses the current mix of light/medium/heavy; 'strong' upgrades light → medium
+ * and medium → heavy for emphatic tactile feedback on premium devices.
+ */
+export type HapticIntensity = 'off' | 'soft' | 'normal' | 'strong';
+
 interface SettingsStore {
   soundEnabled: boolean;
   musicEnabled: boolean;
   hapticsEnabled: boolean;
+  hapticIntensity: HapticIntensity;
   soundVolume: number;
   musicVolume: number;
   showGridLines: boolean;
   showGhostPreview: boolean;
+  graphicsQuality: GraphicsQuality;
   tutorialCompleted: boolean;
   colorblindMode: boolean;
   reducedMotion: boolean;
@@ -27,10 +44,12 @@ interface SettingsStore {
   toggleSound: () => void;
   toggleMusic: () => void;
   toggleHaptics: () => void;
+  setHapticIntensity: (intensity: HapticIntensity) => void;
   setSoundVolume: (volume: number) => void;
   setMusicVolume: (volume: number) => void;
   toggleGridLines: () => void;
   toggleGhostPreview: () => void;
+  setGraphicsQuality: (quality: GraphicsQuality) => void;
   completeTutorial: () => void;
   toggleColorblindMode: () => void;
   toggleReducedMotion: () => void;
@@ -46,10 +65,12 @@ export const useSettingsStore = create<SettingsStore>()(
       soundEnabled: true,
       musicEnabled: true,
       hapticsEnabled: true,
+      hapticIntensity: 'normal',
       soundVolume: 0.8,
       musicVolume: 0.5,
       showGridLines: true,
       showGhostPreview: true,
+      graphicsQuality: 'high',
       tutorialCompleted: false,
       colorblindMode: false,
       reducedMotion: false,
@@ -59,11 +80,31 @@ export const useSettingsStore = create<SettingsStore>()(
 
       toggleSound: () => set((s) => ({ soundEnabled: !s.soundEnabled })),
       toggleMusic: () => set((s) => ({ musicEnabled: !s.musicEnabled })),
-      toggleHaptics: () => set((s) => ({ hapticsEnabled: !s.hapticsEnabled })),
+      toggleHaptics: () =>
+        set((s) => {
+          const enabled = !s.hapticsEnabled;
+          return {
+            hapticsEnabled: enabled,
+            // Keep the two settings in sync: turning haptics off also moves
+            // the intensity to 'off' so any code that reads intensity alone
+            // still respects the user's choice.
+            hapticIntensity: enabled
+              ? s.hapticIntensity === 'off'
+                ? 'normal'
+                : s.hapticIntensity
+              : 'off',
+          };
+        }),
+      setHapticIntensity: (intensity) =>
+        set({
+          hapticIntensity: intensity,
+          hapticsEnabled: intensity !== 'off',
+        }),
       setSoundVolume: (volume) => set({ soundVolume: Math.max(0, Math.min(1, volume)) }),
       setMusicVolume: (volume) => set({ musicVolume: Math.max(0, Math.min(1, volume)) }),
       toggleGridLines: () => set((s) => ({ showGridLines: !s.showGridLines })),
       toggleGhostPreview: () => set((s) => ({ showGhostPreview: !s.showGhostPreview })),
+      setGraphicsQuality: (quality) => set({ graphicsQuality: quality }),
       completeTutorial: () => set({ tutorialCompleted: true }),
       toggleColorblindMode: () => set((s) => ({ colorblindMode: !s.colorblindMode })),
       toggleReducedMotion: () => set((s) => ({ reducedMotion: !s.reducedMotion })),

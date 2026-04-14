@@ -9,11 +9,31 @@
 import { useCallback, useRef, useEffect } from 'react';
 import { Audio } from 'expo-av';
 import * as Haptics from 'expo-haptics';
-import { useSettingsStore } from '../store/settingsStore';
+import { useSettingsStore, HapticIntensity } from '../store/settingsStore';
 
 type SoundType = 'place' | 'clear' | 'combo' | 'gameOver' | 'levelWin' | 'button' | 'select';
 
 type HapticType = 'light' | 'medium' | 'heavy' | 'success' | 'error';
+
+/**
+ * Map the nominal haptic tier to a concrete ImpactFeedbackStyle based on the
+ * user's intensity preference. Soft downgrades everything to Light; Strong
+ * upgrades Light → Medium and Medium → Heavy for more tactile emphasis.
+ */
+function scaleImpact(tier: 'light' | 'medium' | 'heavy', intensity: HapticIntensity): Haptics.ImpactFeedbackStyle | null {
+  if (intensity === 'off') return null;
+  if (intensity === 'soft') return Haptics.ImpactFeedbackStyle.Light;
+  if (intensity === 'strong') {
+    if (tier === 'light') return Haptics.ImpactFeedbackStyle.Medium;
+    return Haptics.ImpactFeedbackStyle.Heavy;
+  }
+  // normal
+  return tier === 'light'
+    ? Haptics.ImpactFeedbackStyle.Light
+    : tier === 'medium'
+      ? Haptics.ImpactFeedbackStyle.Medium
+      : Haptics.ImpactFeedbackStyle.Heavy;
+}
 
 // Map of sound types to their haptic feedback
 const HAPTIC_MAP: Record<SoundType, HapticType> = {
@@ -46,7 +66,7 @@ try {
 }
 
 export function useSound() {
-  const { soundEnabled, hapticsEnabled, soundVolume } = useSettingsStore();
+  const { soundEnabled, hapticsEnabled, hapticIntensity, soundVolume } = useSettingsStore();
   const soundsRef = useRef<Map<SoundType, Audio.Sound>>(new Map());
   const loadedRef = useRef(false);
 
@@ -102,32 +122,40 @@ export function useSound() {
     };
   }, []);
 
-  /** Play a haptic feedback pattern */
+  /** Play a haptic feedback pattern, scaled by the user's intensity setting. */
   const playHaptic = useCallback(async (type: HapticType) => {
-    if (!hapticsEnabled) return;
+    if (!hapticsEnabled || hapticIntensity === 'off') return;
 
     try {
       switch (type) {
         case 'light':
-          await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          break;
         case 'medium':
-          await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        case 'heavy': {
+          const style = scaleImpact(type, hapticIntensity);
+          if (style) await Haptics.impactAsync(style);
           break;
-        case 'heavy':
-          await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-          break;
+        }
         case 'success':
-          await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          // 'soft' intensity downgrades notifications to light impact so the
+          // user still gets a pulse without the louder system vibration.
+          if (hapticIntensity === 'soft') {
+            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          } else {
+            await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          }
           break;
         case 'error':
-          await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+          if (hapticIntensity === 'soft') {
+            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          } else {
+            await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+          }
           break;
       }
     } catch {
       // Haptics not available (e.g., simulator)
     }
-  }, [hapticsEnabled]);
+  }, [hapticsEnabled, hapticIntensity]);
 
   /** Play a game sound effect with corresponding haptic */
   const playSound = useCallback(async (type: SoundType) => {
@@ -150,19 +178,17 @@ export function useSound() {
 
   /** Play a placement sound with haptic variation based on column (spatial feedback) */
   const playPlacement = useCallback(async (col: number, gridSize: number) => {
-    if (!hapticsEnabled) return;
-
-    // Vary haptic intensity based on column position (left = light, right = heavy)
-    const ratio = col / Math.max(1, gridSize - 1);
-    try {
-      if (ratio < 0.33) {
-        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      } else if (ratio < 0.66) {
-        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      } else {
-        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-      }
-    } catch {}
+    if (hapticsEnabled && hapticIntensity !== 'off') {
+      // Vary the base tier based on column position, then let scaleImpact
+      // apply the user's intensity preference on top.
+      const ratio = col / Math.max(1, gridSize - 1);
+      const tier: 'light' | 'medium' | 'heavy' =
+        ratio < 0.33 ? 'light' : ratio < 0.66 ? 'medium' : 'heavy';
+      try {
+        const style = scaleImpact(tier, hapticIntensity);
+        if (style) await Haptics.impactAsync(style);
+      } catch {}
+    }
 
     // Play audio if available
     if (!soundEnabled) return;
@@ -173,7 +199,7 @@ export function useSound() {
         await sound.playAsync();
       } catch {}
     }
-  }, [hapticsEnabled, soundEnabled]);
+  }, [hapticsEnabled, hapticIntensity, soundEnabled]);
 
   return { playSound, playHaptic, playPlacement };
 }

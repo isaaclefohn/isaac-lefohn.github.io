@@ -30,7 +30,8 @@ export const PieceRenderer: React.FC<PieceRendererProps> = ({
   selected = false,
   disabled = false,
 }) => {
-  const { colorblindMode } = useSettingsStore();
+  const { colorblindMode, graphicsQuality } = useSettingsStore();
+  const isLowQuality = graphicsQuality === 'low';
   const { equippedTheme } = usePlayerStore();
   const theme = getTheme(equippedTheme);
   const BLOCK_COLORS = theme.blockColors;
@@ -80,10 +81,12 @@ export const PieceRenderer: React.FC<PieceRendererProps> = ({
                   borderLeftColor: lightColor,
                   borderBottomColor: darkColor,
                   borderRightColor: darkColor,
-                  borderTopWidth: 1.5,
-                  borderLeftWidth: 1.5,
-                  borderBottomWidth: 1.5,
-                  borderRightWidth: 1.5,
+                  borderTopWidth: isLowQuality ? 1 : 1.5,
+                  borderLeftWidth: isLowQuality ? 1 : 1.5,
+                  borderBottomWidth: isLowQuality ? 1 : 1.5,
+                  borderRightWidth: isLowQuality ? 1 : 1.5,
+                },
+                !isLowQuality && {
                   shadowColor: baseColor,
                   shadowOffset: { width: 0, height: 1 },
                   shadowOpacity: selected ? 0.6 : 0.3,
@@ -91,19 +94,21 @@ export const PieceRenderer: React.FC<PieceRendererProps> = ({
                 },
               ]}
             >
-              <View
-                style={[
-                  styles.highlight,
-                  {
-                    height: cellSize * 0.35,
-                    borderTopLeftRadius: Math.max(1, radius - 2),
-                    borderTopRightRadius: Math.max(1, radius - 2),
-                    borderBottomLeftRadius: cellSize * 0.4,
-                    borderBottomRightRadius: cellSize * 0.4,
-                    backgroundColor: `${lightColor}35`,
-                  },
-                ]}
-              />
+              {!isLowQuality && (
+                <View
+                  style={[
+                    styles.highlight,
+                    {
+                      height: cellSize * 0.35,
+                      borderTopLeftRadius: Math.max(1, radius - 2),
+                      borderTopRightRadius: Math.max(1, radius - 2),
+                      borderBottomLeftRadius: cellSize * 0.4,
+                      borderBottomRightRadius: cellSize * 0.4,
+                      backgroundColor: `${lightColor}35`,
+                    },
+                  ]}
+                />
+              )}
               {colorblindMode && <ColorblindPattern colorIndex={colorIdx} />}
             </View>
           );

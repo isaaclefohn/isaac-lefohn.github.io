@@ -14,6 +14,7 @@ import {
   Animated,
   Alert,
   Share,
+  TouchableOpacity,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Tutorial } from '../components/Tutorial';
@@ -130,6 +131,19 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) =>
               label="Haptic Feedback"
               value={settings.hapticsEnabled}
               onToggle={settings.toggleHaptics}
+            />
+            <Divider />
+            <SegmentedRow
+              icon="sparkle"
+              label="Haptic Strength"
+              value={settings.hapticIntensity}
+              options={[
+                { value: 'soft', label: 'Soft' },
+                { value: 'normal', label: 'Normal' },
+                { value: 'strong', label: 'Strong' },
+              ]}
+              onSelect={(v) => settings.setHapticIntensity(v as 'soft' | 'normal' | 'strong')}
+              disabled={!settings.hapticsEnabled}
               last
             />
           </View>
@@ -172,6 +186,17 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) =>
               label="Push Notifications"
               value={settings.notificationsEnabled}
               onToggle={settings.toggleNotifications}
+            />
+            <Divider />
+            <SegmentedRow
+              icon="gamepad"
+              label="Graphics Quality"
+              value={settings.graphicsQuality}
+              options={[
+                { value: 'low', label: 'Battery' },
+                { value: 'high', label: 'Premium' },
+              ]}
+              onSelect={(v) => settings.setGraphicsQuality(v as 'low' | 'high')}
               last
             />
           </View>
@@ -320,6 +345,80 @@ const SettingRow: React.FC<{
     />
   </View>
 );
+
+interface SegmentOption {
+  value: string;
+  label: string;
+}
+
+const SegmentedRow: React.FC<{
+  icon: IconName;
+  label: string;
+  value: string;
+  options: SegmentOption[];
+  onSelect: (value: string) => void;
+  disabled?: boolean;
+  last?: boolean;
+}> = ({ icon, label, value, options, onSelect, disabled = false }) => (
+  <View style={styles.settingRow}>
+    <View style={styles.settingLabelRow}>
+      <View style={styles.settingIconWrap}>
+        <GameIcon name={icon} size={18} />
+      </View>
+      <Text style={[styles.settingLabel, disabled && { opacity: 0.4 }]}>{label}</Text>
+    </View>
+    <View style={[segmentStyles.container, disabled && { opacity: 0.4 }]}>
+      {options.map((opt) => {
+        const selected = opt.value === value;
+        return (
+          <TouchableOpacity
+            key={opt.value}
+            onPress={() => !disabled && onSelect(opt.value)}
+            activeOpacity={0.7}
+            disabled={disabled}
+            style={[segmentStyles.segment, selected && segmentStyles.segmentSelected]}
+          >
+            <Text
+              style={[
+                segmentStyles.segmentText,
+                selected && segmentStyles.segmentTextSelected,
+              ]}
+            >
+              {opt.label}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  </View>
+);
+
+const segmentStyles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    backgroundColor: COLORS.gridEmpty,
+    borderRadius: RADII.sm,
+    padding: 2,
+  },
+  segment: {
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: RADII.sm - 2,
+  },
+  segmentSelected: {
+    backgroundColor: COLORS.accent,
+    ...SHADOWS.small,
+  },
+  segmentText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: COLORS.textSecondary,
+    letterSpacing: 0.3,
+  },
+  segmentTextSelected: {
+    color: COLORS.textPrimary,
+  },
+});
 
 const StatItem: React.FC<{ label: string; value: string }> = ({ label, value }) => (
   <View style={styles.statItem}>

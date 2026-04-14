@@ -29,7 +29,8 @@ export const BoardRenderer: React.FC<BoardRendererProps> = ({
   ghostCells = [],
   showGridLines = true,
 }) => {
-  const { colorblindMode } = useSettingsStore();
+  const { colorblindMode, graphicsQuality } = useSettingsStore();
+  const isLowQuality = graphicsQuality === 'low';
   const { equippedTheme } = usePlayerStore();
   const theme = getTheme(equippedTheme);
   const BLOCK_COLORS = theme.blockColors;
@@ -75,10 +76,12 @@ export const BoardRenderer: React.FC<BoardRendererProps> = ({
                     borderLeftColor: lightColor,
                     borderBottomColor: darkColor,
                     borderRightColor: darkColor,
-                    borderTopWidth: 2,
-                    borderLeftWidth: 2,
-                    borderBottomWidth: 2,
-                    borderRightWidth: 2,
+                    borderTopWidth: isLowQuality ? 1 : 2,
+                    borderLeftWidth: isLowQuality ? 1 : 2,
+                    borderBottomWidth: isLowQuality ? 1 : 2,
+                    borderRightWidth: isLowQuality ? 1 : 2,
+                  },
+                  !isLowQuality && {
                     shadowColor: baseColor,
                     shadowOffset: { width: 0, height: 2 },
                     shadowOpacity: 0.4,
@@ -86,10 +89,13 @@ export const BoardRenderer: React.FC<BoardRendererProps> = ({
                   },
                 ]}
               >
-                {/* Top highlight shine */}
-                <View style={[styles.highlight, { backgroundColor: `${lightColor}40` }]} />
-                {/* Inner glow dot */}
-                <View style={[styles.innerGlow, { backgroundColor: `${lightColor}30` }]} />
+                {/* Premium chrome only on high quality */}
+                {!isLowQuality && (
+                  <>
+                    <View style={[styles.highlight, { backgroundColor: `${lightColor}40` }]} />
+                    <View style={[styles.innerGlow, { backgroundColor: `${lightColor}30` }]} />
+                  </>
+                )}
                 {/* Colorblind pattern overlay */}
                 {colorblindMode && <ColorblindPattern colorIndex={colorIdx} />}
               </View>
