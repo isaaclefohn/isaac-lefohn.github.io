@@ -21,6 +21,8 @@ export interface ScoreEvent {
   perfectClear: boolean;
   /** Number of lines cleared simultaneously */
   linesCleared: number;
+  /** Number of chromatic (single-color) lines included in this clear */
+  chromaticClears: number;
   /** Breakdown of how points were earned */
   breakdown: {
     placementBonus: number;
@@ -28,8 +30,12 @@ export interface ScoreEvent {
     comboMultiplier: number;
     perfectClearBonus: number;
     multiLineBonus: number;
+    chromaticBonus: number;
   };
 }
+
+/** Bonus points per chromatic (same-color) clear. Unique to Color Block Blast. */
+export const CHROMATIC_BONUS_PER_LINE = 120;
 
 /** Perfect clear bonus: clearing the entire board */
 const PERFECT_CLEAR_BONUS = 500;
@@ -55,12 +61,14 @@ export function scorePlacement(cellCount: number): ScoreEvent {
     multiplier: 1,
     perfectClear: false,
     linesCleared: 0,
+    chromaticClears: 0,
     breakdown: {
       placementBonus,
       clearBonus: 0,
       comboMultiplier: 1,
       perfectClearBonus: 0,
       multiLineBonus: 0,
+      chromaticBonus: 0,
     },
   };
 }
@@ -70,7 +78,8 @@ export function scoreClear(
   linesCleared: number,
   cellsCleared: number,
   currentCombo: number,
-  isPerfectClear: boolean = false
+  isPerfectClear: boolean = false,
+  chromaticClears: number = 0,
 ): ScoreEvent {
   const newCombo = currentCombo + 1;
   const multiplierIndex = Math.min(newCombo - 1, COMBO_MULTIPLIERS.length - 1);
@@ -86,8 +95,12 @@ export function scoreClear(
   // Perfect clear bonus
   const perfectClearBonus = isPerfectClear ? PERFECT_CLEAR_BONUS : 0;
 
-  // Apply combo multiplier to base + multi-line, then add perfect clear flat
-  const totalPoints = Math.round((clearBonus + multiLineBonus) * multiplier) + perfectClearBonus;
+  // Chromatic bonus (single-color lines) — unique mechanic
+  const chromaticBonus = chromaticClears * CHROMATIC_BONUS_PER_LINE;
+
+  // Apply combo multiplier to base + multi-line + chromatic, then add flat perfect bonus
+  const totalPoints =
+    Math.round((clearBonus + multiLineBonus + chromaticBonus) * multiplier) + perfectClearBonus;
 
   return {
     points: totalPoints,
@@ -95,12 +108,14 @@ export function scoreClear(
     multiplier,
     perfectClear: isPerfectClear,
     linesCleared,
+    chromaticClears,
     breakdown: {
       placementBonus: 0,
       clearBonus,
       comboMultiplier: multiplier,
       perfectClearBonus,
       multiLineBonus,
+      chromaticBonus,
     },
   };
 }

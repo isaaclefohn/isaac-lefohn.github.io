@@ -114,7 +114,13 @@ export function processTurn(
   let newCombo: number;
 
   if (result.linesCleared > 0) {
-    scoreEvent = scoreClear(result.linesCleared, result.cellsCleared, state.combo, result.perfectClear);
+    scoreEvent = scoreClear(
+      result.linesCleared,
+      result.cellsCleared,
+      state.combo,
+      result.perfectClear,
+      result.chromaticClears,
+    );
     newCombo = scoreEvent.combo;
   } else {
     scoreEvent = scorePlacement(piece.cellCount);

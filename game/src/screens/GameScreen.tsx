@@ -306,6 +306,19 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
         setShowBurst(true);
         setTimeout(() => setShowConfetti(false), 2500);
         setTimeout(() => setShowClearFlash(false), 400);
+      } else if (event.chromaticClears > 0) {
+        // Chromatic clear — our unique mechanic
+        playSound('combo');
+        setShowComboBanner(true);
+        setClearFlashColor(COLORS.accent);
+        setShowClearFlash(true);
+        shakeBoard(1.5 + event.chromaticClears * 0.5);
+        setHypeText(event.chromaticClears >= 2 ? 'RAINBOW!' : 'CHROMATIC!');
+        setHypeColor(COLORS.accent);
+        setShowHype(true);
+        setBurstColor(COLORS.accent);
+        setShowBurst(true);
+        setTimeout(() => setShowClearFlash(false), 400);
       } else if (event.linesCleared >= 3) {
         playSound('combo');
         setShowComboBanner(true);

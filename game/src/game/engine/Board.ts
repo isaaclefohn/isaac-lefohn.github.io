@@ -95,6 +95,50 @@ export function findFullLines(grid: Grid): { rows: number[]; cols: number[] } {
   return { rows, cols };
 }
 
+/**
+ * Count "chromatic" clears — rows/cols where every filled cell shares the
+ * same color. This is a Color Block Blast-exclusive mechanic: it turns the
+ * color palette into a scoring lever, so players are rewarded for planning
+ * color matches rather than just clearing lines at random.
+ */
+export function countChromaticClears(
+  grid: Grid,
+  rows: number[],
+  cols: number[],
+): number {
+  const size = grid.length;
+  let chromatic = 0;
+  for (const r of rows) {
+    let color = -1;
+    let monochrome = true;
+    for (let c = 0; c < size; c++) {
+      const v = grid[r][c];
+      if (v === 0) continue;
+      if (color === -1) color = v;
+      else if (v !== color) {
+        monochrome = false;
+        break;
+      }
+    }
+    if (monochrome && color !== -1) chromatic++;
+  }
+  for (const c of cols) {
+    let color = -1;
+    let monochrome = true;
+    for (let r = 0; r < size; r++) {
+      const v = grid[r][c];
+      if (v === 0) continue;
+      if (color === -1) color = v;
+      else if (v !== color) {
+        monochrome = false;
+        break;
+      }
+    }
+    if (monochrome && color !== -1) chromatic++;
+  }
+  return chromatic;
+}
+
 /** Clear the given rows and columns, returning the new grid and count of cells cleared */
 export function clearLines(grid: Grid, rows: number[], cols: number[]): ClearResult {
   const size = grid.length;
@@ -168,6 +212,8 @@ export interface PlacementResult {
   perfectClear: boolean;
   /** Number of cascade chain reactions (0 = no cascades) */
   cascadeCount: number;
+  /** Number of cleared lines where every filled cell shared the same color */
+  chromaticClears: number;
 }
 
 export function executePlacement(
@@ -184,11 +230,15 @@ export function executePlacement(
   let allClearedRows: number[] = [];
   let allClearedCols: number[] = [];
   let cascadeCount = 0;
+  let totalChromaticClears = 0;
 
   // Clear + gravity cascade loop
   while (true) {
     const { rows, cols } = findFullLines(currentGrid);
     if (rows.length === 0 && cols.length === 0) break;
+
+    // Count chromatic lines BEFORE clearing (need the colors still in grid)
+    totalChromaticClears += countChromaticClears(currentGrid, rows, cols);
 
     const result = clearLines(currentGrid, rows, cols);
     totalLinesCleared += rows.length + cols.length;
@@ -217,6 +267,7 @@ export function executePlacement(
       clearedCols: [],
       perfectClear: false,
       cascadeCount: 0,
+      chromaticClears: 0,
     };
   }
 
@@ -230,6 +281,7 @@ export function executePlacement(
     clearedCols: allClearedCols,
     perfectClear: isPerfectClear,
     cascadeCount: actualCascades,
+    chromaticClears: totalChromaticClears,
   };
 }
 
