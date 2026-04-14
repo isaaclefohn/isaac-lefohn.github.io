@@ -9,7 +9,7 @@ import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import { BoardRenderer } from '../game/rendering/BoardRenderer';
 import { BoardEffects } from './BoardEffects';
 import { Grid, canPlace, countFilledCells, getNearClearLines } from '../game/engine/Board';
-import { Piece, getPieceCells } from '../game/engine/Piece';
+import { Piece, getPieceCentroid } from '../game/engine/Piece';
 import { CELL_SIZE, CELL_GAP, COLORS } from '../utils/constants';
 import { useSettingsStore } from '../store/settingsStore';
 
@@ -61,7 +61,10 @@ export const GameBoard: React.FC<GameBoardProps> = ({
     });
   }, [onBoardLayout]);
 
-  // Tap gesture for placing pieces
+  // Tap gesture for placing pieces. We anchor the piece on the filled-cell
+  // CENTROID (not the middle index of the cell list or the bbox corner) so
+  // unorthodox shapes — S/Z/L/T tetrominoes, pentominoes — land centred on
+  // the tapped cell the way the user expects.
   const tapGesture = Gesture.Tap()
     .onEnd((event) => {
       if (!selectedPiece) return;
@@ -70,12 +73,9 @@ export const GameBoard: React.FC<GameBoardProps> = ({
       const col = Math.floor((event.x - CELL_GAP) / cellTotal);
       const row = Math.floor((event.y - CELL_GAP) / cellTotal);
 
-      // Center the piece on the tapped cell
-      const cells = getPieceCells(selectedPiece);
-      const midRow = Math.floor(cells.length > 0 ? cells[Math.floor(cells.length / 2)].row : 0);
-      const midCol = Math.floor(cells.length > 0 ? cells[Math.floor(cells.length / 2)].col : 0);
-      const adjustedRow = row - midRow;
-      const adjustedCol = col - midCol;
+      const centroid = getPieceCentroid(selectedPiece);
+      const adjustedRow = row - Math.round(centroid.row);
+      const adjustedCol = col - Math.round(centroid.col);
 
       if (canPlace(grid, selectedPiece, adjustedRow, adjustedCol)) {
         onCellTap(adjustedRow, adjustedCol);

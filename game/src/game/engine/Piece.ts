@@ -173,3 +173,22 @@ export function getPieceCells(piece: Piece): { row: number; col: number }[] {
   }
   return cells;
 }
+
+/**
+ * Compute the centroid (average row/col) of a piece's FILLED cells in
+ * bounding-box-relative coordinates. Unlike the bounding-box center,
+ * this respects the actual visual mass of unorthodox shapes (S/Z/L/T,
+ * pentominoes, etc.) so drag-to-place and tap-to-place can anchor the
+ * piece under the user's finger in a way that matches what they see.
+ */
+export function getPieceCentroid(piece: Piece): { row: number; col: number } {
+  const cells = getPieceCells(piece);
+  if (cells.length === 0) return { row: 0, col: 0 };
+  let sumR = 0;
+  let sumC = 0;
+  for (const cell of cells) {
+    sumR += cell.row;
+    sumC += cell.col;
+  }
+  return { row: sumR / cells.length, col: sumC / cells.length };
+}

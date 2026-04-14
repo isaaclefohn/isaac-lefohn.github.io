@@ -11,7 +11,7 @@ import { usePlayerStore } from '../store/playerStore';
 import { GameBoard } from '../components/GameBoard';
 import { PieceTray, DragEvent } from '../components/PieceTray';
 import { PieceRenderer } from '../game/rendering/PieceRenderer';
-import { Piece, getPieceCells, getPieceSize } from '../game/engine/Piece';
+import { Piece, getPieceCells, getPieceCentroid } from '../game/engine/Piece';
 import { canPlace, findBestPlacement } from '../game/engine/Board';
 import { getWorldForLevel } from '../game/levels/Worlds';
 import { ScoreDisplay } from '../components/ScoreDisplay';
@@ -71,6 +71,12 @@ const POWER_UP_ICON_NAMES: Record<PowerUpType, 'bomb' | 'lightning' | 'palette'>
   rowClear: 'lightning',
   colorClear: 'palette',
 };
+
+/** Drag overlay tuning — the piece's visual centroid floats this many pixels
+ *  above the user's finger so the thumb never occludes where the piece lands. */
+const DRAG_OVERLAY_LIFT = 64;
+const DRAG_TRAY_CELL_SIZE = 28;
+const DRAG_TRAY_GAP = 3;
 
 export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => {
   const { level, endless } = route.params;
@@ -518,28 +524,26 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
   const screenToBoard = useCallback((screenX: number, screenY: number, piece: Piece) => {
     const { x: bx, y: by } = boardOriginRef.current;
     const cellTotal = CELL_SIZE + CELL_GAP;
-    const { width: pw, height: ph } = getPieceSize(piece);
 
-    // The drag overlay renders centered on screenX, above screenY
-    // Match the overlay positioning: centered horizontally, placed above finger
-    const trayCellSize = 28;
-    const trayGap = 3;
-    const overlayH = ph * (trayCellSize + trayGap) + trayGap;
+    // Anchor on the FILLED-cell centroid so unorthodox shapes (S/Z/L/T,
+    // pentominoes) line up under the finger where the user visually sees
+    // the piece's center of mass — not an empty bounding-box corner.
+    const centroid = getPieceCentroid(piece);
 
-    // Center of the visual overlay piece in screen coords
+    // Keep the drag overlay's centroid a fixed distance above the finger
+    // (matches DRAG_OVERLAY_LIFT in the render path below).
     const pieceCenterX = screenX;
-    const pieceCenterY = screenY - overlayH / 2 - 20;
+    const pieceCenterY = screenY - DRAG_OVERLAY_LIFT;
 
-    // Map the piece center to board coordinates
+    // Map the centroid screen position to a cell index on the board.
     const localX = pieceCenterX - bx - CELL_GAP;
     const localY = pieceCenterY - by - CELL_GAP;
 
-    // Use bounding box center for consistent offset (not middle of cells array)
-    const midCol = (pw - 1) / 2;
-    const midRow = (ph - 1) / 2;
-
-    const col = Math.round(localX / cellTotal - midCol);
-    const row = Math.round(localY / cellTotal - midRow);
+    // localX/cellTotal gives a fractional cell coordinate where 0 = center
+    // of the first cell's left edge; the +0.5 shifts to cell-center space
+    // before subtracting the centroid offset so rounding snaps correctly.
+    const col = Math.round(localX / cellTotal - centroid.col);
+    const row = Math.round(localY / cellTotal - centroid.row);
     return { row, col };
   }, []);
 
@@ -1096,21 +1100,29 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
       {/* Tutorial overlay for first-time players */}
       <TutorialOverlay visible={showTutorial} onComplete={completeTutorial} />
 
-      {/* Drag overlay — floating piece following the finger */}
+      {/* Drag overlay — floating piece following the finger.
+          Positioned so the filled-cell centroid sits DRAG_OVERLAY_LIFT px
+          above the finger, matching the anchor math in screenToBoard so the
+          visible piece and the ghost cells always line up — even for
+          unorthodox shapes (S/Z/L/T, pentominoes) whose bounding box
+          contains empty corners. */}
       {draggedPieceIndex !== null && dragPosition && gameState.availablePieces[draggedPieceIndex] && (() => {
         const dragPiece = gameState.availablePieces[draggedPieceIndex];
-        const { width: pw, height: ph } = getPieceSize(dragPiece);
-        const trayCellSize = 28;
-        const trayGap = 3;
-        const pieceW = pw * (trayCellSize + trayGap) + trayGap;
-        const pieceH = ph * (trayCellSize + trayGap) + trayGap;
+        const centroid = getPieceCentroid(dragPiece);
+        const cellTotal = DRAG_TRAY_CELL_SIZE + DRAG_TRAY_GAP;
+        // Pixel offset from the overlay's top-left to the centroid point.
+        // Each filled cell is drawn at (gap + c*cellTotal) in PieceRenderer,
+        // so the centroid's pixel position is DRAG_TRAY_GAP + centroid.col * cellTotal
+        // plus half a cell to land on the cell centre.
+        const centroidPx = DRAG_TRAY_GAP + centroid.col * cellTotal + DRAG_TRAY_CELL_SIZE / 2;
+        const centroidPy = DRAG_TRAY_GAP + centroid.row * cellTotal + DRAG_TRAY_CELL_SIZE / 2;
         return (
           <View style={styles.dragOverlay} pointerEvents="none">
             <View
               style={{
                 position: 'absolute',
-                left: dragPosition.x - pieceW / 2,
-                top: dragPosition.y - pieceH - 20,
+                left: dragPosition.x - centroidPx,
+                top: dragPosition.y - DRAG_OVERLAY_LIFT - centroidPy,
               }}
             >
               <PieceRenderer
