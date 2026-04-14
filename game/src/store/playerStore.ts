@@ -898,7 +898,7 @@ export const usePlayerStore = create<PlayerStore>()(
       },
     }),
     {
-      name: 'color-block-blast-player',
+      name: 'chroma-drop-player',
       storage: createJSONStorage(() => AsyncStorage),
     }
   )

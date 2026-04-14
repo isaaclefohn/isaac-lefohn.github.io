@@ -65,7 +65,7 @@ export function createChallengeMessage(params: {
     `Can you beat this score?`,
     ``,
     `Friend code: ${fromCode}`,
-    `Play Color Block Blast!`,
+    `Play Chroma Drop!`,
   ].join('\n');
 }
 

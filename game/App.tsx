@@ -1,5 +1,5 @@
 /**
- * Color Block Blast — Root App component.
+ * Chroma Drop — Root App component.
  * Sets up gesture handler, navigation, ads SDK, and status bar.
  */
 

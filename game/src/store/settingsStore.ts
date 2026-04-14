@@ -79,7 +79,7 @@ export const useSettingsStore = create<SettingsStore>()(
       setComebackShownDate: (date: string) => set({ comebackShownDate: date }),
     }),
     {
-      name: 'color-block-blast-settings',
+      name: 'chroma-drop-settings',
       storage: createJSONStorage(() => AsyncStorage),
     }
   )

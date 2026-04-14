@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Color Block Blast",
-    "slug": "color-block-blast",
+    "name": "Chroma Drop",
+    "slug": "chroma-drop",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.isaaclefohn.colorblockblast",
+      "bundleIdentifier": "com.isaaclefohn.chromadrop",
       "buildNumber": "1"
     },
     "android": {
@@ -22,7 +22,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#1a1a2e"
       },
-      "package": "com.isaaclefohn.colorblockblast"
+      "package": "com.isaaclefohn.chromadrop"
     },
     "plugins": [
       [

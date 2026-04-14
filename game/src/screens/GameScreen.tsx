@@ -630,13 +630,13 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
     if (isEndless) {
       message = `I scored ${gameState.score.toLocaleString()} in Zen Mode!\n\n` +
         `Lines: ${gameState.linesCleared} | Pieces: ${gameState.piecesPlaced}\n\n` +
-        `Color Block Blast - Can you beat my score?`;
+        `Chroma Drop - Can you beat my score?`;
     } else {
       const starEmojis = '⭐'.repeat(stars);
       const worldName = currentWorld?.name ?? '';
       message = `I scored ${gameState.score.toLocaleString()} on Level ${levelConfig.levelNumber} ${starEmojis}\n` +
         (worldName ? `World: ${worldName}\n` : '') +
-        `\nColor Block Blast - Can you beat my score?`;
+        `\nChroma Drop - Can you beat my score?`;
     }
     try {
       await Share.share({ message });

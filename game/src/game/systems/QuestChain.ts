@@ -44,7 +44,7 @@ export const QUEST_CHAINS: QuestChain[] = [
   {
     id: 'newbie',
     name: 'Getting Started',
-    description: 'Learn the basics of Color Block Blast',
+    description: 'Learn the basics of Chroma Drop',
     icon: 'play',
     color: '#4ADE80',
     steps: [

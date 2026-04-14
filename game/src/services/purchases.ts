@@ -145,7 +145,7 @@ export interface Product {
 export const PRODUCTS: Product[] = [
   // ─── Coin Packs ────────────────────────────────────────────────
   {
-    id: 'com.isaaclefohn.colorblockblast.coins500',
+    id: 'com.isaaclefohn.chromadrop.coins500',
     title: 'Coin Pouch',
     description: '500 coins',
     price: '$0.99',
@@ -153,7 +153,7 @@ export const PRODUCTS: Product[] = [
     reward: { type: 'coins', amount: 500 },
   },
   {
-    id: 'com.isaaclefohn.colorblockblast.coins2500',
+    id: 'com.isaaclefohn.chromadrop.coins2500',
     title: 'Coin Chest',
     description: '2,500 coins + 10 gems bonus',
     price: '$3.99',
@@ -162,7 +162,7 @@ export const PRODUCTS: Product[] = [
     badge: 'best_value',
   },
   {
-    id: 'com.isaaclefohn.colorblockblast.coins10000',
+    id: 'com.isaaclefohn.chromadrop.coins10000',
     title: 'Coin Vault',
     description: '10,000 coins + 50 gems bonus',
     price: '$9.99',
@@ -170,7 +170,7 @@ export const PRODUCTS: Product[] = [
     reward: { type: 'coins', amount: 10000, bonus: { gems: 50 } },
   },
   {
-    id: 'com.isaaclefohn.colorblockblast.coins50000',
+    id: 'com.isaaclefohn.chromadrop.coins50000',
     title: 'Coin Treasury',
     description: '50,000 coins + 200 gems bonus',
     price: '$39.99',
@@ -180,7 +180,7 @@ export const PRODUCTS: Product[] = [
 
   // ─── Gem Packs ─────────────────────────────────────────────────
   {
-    id: 'com.isaaclefohn.colorblockblast.gems100',
+    id: 'com.isaaclefohn.chromadrop.gems100',
     title: 'Gem Shard',
     description: '100 gems',
     price: '$1.99',
@@ -188,7 +188,7 @@ export const PRODUCTS: Product[] = [
     reward: { type: 'gems', amount: 100 },
   },
   {
-    id: 'com.isaaclefohn.colorblockblast.gems500',
+    id: 'com.isaaclefohn.chromadrop.gems500',
     title: 'Gem Trove',
     description: '500 gems + 1,000 coins bonus',
     price: '$7.99',
@@ -197,7 +197,7 @@ export const PRODUCTS: Product[] = [
     badge: 'popular',
   },
   {
-    id: 'com.isaaclefohn.colorblockblast.gems1500',
+    id: 'com.isaaclefohn.chromadrop.gems1500',
     title: 'Gem Hoard',
     description: '1,500 gems + 5,000 coins bonus',
     price: '$19.99',
@@ -208,7 +208,7 @@ export const PRODUCTS: Product[] = [
 
   // ─── Bundles ───────────────────────────────────────────────────
   {
-    id: 'com.isaaclefohn.colorblockblast.starter_pack',
+    id: 'com.isaaclefohn.chromadrop.starter_pack',
     title: 'Starter Pack',
     description: 'No ads + 2,000 coins, 200 gems, 3x each power-up',
     price: '$4.99',
@@ -221,7 +221,7 @@ export const PRODUCTS: Product[] = [
     badge: 'starter',
   },
   {
-    id: 'com.isaaclefohn.colorblockblast.power_bundle',
+    id: 'com.isaaclefohn.chromadrop.power_bundle',
     title: 'Power Bundle',
     description: '10x Bomb, 10x Row Clear, 10x Color Swap',
     price: '$6.99',
@@ -233,7 +233,7 @@ export const PRODUCTS: Product[] = [
     },
   },
   {
-    id: 'com.isaaclefohn.colorblockblast.mega_bundle',
+    id: 'com.isaaclefohn.chromadrop.mega_bundle',
     title: 'Mega Bundle',
     description: '25,000 coins, 1,000 gems, 15x each power-up',
     price: '$24.99',
@@ -248,7 +248,7 @@ export const PRODUCTS: Product[] = [
 
   // ─── Premium ───────────────────────────────────────────────────
   {
-    id: 'com.isaaclefohn.colorblockblast.adfree',
+    id: 'com.isaaclefohn.chromadrop.adfree',
     title: 'Remove Ads',
     description: 'Permanently remove all ads',
     price: '$3.99',
@@ -256,7 +256,7 @@ export const PRODUCTS: Product[] = [
     reward: { type: 'ad_free', amount: 1 },
   },
   {
-    id: 'com.isaaclefohn.colorblockblast.vip_pass',
+    id: 'com.isaaclefohn.chromadrop.vip_pass',
     title: 'VIP Pass',
     description: 'No ads + 2x daily rewards + exclusive VIP theme',
     price: '$9.99',

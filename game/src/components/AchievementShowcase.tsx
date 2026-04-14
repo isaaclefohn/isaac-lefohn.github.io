@@ -29,7 +29,7 @@ export const AchievementShowcase: React.FC<AchievementShowcaseProps> = ({ visibl
   const handleShare = async () => {
     const achievementList = unlocked.slice(0, 5).map(a => `  ${a.name}`).join('\n');
     const message = [
-      `Color Block Blast - ${displayName}'s Progress`,
+      `Chroma Drop - ${displayName}'s Progress`,
       ``,
       `Level: ${highestLevel}`,
       `Stars: ${totalStars}`,

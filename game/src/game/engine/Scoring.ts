@@ -1,5 +1,5 @@
 /**
- * Scoring system for Color Block Blast.
+ * Scoring system for Chroma Drop.
  * Points are earned from:
  *  - Placing pieces (small bonus per cell)
  *  - Clearing lines (main scoring)
@@ -34,7 +34,7 @@ export interface ScoreEvent {
   };
 }
 
-/** Bonus points per chromatic (same-color) clear. Unique to Color Block Blast. */
+/** Bonus points per chromatic (same-color) clear. Unique to Chroma Drop. */
 export const CHROMATIC_BONUS_PER_LINE = 120;
 
 /** Perfect clear bonus: clearing the entire board */

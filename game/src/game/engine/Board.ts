@@ -97,7 +97,7 @@ export function findFullLines(grid: Grid): { rows: number[]; cols: number[] } {
 
 /**
  * Count "chromatic" clears — rows/cols where every filled cell shares the
- * same color. This is a Color Block Blast-exclusive mechanic: it turns the
+ * same color. This is a Chroma Drop-exclusive mechanic: it turns the
  * color palette into a scoring lever, so players are rewarded for planning
  * color matches rather than just clearing lines at random.
  */

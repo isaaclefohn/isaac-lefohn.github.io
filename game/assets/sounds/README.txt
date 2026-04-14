@@ -1,4 +1,4 @@
-Color Block Blast Sound Effects
+Chroma Drop Sound Effects
 =========================
 
 Add the following .mp3 files to this directory, then uncomment the

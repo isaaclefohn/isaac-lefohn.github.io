@@ -237,7 +237,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) =>
                     achievements: player.unlockedAchievements.length,
                   };
                   try {
-                    await Share.share({ message: `Color Block Blast Progress\n${JSON.stringify(data, null, 2)}` });
+                    await Share.share({ message: `Chroma Drop Progress\n${JSON.stringify(data, null, 2)}` });
                   } catch { /* cancelled */ }
                 }}
                 variant="ghost"
@@ -258,8 +258,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) =>
                         text: 'Reset',
                         style: 'destructive',
                         onPress: async () => {
-                          await AsyncStorage.removeItem('color-block-blast-player');
-                          await AsyncStorage.removeItem('color-block-blast-settings');
+                          await AsyncStorage.removeItem('chroma-drop-player');
+                          await AsyncStorage.removeItem('chroma-drop-settings');
                           Alert.alert('Progress Reset', 'Restart the app to start fresh.');
                         },
                       },
@@ -281,7 +281,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) =>
         {/* About footer */}
         <Animated.View style={[styles.footer, animatedStyle(anims[8])]}>
           <GameIcon name="gamepad" size={32} />
-          <Text style={styles.footerAppName}>Color Block Blast</Text>
+          <Text style={styles.footerAppName}>Chroma Drop</Text>
           <Text style={styles.footerVersion}>Version 1.0.0</Text>
           <Text style={styles.footerCopy}>Made with care</Text>
         </Animated.View>

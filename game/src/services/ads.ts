@@ -1,5 +1,5 @@
 /**
- * Ad management service for Color Block Blast.
+ * Ad management service for Chroma Drop.
  * Handles frequency capping, ad-free detection, and real AdMob delivery.
  *
  * In Expo Go (development), ads are simulated because the native module

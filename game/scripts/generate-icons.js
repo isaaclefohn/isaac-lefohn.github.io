@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * App icon and splash screen generator for Color Block Blast.
+ * App icon and splash screen generator for Chroma Drop.
  *
  * Prerequisites:
  *   npm install sharp

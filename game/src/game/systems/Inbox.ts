@@ -39,7 +39,7 @@ export function generateWelcomeMessage(): InboxMessage {
   return {
     id: 'welcome',
     type: 'system',
-    title: 'Welcome to Color Block Blast!',
+    title: 'Welcome to Chroma Drop!',
     body: 'Thanks for playing! Here\'s a starter gift to get you going. Check your inbox often for more rewards and news.',
     icon: 'gift',
     color: '#4ADE80',
