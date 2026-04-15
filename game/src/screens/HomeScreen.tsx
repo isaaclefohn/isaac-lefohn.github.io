@@ -52,7 +52,8 @@ import { MysteryShopModal } from '../components/MysteryShopModal';
 import { BlockMasteryModal } from '../components/BlockMasteryModal';
 import { DailyRouletteModal } from '../components/DailyRouletteModal';
 import { hasSpunToday } from '../game/challenges/DailyRoulette';
-import { getDailyPuzzleId, getDailyPuzzleLabel } from '../game/challenges/DailyPuzzle';
+import { getDailyPuzzleId, getDailyPuzzleLabel, formatCountdown, getMsUntilNextPuzzle } from '../game/challenges/DailyPuzzle';
+import { DailyStatsModal } from '../components/DailyStatsModal';
 import { StarterPackModal } from '../components/StarterPackModal';
 import { FlashOfferModal } from '../components/FlashOfferModal';
 import { FreeChestModal } from '../components/FreeChestModal';
@@ -123,6 +124,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const [showMysteryShop, setShowMysteryShop] = useState(false);
   const [showBlockMastery, setShowBlockMastery] = useState(false);
   const [showDailyRoulette, setShowDailyRoulette] = useState(false);
+  const [showDailyStats, setShowDailyStats] = useState(false);
   const [showStarterPack, setShowStarterPack] = useState(false);
   const [showFlashOffer, setShowFlashOffer] = useState(false);
   const [showFreeChest, setShowFreeChest] = useState(false);
@@ -500,8 +502,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           {(() => {
             const todayId = getDailyPuzzleId();
             const playedToday = dailyPuzzleLastPlayedId === todayId;
+            // nowTick ticks every 30s (for the VIP/offer cards above) —
+            // reuse it so this countdown stays fresh without an extra
+            // interval. Daily banner only needs minute-level accuracy.
+            void nowTick;
+            const countdownLabel = formatCountdown(getMsUntilNextPuzzle());
             const label = playedToday
-              ? `Puzzle \u00b7 ${getDailyPuzzleLabel()} \u00b7 ${dailyPuzzleLastPlayedScore} pts`
+              ? `Puzzle \u00b7 ${getDailyPuzzleLabel()} \u00b7 ${dailyPuzzleLastPlayedScore} pts \u00b7 Next in ${countdownLabel}`
               : `Today's Puzzle \u00b7 ${getDailyPuzzleLabel()}`;
             const streakLabel = dailyPuzzleStreak > 1 ? ` \u00b7 ${dailyPuzzleStreak}\u2013day streak` : '';
             return (
@@ -513,7 +520,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                     backgroundColor: playedToday ? `${COLORS.accent}10` : `${COLORS.accent}20`,
                   },
                 ]}
-                onPress={() => navigation.navigate('Game', { level: 0, daily: true })}
+                onPress={() => {
+                  if (playedToday) {
+                    setShowDailyStats(true);
+                  } else {
+                    navigation.navigate('Game', { level: 0, daily: true });
+                  }
+                }}
                 activeOpacity={0.75}
               >
                 <GameIcon name="gift" size={14} color={COLORS.accent} />
@@ -1058,6 +1071,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       <DailyRouletteModal
         visible={showDailyRoulette}
         onClose={() => setShowDailyRoulette(false)}
+      />
+
+      {/* Daily Puzzle stats modal */}
+      <DailyStatsModal
+        visible={showDailyStats}
+        onClose={() => setShowDailyStats(false)}
       />
 
       {/* Offline reward modal */}

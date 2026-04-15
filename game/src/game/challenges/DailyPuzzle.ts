@@ -19,6 +19,12 @@ import { hashSeed } from '../../utils/seededRandom';
 
 export const DAILY_PUZZLE_LEVEL_NUMBER = -2;
 
+/** Fixed epoch the daily puzzle numbering counts from. 2026-01-01 is the
+ *  project's shipping reference date — every puzzle from here forward gets
+ *  a stable incrementing integer, so "Chroma Drop #47" means the same thing
+ *  for every player on the planet regardless of their local clock offset. */
+const DAILY_PUZZLE_EPOCH_ISO = '2026-01-01';
+
 /** Grid size for the daily puzzle — slightly larger than the 8x8 standard
  *  for more breathing room on a run-until-stuck format. */
 const DAILY_GRID_SIZE = 8;
@@ -82,3 +88,88 @@ export const DAILY_COIN_REWARDS: Record<0 | 1 | 2 | 3, number> = {
   3: 300,
 };
 export const DAILY_GEM_REWARD_3_STAR = 3;
+
+/** Return the stable puzzle number for a given date: days since the epoch,
+ *  +1 so the first puzzle is #1 (nicer to read than #0). Shared by every
+ *  player globally. */
+export function getDailyPuzzleNumber(date: Date = new Date()): number {
+  const epoch = new Date(DAILY_PUZZLE_EPOCH_ISO + 'T00:00:00');
+  const dayMs = 24 * 60 * 60 * 1000;
+  // Use the puzzle id (local YYYY-MM-DD) re-parsed as midnight so that
+  // local timezone shifts don't accidentally shove us onto the wrong
+  // integer. Result is the number of calendar days elapsed + 1.
+  const id = getDailyPuzzleId(date);
+  const local = new Date(id + 'T00:00:00');
+  return Math.max(1, Math.floor((local.getTime() - epoch.getTime()) / dayMs) + 1);
+}
+
+/** Countdown (ms) until local midnight — the moment the next puzzle unlocks. */
+export function getMsUntilNextPuzzle(now: Date = new Date()): number {
+  const next = new Date(now);
+  next.setHours(24, 0, 0, 0);
+  return Math.max(0, next.getTime() - now.getTime());
+}
+
+/** Format a countdown duration as "Xh Ym" / "Xm Ys" / "Xs". */
+export function formatCountdown(ms: number): string {
+  const totalSec = Math.max(0, Math.floor(ms / 1000));
+  const h = Math.floor(totalSec / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
+  if (h > 0) return `${h}h ${m}m`;
+  if (m > 0) return `${m}m ${s}s`;
+  return `${s}s`;
+}
+
+export interface DailyShareCardInput {
+  puzzleNumber: number;
+  dateLabel: string; // "Apr 15"
+  stars: number;     // 0-3
+  score: number;
+  linesCleared: number;
+  bestCombo: number;
+  piecesPlaced: number;
+  streak: number;
+  /** Fraction of the 3-star threshold the player achieved, 0-1. */
+  scoreFraction: number;
+}
+
+/** Build a Wordle-style shareable result card. Intentionally spoiler-free:
+ *  we share the player's RESULT, never the puzzle's piece sequence, so
+ *  recipients can still try today's puzzle fresh. Plain text so it pastes
+ *  cleanly into iMessage, WhatsApp, X, Discord, etc. — the same pattern
+ *  that turned Wordle into a social habit.
+ *
+ *  Example output:
+ *
+ *    Chroma Drop #47 — Apr 15
+ *    ⭐⭐⭐  8,420 pts
+ *    🟩🟩🟩🟩🟩🟩🟩🟩🟨⬜
+ *    🔥 4-day streak · 12 lines · x6 combo
+ *    chromadrop.app
+ */
+export function buildDailyShareCard(input: DailyShareCardInput): string {
+  const starBar = input.stars > 0 ? '⭐'.repeat(input.stars) : '☆';
+  // Score progress bar: 10 squares, filled proportional to scoreFraction
+  // capped at 1.0. Uses colored squares so the glyph count stays fixed
+  // regardless of stars — Wordle's grid has a consistent width for a
+  // reason (it renders predictably in every chat app).
+  const FILLED = input.stars >= 3 ? '🟩' : input.stars === 2 ? '🟨' : input.stars === 1 ? '🟧' : '🟥';
+  const EMPTY = '⬜';
+  const filled = Math.min(10, Math.max(0, Math.round(input.scoreFraction * 10)));
+  const bar = FILLED.repeat(filled) + EMPTY.repeat(10 - filled);
+
+  const lines: string[] = [];
+  lines.push(`Chroma Drop #${input.puzzleNumber} — ${input.dateLabel}`);
+  lines.push(`${starBar}  ${input.score.toLocaleString()} pts`);
+  lines.push(bar);
+
+  const stats: string[] = [];
+  if (input.streak > 1) stats.push(`🔥 ${input.streak}-day streak`);
+  stats.push(`${input.linesCleared} lines`);
+  if (input.bestCombo > 1) stats.push(`x${input.bestCombo} combo`);
+  lines.push(stats.join(' · '));
+
+  lines.push('chromadrop.app');
+  return lines.join('\n');
+}

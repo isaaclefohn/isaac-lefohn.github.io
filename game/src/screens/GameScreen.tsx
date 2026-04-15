@@ -41,6 +41,12 @@ import { getNewlyUnlockedFeatures, isFeatureUnlocked, FeatureGate } from '../gam
 import { useSettingsStore } from '../store/settingsStore';
 import { GameTip, TipId } from '../components/GameTip';
 import { isBossLevel } from '../game/levels/LevelGenerator';
+import {
+  buildDailyShareCard,
+  getDailyPuzzleId,
+  getDailyPuzzleLabel,
+  getDailyPuzzleNumber,
+} from '../game/challenges/DailyPuzzle';
 import { getLuckyLevelReward, LuckyLevelReward } from '../game/rewards/LuckyLevel';
 import { LuckyLevelModal } from '../components/LuckyLevelModal';
 import { WorldCompleteModal } from '../components/WorldCompleteModal';
@@ -104,7 +110,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
   } = useGameEngine();
 
   const { playSound, playPlacement } = useSound();
-  const { powerUps, usePowerUp, coins, gems, addCoins, addGems, addPowerUp, spendGems, levelHighScores, levelStars, zenHighScore, consecutiveFailures, lastFailedLevel, displayName, highestLevel, skillRating, claimedWorldClears, claimedWorldPerfects, claimWorldClear, claimWorldPerfect } = usePlayerStore();
+  const { powerUps, usePowerUp, coins, gems, addCoins, addGems, addPowerUp, spendGems, levelHighScores, levelStars, zenHighScore, consecutiveFailures, lastFailedLevel, displayName, highestLevel, skillRating, claimedWorldClears, claimedWorldPerfects, claimWorldClear, claimWorldPerfect, dailyPuzzleStreak } = usePlayerStore();
   const { tutorialCompleted, completeTutorial, shownTips, markTipShown } = useSettingsStore();
 
   const showTutorial = !isEndless && level === 1 && !tutorialCompleted;
@@ -635,7 +641,23 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
   const handleShare = useCallback(async () => {
     if (!gameState || !levelConfig) return;
     let message: string;
-    if (isEndless) {
+    if (isDaily) {
+      // Wordle-style shareable result card. Same shape every day so it
+      // renders predictably in iMessage / WhatsApp / X / Discord and
+      // creates the viral share loop we want out of the daily puzzle.
+      const threeStar = levelConfig.starThresholds?.[2] ?? 1;
+      message = buildDailyShareCard({
+        puzzleNumber: getDailyPuzzleNumber(),
+        dateLabel: getDailyPuzzleLabel(),
+        stars,
+        score: gameState.score,
+        linesCleared: gameState.linesCleared,
+        bestCombo: gameState.combo ?? 0,
+        piecesPlaced: gameState.piecesPlaced,
+        streak: dailyPuzzleStreak,
+        scoreFraction: Math.min(1, gameState.score / threeStar),
+      });
+    } else if (isEndless) {
       message = `I scored ${gameState.score.toLocaleString()} in Zen Mode!\n\n` +
         `Lines: ${gameState.linesCleared} | Pieces: ${gameState.piecesPlaced}\n\n` +
         `Chroma Drop - Can you beat my score?`;
@@ -649,7 +671,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
     try {
       await Share.share({ message });
     } catch {}
-  }, [gameState, levelConfig, stars, isEndless, currentWorld]);
+  }, [gameState, levelConfig, stars, isEndless, isDaily, currentWorld, dailyPuzzleStreak]);
 
   const handleChallengeFriend = useCallback(async () => {
     if (!gameState || !levelConfig || isEndless) return;
@@ -942,8 +964,15 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
         )}
 
         <View style={styles.modalButtons}>
-          <Button title="Next Level" onPress={handleNextLevel} variant="primary" size="medium" />
-          {!doubleCoinsUsed && calculateCoinReward(stars) > 0 && (
+          {isDaily ? (
+            // Daily puzzle: sharing is the primary action. Wordle's entire
+            // growth loop hinged on a big obvious share button — we mirror
+            // it here and hide the irrelevant "Next Level" CTA.
+            <Button title="Share Result" onPress={handleShare} variant="primary" size="medium" />
+          ) : (
+            <Button title="Next Level" onPress={handleNextLevel} variant="primary" size="medium" />
+          )}
+          {!isDaily && !doubleCoinsUsed && calculateCoinReward(stars) > 0 && (
             <Button
               title={`2x Coins (+${calculateCoinReward(stars)})`}
               onPress={handleDoubleCoins}
@@ -953,10 +982,12 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
           )}
           <Button title="Retry" onPress={handleRetry} variant="secondary" size="small" />
           <View style={styles.shareRow}>
-            {!isEndless && (
+            {!isEndless && !isDaily && (
               <Button title="Challenge" onPress={handleChallengeFriend} variant="ghost" size="small" />
             )}
-            <Button title="Share" onPress={handleShare} variant="ghost" size="small" />
+            {!isDaily && (
+              <Button title="Share" onPress={handleShare} variant="ghost" size="small" />
+            )}
             <Button title="Home" onPress={handleHome} variant="ghost" size="small" />
           </View>
         </View>
@@ -965,11 +996,28 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
       {/* Lose Modal */}
       <Modal visible={showLoseModal} onClose={() => {}} dismissable={false}>
         <View style={styles.modalIconWrap}>
-          <GameIcon name={isEndless ? 'sparkle' : 'target'} size={48} color={isEndless ? COLORS.accentGold : COLORS.textMuted} />
+          <GameIcon name={isDaily ? 'sparkle' : isEndless ? 'sparkle' : 'target'} size={48} color={isDaily || isEndless ? COLORS.accentGold : COLORS.textMuted} />
         </View>
-        <Text style={styles.modalTitle}>{isEndless ? 'Game Over!' : 'No More Moves'}</Text>
+        <Text style={styles.modalTitle}>{isDaily ? 'Run Complete!' : isEndless ? 'Game Over!' : 'No More Moves'}</Text>
+        {isDaily && (
+          <View style={styles.modalStars}>
+            {[1, 2, 3].map((s) => (
+              <GameIcon key={s} name={s <= stars ? 'star' : 'star-outline'} size={36} />
+            ))}
+          </View>
+        )}
         <Text style={styles.modalScore}>{formatScore(gameState.score)}</Text>
-        {isEndless ? (
+        {isDaily ? (
+          <View style={styles.endlessStats}>
+            <Text style={styles.endlessStatText}>Lines cleared: {gameState.linesCleared}</Text>
+            <Text style={styles.endlessStatText}>Best combo: {gameState.combo}x</Text>
+            {dailyPuzzleStreak > 1 && (
+              <Text style={[styles.endlessStatText, { color: COLORS.accentGold, fontWeight: '800' }]}>
+                {dailyPuzzleStreak}-day streak
+              </Text>
+            )}
+          </View>
+        ) : isEndless ? (
           <View style={styles.endlessStats}>
             <Text style={styles.endlessStatText}>Pieces placed: {gameState.piecesPlaced}</Text>
             <Text style={styles.endlessStatText}>Lines cleared: {gameState.linesCleared}</Text>
@@ -1001,7 +1049,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
             </View>
           </>
         )}
-        {srChange !== null && (
+        {srChange !== null && !isDaily && (
           <View style={styles.srChangeRow}>
             <GameIcon name="shield" size={14} color={getSkillTier(skillRating).color} />
             <Text style={[styles.srChangeText, { color: COLORS.danger }]}>
@@ -1010,7 +1058,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
           </View>
         )}
         {/* Rescue offer after 2+ failures on same level */}
-        {!isEndless && consecutiveFailures >= 2 && lastFailedLevel === level && !rescueClaimed && (
+        {!isEndless && !isDaily && consecutiveFailures >= 2 && lastFailedLevel === level && !rescueClaimed && (
           <View style={styles.rescueCard}>
             <Text style={styles.rescueText}>Struggling? Here's a free Bomb to help!</Text>
             <Button
@@ -1023,7 +1071,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
         )}
 
         {/* Continue button — near-miss only, costs 10 gems */}
-        {!isEndless && !continueUsed && gameState.score >= levelConfig.objective.target * 0.7 && gems >= 10 && (
+        {!isEndless && !isDaily && !continueUsed && gameState.score >= levelConfig.objective.target * 0.7 && gems >= 10 && (
           <Button
             title="Continue (10 Gems)"
             onPress={() => {
@@ -1040,19 +1088,31 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
         )}
 
         <View style={styles.modalButtons}>
-          <Button title={isEndless ? 'Play Again' : 'Try Again'} onPress={handleRetry} variant="primary" size="medium" />
-          {!isEndless && canShowRewarded() && (
-            <Button
-              title={`Watch Ad +${AD_REWARDS.coins.amount}`}
-              onPress={handleWatchAd}
-              variant="secondary"
-              size="medium"
-            />
+          {isDaily ? (
+            // Daily puzzle "loss" = the run is over for today. Sharing is
+            // the primary CTA; retry is hidden because you only get one
+            // attempt per puzzle. Player goes home to wait for tomorrow.
+            <>
+              <Button title="Share Result" onPress={handleShare} variant="primary" size="medium" />
+              <Button title="Home" onPress={handleHome} variant="secondary" size="medium" />
+            </>
+          ) : (
+            <>
+              <Button title={isEndless ? 'Play Again' : 'Try Again'} onPress={handleRetry} variant="primary" size="medium" />
+              {!isEndless && canShowRewarded() && (
+                <Button
+                  title={`Watch Ad +${AD_REWARDS.coins.amount}`}
+                  onPress={handleWatchAd}
+                  variant="secondary"
+                  size="medium"
+                />
+              )}
+              <View style={styles.shareRow}>
+                <Button title="Share" onPress={handleShare} variant="ghost" size="small" />
+                <Button title="Home" onPress={handleHome} variant="ghost" size="small" />
+              </View>
+            </>
           )}
-          <View style={styles.shareRow}>
-            <Button title="Share" onPress={handleShare} variant="ghost" size="small" />
-            <Button title="Home" onPress={handleHome} variant="ghost" size="small" />
-          </View>
         </View>
       </Modal>
       {/* Contextual tutorial tips */}
