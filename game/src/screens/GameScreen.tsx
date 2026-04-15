@@ -79,8 +79,9 @@ const DRAG_TRAY_CELL_SIZE = 28;
 const DRAG_TRAY_GAP = 3;
 
 export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => {
-  const { level, endless } = route.params;
+  const { level, endless, daily } = route.params;
   const isEndless = endless === true;
+  const isDaily = daily === true;
   const {
     gameState,
     levelConfig,
@@ -88,6 +89,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
     stars,
     loadLevel,
     loadEndless,
+    loadDailyPuzzle,
     selectPiece,
     placePiece,
     rotatePiece,
@@ -183,12 +185,14 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
 
   // Load level on mount
   useEffect(() => {
-    if (isEndless) {
+    if (isDaily) {
+      loadDailyPuzzle();
+    } else if (isEndless) {
       loadEndless();
     } else {
       loadLevel(level);
     }
-  }, [level, isEndless, loadLevel, loadEndless]);
+  }, [level, isEndless, isDaily, loadLevel, loadEndless, loadDailyPuzzle]);
 
   // Board shake helper
   const shakeBoard = useCallback((intensity: number = 1) => {

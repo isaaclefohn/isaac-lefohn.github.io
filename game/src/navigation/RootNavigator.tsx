@@ -17,7 +17,7 @@ import { WeeklyChallengeScreen } from '../screens/WeeklyChallengeScreen';
 
 export type RootStackParamList = {
   Home: undefined;
-  Game: { level: number; endless?: boolean };
+  Game: { level: number; endless?: boolean; daily?: boolean };
   LevelSelect: undefined;
   Settings: undefined;
   Shop: undefined;

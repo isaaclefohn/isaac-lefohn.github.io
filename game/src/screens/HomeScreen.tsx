@@ -52,6 +52,7 @@ import { MysteryShopModal } from '../components/MysteryShopModal';
 import { BlockMasteryModal } from '../components/BlockMasteryModal';
 import { DailyRouletteModal } from '../components/DailyRouletteModal';
 import { hasSpunToday } from '../game/challenges/DailyRoulette';
+import { getDailyPuzzleId, getDailyPuzzleLabel } from '../game/challenges/DailyPuzzle';
 import { StarterPackModal } from '../components/StarterPackModal';
 import { FlashOfferModal } from '../components/FlashOfferModal';
 import { FreeChestModal } from '../components/FreeChestModal';
@@ -90,7 +91,7 @@ const TITLE_BLOCKS = [
 ];
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
-  const { highestLevel, coins, gems, totalScore, currentStreak, dailyRewardLastClaimed, unlockedAchievements, checkAchievements, lastSpinDate, piggyBankCoins, lastGiftDate, gamesPlayedToday, claimGift, lastPlayDate, collectedStickers, collectSticker, totalLinesCleared, bestCombo, totalGamesPlayed, longestStreak, addCoins, lastDealClaimed, rouletteLastDate } = usePlayerStore();
+  const { highestLevel, coins, gems, totalScore, currentStreak, dailyRewardLastClaimed, unlockedAchievements, checkAchievements, lastSpinDate, piggyBankCoins, lastGiftDate, gamesPlayedToday, claimGift, lastPlayDate, collectedStickers, collectSticker, totalLinesCleared, bestCombo, totalGamesPlayed, longestStreak, addCoins, lastDealClaimed, rouletteLastDate, dailyPuzzleLastPlayedId, dailyPuzzleLastPlayedScore, dailyPuzzleStreak } = usePlayerStore();
   const { tutorialCompleted, completeTutorial, notificationsEnabled, comebackShownDate, setComebackShownDate } = useSettingsStore();
   const [showTutorial, setShowTutorial] = useState(!tutorialCompleted);
   const [showDailyReward, setShowDailyReward] = useState(false);
@@ -491,6 +492,37 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
               </Text>
             </View>
           )}
+
+          {/* Daily Puzzle — one shared seed per day. Shows today's status
+              (not played / played with score) and launches the run-until-
+              stuck game. Visible to everyone — no feature gate — because
+              it's the primary retention hook. */}
+          {(() => {
+            const todayId = getDailyPuzzleId();
+            const playedToday = dailyPuzzleLastPlayedId === todayId;
+            const label = playedToday
+              ? `Puzzle \u00b7 ${getDailyPuzzleLabel()} \u00b7 ${dailyPuzzleLastPlayedScore} pts`
+              : `Today's Puzzle \u00b7 ${getDailyPuzzleLabel()}`;
+            const streakLabel = dailyPuzzleStreak > 1 ? ` \u00b7 ${dailyPuzzleStreak}\u2013day streak` : '';
+            return (
+              <TouchableOpacity
+                style={[
+                  styles.seasonBanner,
+                  {
+                    borderColor: playedToday ? `${COLORS.accent}30` : `${COLORS.accent}60`,
+                    backgroundColor: playedToday ? `${COLORS.accent}10` : `${COLORS.accent}20`,
+                  },
+                ]}
+                onPress={() => navigation.navigate('Game', { level: 0, daily: true })}
+                activeOpacity={0.75}
+              >
+                <GameIcon name="gift" size={14} color={COLORS.accent} />
+                <Text style={[styles.seasonText, { color: COLORS.accent }]}>
+                  {label}{streakLabel}
+                </Text>
+              </TouchableOpacity>
+            );
+          })()}
 
           {/* Secondary row - Daily Challenge + Weekly + Level Select + Zen */}
           <View style={styles.secondaryRow}>

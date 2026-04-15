@@ -11,6 +11,7 @@ import { calculateCoinReward } from '../game/engine/Scoring';
 import { getScoreMultiplier, getXPMultiplier, getCoinMultiplier } from '../game/events/LiveEvents';
 import { recordCompletionForRating, maybePromptRating } from '../services/appRating';
 import { getWeeklyChallengeConfig, getCurrentWeekId, WEEKLY_COIN_REWARDS, WEEKLY_GEM_BONUS } from '../game/challenges/WeeklyChallenge';
+import { getDailyPuzzleConfig, getDailyPuzzleId, DAILY_PUZZLE_LEVEL_NUMBER, DAILY_COIN_REWARDS, DAILY_GEM_REWARD_3_STAR } from '../game/challenges/DailyPuzzle';
 import { calculateSRChange } from '../game/systems/SkillRating';
 import { calculateReplayReward } from '../game/rewards/ReplayRewards';
 import { getActiveEvent, getEventInstanceId } from '../game/events/SeasonalEvent';
@@ -35,7 +36,7 @@ export function useGameEngine() {
     continueGame,
   } = useGameStore();
 
-  const { completeLevel, addCoins, addGems, updateStreak, checkAchievements, recordGamePlayed, recordZenGame, recordFailure, resetFailures, addPiggyBankCoins, addBattlePassXP, completeWeeklyChallenge, incrementGamesPlayedToday, updateQuestProgress, updateSkillRating, skillRating, levelHighScores, levelStars, addTreasureMapPiece, addSeasonalPoints, addBlockMasteryXP } = usePlayerStore();
+  const { completeLevel, addCoins, addGems, updateStreak, checkAchievements, recordGamePlayed, recordZenGame, recordDailyPuzzleResult, recordFailure, resetFailures, addPiggyBankCoins, addBattlePassXP, completeWeeklyChallenge, incrementGamesPlayedToday, updateQuestProgress, updateSkillRating, skillRating, levelHighScores, levelStars, addTreasureMapPiece, addSeasonalPoints, addBlockMasteryXP } = usePlayerStore();
 
   // Start a level by number (negative = weekly challenge)
   const loadLevel = useCallback((levelNumber: number) => {
@@ -56,12 +57,20 @@ export function useGameEngine() {
     updateStreak();
   }, [startLevel, updateStreak]);
 
+  // Start today's daily puzzle — shared seed, one-shot per day.
+  const loadDailyPuzzle = useCallback(() => {
+    const config = getDailyPuzzleConfig();
+    startLevel(config);
+    updateStreak();
+  }, [startLevel, updateStreak]);
+
   // Handle level completion and game over
   useEffect(() => {
     if (!gameState || !levelConfig) return;
 
     const isZen = levelConfig.levelNumber === 0;
     const isWeekly = levelConfig.levelNumber === -1;
+    const isDaily = levelConfig.levelNumber === DAILY_PUZZLE_LEVEL_NUMBER;
 
     if (gameState.status === 'won') {
       const stars = getStars();
@@ -80,6 +89,16 @@ export function useGameEngine() {
           addGems(WEEKLY_GEM_BONUS);
         }
         addBattlePassXP(Math.round(75 * xpMult)); // Weekly challenge XP bonus
+      } else if (isDaily) {
+        // Daily puzzle completion — 3-star target reached (rare).
+        const puzzleId = getDailyPuzzleId();
+        const result = recordDailyPuzzleResult(puzzleId, gameState.score, stars);
+        if (result.isFirstCompletion) {
+          const reward = DAILY_COIN_REWARDS[stars as 0 | 1 | 2 | 3] ?? 0;
+          if (reward > 0) addCoins(Math.round(reward * coinMult));
+          if (stars === 3) addGems(DAILY_GEM_REWARD_3_STAR);
+          addBattlePassXP(Math.round((40 + stars * 20) * xpMult));
+        }
       } else {
         // Normal level completion
         const coinReward = calculateCoinReward(stars);
@@ -124,7 +143,7 @@ export function useGameEngine() {
       checkAchievements();
 
       // Treasure hunt: chance to earn a map piece on level clear (40% with 3 stars, 20% otherwise)
-      if (!isZen) {
+      if (!isZen && !isDaily) {
         const rand = Math.random();
         const threshold = stars >= 3 ? 0.4 : 0.2;
         if (rand < threshold) {
@@ -157,12 +176,12 @@ export function useGameEngine() {
       if (gameState.combo > 1) {
         updateQuestProgress('combos_achieved', gameState.combo - 1);
       }
-      if (!isWeekly) {
+      if (!isWeekly && !isDaily) {
         updateQuestProgress('levels_completed', 1);
       }
 
       // Update Skill Rating on win
-      if (!isZen) {
+      if (!isZen && !isDaily) {
         const srChange = calculateSRChange({
           won: true,
           level: Math.abs(levelConfig.levelNumber),
@@ -177,7 +196,7 @@ export function useGameEngine() {
 
       // Track for app rating prompt — prompt after 3-star wins
       recordCompletionForRating().catch(() => {});
-      if (stars === 3 && !isWeekly) {
+      if (stars === 3 && !isWeekly && !isDaily) {
         setTimeout(() => {
           maybePromptRating(levelConfig.levelNumber).catch(() => {});
         }, 2000);
@@ -191,6 +210,21 @@ export function useGameEngine() {
         // Weekly challenge loss still records score
         const weekId = getCurrentWeekId();
         completeWeeklyChallenge(weekId, 0, gameState.score);
+        recordGamePlayed(gameState.combo ?? 0);
+      } else if (isDaily) {
+        // Daily puzzle "loss" = run ended (stuck). We still lock in the
+        // score, award participation coins, and advance the streak.
+        const puzzleId = getDailyPuzzleId();
+        const stars = getStars();
+        const result = recordDailyPuzzleResult(puzzleId, gameState.score, stars);
+        if (result.isFirstCompletion) {
+          const coinMult = getCoinMultiplier();
+          const reward = DAILY_COIN_REWARDS[stars as 0 | 1 | 2 | 3] ?? 0;
+          if (reward > 0) addCoins(Math.round(reward * coinMult));
+          if (stars === 3) addGems(DAILY_GEM_REWARD_3_STAR);
+          const xpMult = getXPMultiplier();
+          addBattlePassXP(Math.round((30 + stars * 15) * xpMult));
+        }
         recordGamePlayed(gameState.combo ?? 0);
       } else {
         recordGamePlayed(gameState.combo ?? 0);
@@ -222,6 +256,7 @@ export function useGameEngine() {
     // Actions
     loadLevel,
     loadEndless,
+    loadDailyPuzzle,
     selectPiece,
     placePiece,
     rotatePiece,

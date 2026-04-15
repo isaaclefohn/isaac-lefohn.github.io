@@ -76,6 +76,13 @@ interface PlayerStoreState {
   zenHighScore: number;
   zenGamesPlayed: number;
   zenBestLinesCleared: number;
+  // Daily Puzzle — one shared-seed run per calendar day
+  dailyPuzzleLastPlayedId: string | null;
+  dailyPuzzleLastPlayedScore: number;
+  dailyPuzzleLastPlayedStars: number;
+  dailyPuzzleBestScore: number;
+  dailyPuzzleStreak: number;
+  dailyPuzzlePlayCount: number;
   // Lucky Spin
   lastSpinDate: string | null;
   // Adaptive difficulty
@@ -201,6 +208,7 @@ interface PlayerStore extends PlayerStoreState {
   checkAchievements: () => Achievement[];
   recordGamePlayed: (combo: number) => void;
   recordZenGame: (score: number, linesCleared: number, combo: number) => void;
+  recordDailyPuzzleResult: (puzzleId: string, score: number, stars: number) => { isFirstCompletion: boolean; isNewBest: boolean };
   recordSpin: () => void;
   recordFailure: (level: number) => void;
   resetFailures: () => void;
@@ -314,6 +322,12 @@ export const usePlayerStore = create<PlayerStore>()(
       zenHighScore: 0,
       zenGamesPlayed: 0,
       zenBestLinesCleared: 0,
+      dailyPuzzleLastPlayedId: null,
+      dailyPuzzleLastPlayedScore: 0,
+      dailyPuzzleLastPlayedStars: 0,
+      dailyPuzzleBestScore: 0,
+      dailyPuzzleStreak: 0,
+      dailyPuzzlePlayCount: 0,
       lastSpinDate: null,
       consecutiveFailures: 0,
       lastFailedLevel: 0,
@@ -530,6 +544,42 @@ export const usePlayerStore = create<PlayerStore>()(
           totalGamesPlayed: s.totalGamesPlayed + 1,
           bestCombo: Math.max(s.bestCombo, combo),
         }));
+      },
+
+      recordDailyPuzzleResult: (puzzleId, score, stars) => {
+        // Only the FIRST attempt on a given puzzle counts — this is the
+        // whole "one shot, share the seed" promise of a daily. Subsequent
+        // replays are allowed (for fun / practice) but don't overwrite
+        // the locked-in score or advance the streak.
+        const s = get();
+        const isFirstCompletion = s.dailyPuzzleLastPlayedId !== puzzleId;
+        if (!isFirstCompletion) {
+          return { isFirstCompletion: false, isNewBest: false };
+        }
+        const isNewBest = score > s.dailyPuzzleBestScore;
+
+        // Streak bookkeeping: if the previous puzzle id was yesterday,
+        // extend the streak; otherwise reset to 1. Compared by date
+        // arithmetic on the id strings (YYYY-MM-DD).
+        let newStreak = 1;
+        if (s.dailyPuzzleLastPlayedId) {
+          const prev = new Date(s.dailyPuzzleLastPlayedId + 'T00:00:00');
+          const curr = new Date(puzzleId + 'T00:00:00');
+          const dayMs = 24 * 60 * 60 * 1000;
+          const diffDays = Math.round((curr.getTime() - prev.getTime()) / dayMs);
+          if (diffDays === 1) newStreak = s.dailyPuzzleStreak + 1;
+        }
+
+        set({
+          dailyPuzzleLastPlayedId: puzzleId,
+          dailyPuzzleLastPlayedScore: score,
+          dailyPuzzleLastPlayedStars: stars,
+          dailyPuzzleBestScore: Math.max(s.dailyPuzzleBestScore, score),
+          dailyPuzzleStreak: newStreak,
+          dailyPuzzlePlayCount: s.dailyPuzzlePlayCount + 1,
+          totalGamesPlayed: s.totalGamesPlayed + 1,
+        });
+        return { isFirstCompletion: true, isNewBest };
       },
 
       recordSpin: () => {
