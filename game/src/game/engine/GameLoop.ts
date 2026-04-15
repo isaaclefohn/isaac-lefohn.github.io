@@ -1,5 +1,5 @@
 /**
- * Game loop / turn manager for Block Blitz.
+ * Game loop / turn manager for Chroma Drop.
  * Manages the state machine for a single game session.
  */
 

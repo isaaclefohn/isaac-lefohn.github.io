@@ -325,7 +325,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       ).start();
     });
 
-    // BLAST glow pulse
+    // DROP glow pulse
     Animated.loop(
       Animated.sequence([
         Animated.timing(blastGlow, { toValue: 1, duration: 1200, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
@@ -406,11 +406,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
               { opacity: titleOpacity, transform: [{ translateY: titleTranslate }] },
             ]}
           >
-            COLOR BLOCK
+            CHROMA
           </Animated.Text>
           <Animated.View style={[styles.blastRow, { transform: [{ scale: blastScale }], opacity: blastGlow }]}>
             <View style={styles.titleDeco} />
-            <Text style={styles.titleAccent}>BLAST</Text>
+            <Text style={styles.titleAccent}>DROP</Text>
             <View style={styles.titleDeco} />
           </Animated.View>
           {/* Subtitle tagline */}
@@ -580,84 +580,94 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             <DailyQuestsCard visible={true} />
           )}
 
-          {/* Starter Pack banner — one-time offer for new players */}
-          {starterPackVisible && (
-            <TouchableOpacity
-              style={styles.starterBanner}
-              onPress={() => setShowStarterPack(true)}
-              activeOpacity={0.85}
-            >
-              <View style={styles.dealBannerLeft}>
-                <GameIcon name="gift" size={22} color={COLORS.accent} />
-                <View>
-                  <Text style={styles.starterBannerTitle}>Starter Pack — 88% OFF</Text>
-                  <Text style={styles.dealBannerSub}>One-time offer. Tap to claim!</Text>
-                </View>
-              </View>
-              <View style={styles.starterBannerArrow}>
-                <Text style={styles.dealBannerArrowText}>›</Text>
-              </View>
-            </TouchableOpacity>
-          )}
-
-          {/* Flash Offer banner — rotating limited deal */}
-          {isFeatureUnlocked('shop', highestLevel) && (
-            <TouchableOpacity
-              style={styles.flashBanner}
-              onPress={() => setShowFlashOffer(true)}
-              activeOpacity={0.85}
-            >
-              <View style={styles.dealBannerLeft}>
-                <GameIcon
-                  name={currentFlashOffer.icon as any}
-                  size={22}
-                  color={currentFlashOffer.accentColor}
-                />
-                <View>
-                  <Text
-                    style={[styles.flashBannerTitle, { color: currentFlashOffer.accentColor }]}
-                  >
-                    {currentFlashOffer.name} — {currentFlashOffer.discount}% off
-                  </Text>
-                  <Text style={styles.dealBannerSub}>Flash offer ends soon</Text>
-                </View>
-              </View>
-              <View
-                style={[
-                  styles.flashBannerArrow,
-                  { backgroundColor: `${currentFlashOffer.accentColor}30` },
-                ]}
-              >
-                <Text
-                  style={[styles.dealBannerArrowText, { color: currentFlashOffer.accentColor }]}
+          {/* Promotional banner — show ONLY the highest-priority active
+              offer at a time. Stacking Starter Pack + Flash Offer + Daily
+              Deal simultaneously made the home screen feel like slot-
+              machine spam. Priority: Starter Pack (one-time, new players)
+              > Flash Offer (rotating limited deal) > Daily Deal. */}
+          {(() => {
+            const shopUnlocked = isFeatureUnlocked('shop', highestLevel);
+            if (starterPackVisible) {
+              return (
+                <TouchableOpacity
+                  style={styles.starterBanner}
+                  onPress={() => setShowStarterPack(true)}
+                  activeOpacity={0.85}
                 >
-                  ›
-                </Text>
-              </View>
-            </TouchableOpacity>
-          )}
-
-          {/* Daily deal banner */}
-          {isFeatureUnlocked('shop', highestLevel) && !isDealClaimed(lastDealClaimed) && (
-            <TouchableOpacity
-              style={styles.dealBanner}
-              onPress={() => setShowDailyDeal(true)}
-              activeOpacity={0.85}
-            >
-              <View style={styles.dealBannerLeft}>
-                <GameIcon name="gift" size={22} color={COLORS.accentGold} />
-                <View>
-                  <Text style={styles.dealBannerTitle}>Daily Deal</Text>
-                  <Text style={styles.dealBannerSub}>
-                    {getTodaysDeal().name} — {getTodaysDeal().discountPercent}% off
-                  </Text>
-                </View>
-              </View>
-              <View style={styles.dealBannerArrow}>
-                <Text style={styles.dealBannerArrowText}>›</Text>
-              </View>
-            </TouchableOpacity>
-          )}
+                  <View style={styles.dealBannerLeft}>
+                    <GameIcon name="gift" size={22} color={COLORS.accent} />
+                    <View>
+                      <Text style={styles.starterBannerTitle}>Starter Pack — 88% OFF</Text>
+                      <Text style={styles.dealBannerSub}>One-time offer. Tap to claim!</Text>
+                    </View>
+                  </View>
+                  <View style={styles.starterBannerArrow}>
+                    <Text style={styles.dealBannerArrowText}>›</Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            }
+            if (shopUnlocked && currentFlashOffer) {
+              return (
+                <TouchableOpacity
+                  style={styles.flashBanner}
+                  onPress={() => setShowFlashOffer(true)}
+                  activeOpacity={0.85}
+                >
+                  <View style={styles.dealBannerLeft}>
+                    <GameIcon
+                      name={currentFlashOffer.icon as any}
+                      size={22}
+                      color={currentFlashOffer.accentColor}
+                    />
+                    <View>
+                      <Text
+                        style={[styles.flashBannerTitle, { color: currentFlashOffer.accentColor }]}
+                      >
+                        {currentFlashOffer.name} — {currentFlashOffer.discount}% off
+                      </Text>
+                      <Text style={styles.dealBannerSub}>Flash offer ends soon</Text>
+                    </View>
+                  </View>
+                  <View
+                    style={[
+                      styles.flashBannerArrow,
+                      { backgroundColor: `${currentFlashOffer.accentColor}30` },
+                    ]}
+                  >
+                    <Text
+                      style={[styles.dealBannerArrowText, { color: currentFlashOffer.accentColor }]}
+                    >
+                      ›
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            }
+            if (shopUnlocked && !isDealClaimed(lastDealClaimed)) {
+              return (
+                <TouchableOpacity
+                  style={styles.dealBanner}
+                  onPress={() => setShowDailyDeal(true)}
+                  activeOpacity={0.85}
+                >
+                  <View style={styles.dealBannerLeft}>
+                    <GameIcon name="gift" size={22} color={COLORS.accentGold} />
+                    <View>
+                      <Text style={styles.dealBannerTitle}>Daily Deal</Text>
+                      <Text style={styles.dealBannerSub}>
+                        {getTodaysDeal().name} — {getTodaysDeal().discountPercent}% off
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={styles.dealBannerArrow}>
+                    <Text style={styles.dealBannerArrowText}>›</Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            }
+            return null;
+          })()}
 
           {/* Live event banners */}
           <EventBanner />
@@ -825,7 +835,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             </View>
             <View style={styles.bottomButtonWrapper}>
               <Button
-                title={rouletteAvailable ? 'Spin!' : 'Spin'}
+                title={rouletteAvailable ? 'Wheel!' : 'Wheel'}
                 onPress={() => setShowDailyRoulette(true)}
                 variant={rouletteAvailable ? 'secondary' : 'ghost'}
                 size="small"
@@ -1297,9 +1307,11 @@ const styles = StyleSheet.create({
   },
   bottomRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     width: '100%',
     marginTop: SPACING.xs,
-    gap: SPACING.sm,
+    rowGap: 8,
+    columnGap: 8,
   },
   dealBanner: {
     flexDirection: 'row',
@@ -1396,7 +1408,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   bottomButtonWrapper: {
-    flex: 1,
+    // Four buttons per row at the widest; wrap to a new row on overflow.
+    // This replaces the old `flex: 1` layout which collapsed 20+ buttons
+    // to ~18px wide each, making every title render as an empty slot.
+    width: '23.5%',
+    minWidth: 72,
   },
   bottomButton: {
     width: '100%',

@@ -1,5 +1,5 @@
 /**
- * Game-over detection for Block Blitz.
+ * Game-over detection for Chroma Drop.
  * The game ends when none of the available pieces can be placed anywhere on the board.
  */
 

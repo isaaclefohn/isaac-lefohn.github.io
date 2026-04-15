@@ -1,5 +1,5 @@
 /**
- * Piece definitions for Block Blitz.
+ * Piece definitions for Chroma Drop.
  * Each piece is a 2D boolean matrix representing its shape.
  * The colorIndex determines the block color (1-7, maps to COLORS.blocks).
  */

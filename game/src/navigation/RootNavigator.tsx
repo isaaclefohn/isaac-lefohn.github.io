@@ -1,5 +1,5 @@
 /**
- * Root stack navigator for Block Blitz.
+ * Root stack navigator for Chroma Drop.
  */
 
 import React from 'react';

@@ -1,5 +1,5 @@
 /**
- * Core board logic for Block Blitz.
+ * Core board logic for Chroma Drop.
  * Pure functions operating on immutable grid state.
  * Grid values: 0 = empty, 1-7 = block color index.
  */
