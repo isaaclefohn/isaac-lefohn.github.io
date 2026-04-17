@@ -26,9 +26,44 @@ if (fs.existsSync(indexPath)) {
   html = html.replace(/src="\/_expo\//g, 'src="./_expo/');
   html = html.replace(/href="\/_expo\//g, 'href="./_expo/');
   html = html.replace(/href="\/assets\//g, 'href="./assets/');
+
+  // Bust browser cache: the bundle filename is content-hashed, but the
+  // outer HTML has no hash in the URL, so browsers happily serve a stale
+  // HTML that points at a renamed (and now 404ing) bundle. A no-cache meta
+  // forces a fresh HTML fetch on every load.
+  if (!html.includes('http-equiv="Cache-Control"')) {
+    html = html.replace(
+      '<meta charset="utf-8" />',
+      '<meta charset="utf-8" />\n    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />\n    <meta http-equiv="Pragma" content="no-cache" />\n    <meta http-equiv="Expires" content="0" />',
+    );
+  }
+
+  // Seed the root with a dark loading background so the user sees something
+  // the instant the HTML lands, before the JS bundle has parsed and rendered.
+  // Also surface any runtime error so a blank page is never silent.
+  if (!html.includes('id="bootSplash"')) {
+    const bootFragment =
+      '<div id="root"></div>\n' +
+      '    <div id="bootSplash" style="position:fixed;inset:0;background:#0F0E1A;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#8B89A6;font-family:system-ui,-apple-system,sans-serif;font-size:12px;letter-spacing:4px;font-weight:700;z-index:-1;">\n' +
+      '      <div>LOADING</div>\n' +
+      '      <div id="bootError" style="margin-top:16px;max-width:80%;font-size:11px;letter-spacing:0;color:#FF3B5C;text-align:center;white-space:pre-wrap;"></div>\n' +
+      '    </div>\n' +
+      '    <script>\n' +
+      "      window.addEventListener('error', function (e) {\n" +
+      "        var box = document.getElementById('bootError');\n" +
+      "        if (box) box.textContent = (e.message || 'Unknown error') + '\\n' + (e.filename || '') + ':' + (e.lineno || '');\n" +
+      '      });\n' +
+      "      window.addEventListener('unhandledrejection', function (e) {\n" +
+      "        var box = document.getElementById('bootError');\n" +
+      "        if (box) box.textContent = 'Unhandled rejection: ' + (e.reason && e.reason.message ? e.reason.message : String(e.reason));\n" +
+      '      });\n' +
+      '    </script>';
+    html = html.replace('<div id="root"></div>', bootFragment);
+  }
+
   if (html !== before) {
     fs.writeFileSync(indexPath, html);
-    console.log('Rewrote absolute paths in index.html -> relative');
+    console.log('Patched index.html (relative paths, cache headers, boot splash)');
   }
 }
 

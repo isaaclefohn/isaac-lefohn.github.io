@@ -72,9 +72,14 @@ export const BrandSplash: React.FC<BrandSplashProps> = ({ onDone }) => {
         duration: 320,
         useNativeDriver: true,
       }),
-    ]).start(({ finished }) => {
-      if (finished) onDone();
+    ]).start(() => {
+      onDone();
     });
+
+    // Safety fallback: always dismiss after 3s even if the animation is
+    // interrupted or the native driver is unavailable (e.g. web).
+    const fallback = setTimeout(onDone, 3000);
+    return () => clearTimeout(fallback);
   }, []);
 
   return (
