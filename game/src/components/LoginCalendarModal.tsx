@@ -44,74 +44,76 @@ export const LoginCalendarModal: React.FC<LoginCalendarModalProps> = ({ visible,
       <Text style={styles.title}>Login Calendar</Text>
       <Text style={styles.subtitle}>Check in daily for rewards!</Text>
 
-      <ScrollView style={styles.gridScroll} contentContainerStyle={styles.grid}>
-        {calendar.map((day) => {
-          const isClaimed = calendarMonth === currentMonth && day.day <= effectiveDay;
-          const isNext = day.day === nextDay && canClaim;
+      <View style={{ width: '100%' }}>
+        <ScrollView style={[styles.gridScroll, { width: '100%' }]} contentContainerStyle={styles.grid}>
+          {calendar.map((day) => {
+            const isClaimed = calendarMonth === currentMonth && day.day <= effectiveDay;
+            const isNext = day.day === nextDay && canClaim;
 
-          return (
-            <View
-              key={day.day}
-              style={[
-                styles.dayCell,
-                isClaimed && styles.dayClaimed,
-                isNext && styles.dayNext,
-                day.isBigDay && styles.dayBig,
-                day.isGrandFinale && styles.dayFinale,
-              ]}
-            >
-              <Text style={[styles.dayNumber, isClaimed && styles.dayNumberClaimed]}>
-                {day.day}
-              </Text>
-              {isClaimed ? (
-                <GameIcon name="check" size={14} color={COLORS.success} />
-              ) : (
-                <View style={styles.dayReward}>
-                  {day.gems > 0 ? (
-                    <GameIcon name="gem" size={10} />
-                  ) : (
-                    <GameIcon name="coin" size={10} />
-                  )}
-                  <Text style={styles.dayRewardText}>
-                    {day.gems > 0 ? day.gems : day.coins}
-                  </Text>
+            return (
+              <View
+                key={day.day}
+                style={[
+                  styles.dayCell,
+                  isClaimed && styles.dayClaimed,
+                  isNext && styles.dayNext,
+                  day.isBigDay && styles.dayBig,
+                  day.isGrandFinale && styles.dayFinale,
+                ]}
+              >
+                <Text style={[styles.dayNumber, isClaimed && styles.dayNumberClaimed]}>
+                  {day.day}
+                </Text>
+                {isClaimed ? (
+                  <GameIcon name="check" size={14} color={COLORS.success} />
+                ) : (
+                  <View style={styles.dayReward}>
+                    {day.gems > 0 ? (
+                      <GameIcon name="gem" size={10} />
+                    ) : (
+                      <GameIcon name="coin" size={10} />
+                    )}
+                    <Text style={styles.dayRewardText}>
+                      {day.gems > 0 ? day.gems : day.coins}
+                    </Text>
+                  </View>
+                )}
+                {day.powerUp && !isClaimed && (
+                  <GameIcon
+                    name={day.powerUp === 'bomb' ? 'bomb' : day.powerUp === 'rowClear' ? 'lightning' : 'palette'}
+                    size={8}
+                    color={COLORS.accent}
+                  />
+                )}
+              </View>
+            );
+          })}
+        </ScrollView>
+
+        {/* Claim section */}
+        {canClaim && nextDay <= 28 && (
+          <View style={styles.claimSection}>
+            <Text style={styles.claimLabel}>Day {nextDay} Reward:</Text>
+            <View style={styles.claimRewards}>
+              <View style={styles.claimItem}>
+                <GameIcon name="coin" size={14} />
+                <Text style={styles.claimValue}>+{calendar[nextDay - 1].coins}</Text>
+              </View>
+              {calendar[nextDay - 1].gems > 0 && (
+                <View style={styles.claimItem}>
+                  <GameIcon name="gem" size={14} />
+                  <Text style={styles.claimValue}>+{calendar[nextDay - 1].gems}</Text>
                 </View>
               )}
-              {day.powerUp && !isClaimed && (
-                <GameIcon
-                  name={day.powerUp === 'bomb' ? 'bomb' : day.powerUp === 'rowClear' ? 'lightning' : 'palette'}
-                  size={8}
-                  color={COLORS.accent}
-                />
-              )}
             </View>
-          );
-        })}
-      </ScrollView>
-
-      {/* Claim section */}
-      {canClaim && nextDay <= 28 && (
-        <View style={styles.claimSection}>
-          <Text style={styles.claimLabel}>Day {nextDay} Reward:</Text>
-          <View style={styles.claimRewards}>
-            <View style={styles.claimItem}>
-              <GameIcon name="coin" size={14} />
-              <Text style={styles.claimValue}>+{calendar[nextDay - 1].coins}</Text>
-            </View>
-            {calendar[nextDay - 1].gems > 0 && (
-              <View style={styles.claimItem}>
-                <GameIcon name="gem" size={14} />
-                <Text style={styles.claimValue}>+{calendar[nextDay - 1].gems}</Text>
-              </View>
-            )}
+            <Button title="Claim Today" onPress={handleClaim} variant="primary" size="medium" />
           </View>
-          <Button title="Claim Today" onPress={handleClaim} variant="primary" size="medium" />
-        </View>
-      )}
+        )}
 
-      {effectiveDay >= 28 && (
-        <Text style={styles.completedText}>Calendar complete! Resets next month.</Text>
-      )}
+        {effectiveDay >= 28 && (
+          <Text style={styles.completedText}>Calendar complete! Resets next month.</Text>
+        )}
+      </View>
     </Modal>
   );
 };

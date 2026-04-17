@@ -18,6 +18,7 @@ import { GiftBoxModal } from '../components/GiftBoxModal';
 import { PlayerProfileCard } from '../components/PlayerProfileCard';
 import { GameIcon } from '../components/GameIcon';
 import { EventBanner } from '../components/EventBanner';
+import { FeatureTile } from '../components/FeatureTile';
 import { isFeatureUnlocked, getNextUnlock } from '../game/progression/FeatureGating';
 import { shouldShowGift, generateGiftBox, GiftBox } from '../game/rewards/GiftBox';
 import { getActiveSeasonalTheme } from '../game/themes/SeasonalThemes';
@@ -672,243 +673,184 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           {/* Live event banners */}
           <EventBanner />
 
-          {/* Bottom row - progressively unlocked features */}
-          <View style={styles.bottomRow}>
-            {isFeatureUnlocked('lucky_spin', highestLevel) && (
-              <View style={styles.bottomButtonWrapper}>
-                <Button
-                  title={canSpin ? 'Spin!' : 'Spin'}
-                  onPress={() => setShowSpin(true)}
-                  variant={canSpin ? 'secondary' : 'ghost'}
-                  size="small"
-                  style={styles.bottomButton}
-                />
-              </View>
-            )}
-            {isFeatureUnlocked('piggy_bank', highestLevel) && (
-              <View style={styles.bottomButtonWrapper}>
-                <Button
-                  title={piggyBankCoins > 0 ? `Bank (${piggyBankCoins})` : 'Bank'}
-                  onPress={() => setShowPiggyBank(true)}
-                  variant={piggyBankCoins >= 100 ? 'secondary' : 'ghost'}
-                  size="small"
-                  style={styles.bottomButton}
-                />
-              </View>
-            )}
-            {isFeatureUnlocked('shop', highestLevel) && (
-              <View style={styles.bottomButtonWrapper}>
-                <Button
-                  title="Shop"
-                  onPress={() => navigation.navigate('Shop')}
-                  variant="ghost"
-                  size="small"
-                  style={styles.bottomButton}
-                />
-              </View>
-            )}
-            {isFeatureUnlocked('achievements', highestLevel) && (
-              <View style={styles.bottomButtonWrapper}>
-                <Button
-                  title="Trophies"
-                  onPress={() => setShowAchievements(true)}
-                  variant="ghost"
-                  size="small"
-                  style={styles.bottomButton}
-                />
-              </View>
-            )}
-            {isFeatureUnlocked('battle_pass', highestLevel) && (
-              <View style={styles.bottomButtonWrapper}>
-                <Button
-                  title="Season"
-                  onPress={() => navigation.navigate('BattlePass')}
-                  variant="ghost"
-                  size="small"
-                  style={styles.bottomButton}
-                />
-              </View>
-            )}
-            {isBossRushUnlocked(highestLevel) && (
-              <View style={styles.bottomButtonWrapper}>
-                <Button
-                  title="Boss Rush"
-                  onPress={() => setShowBossRush(true)}
-                  variant="ghost"
-                  size="small"
-                  style={styles.bottomButton}
-                />
-              </View>
-            )}
-            {isFeatureUnlocked('shop', highestLevel) && (
-              <View style={styles.bottomButtonWrapper}>
-                <Button
-                  title={
-                    treasureMapPieces >= PIECES_REQUIRED
-                      ? 'Treasure!'
-                      : `Treasure ${Math.min(treasureMapPieces, PIECES_REQUIRED)}/${PIECES_REQUIRED}`
-                  }
-                  onPress={() => setShowTreasure(true)}
-                  variant={treasureMapPieces >= PIECES_REQUIRED ? 'secondary' : 'ghost'}
-                  size="small"
-                  style={styles.bottomButton}
-                />
-              </View>
-            )}
-            {isFeatureUnlocked('weekly_challenge', highestLevel) && (
-              <View style={styles.bottomButtonWrapper}>
-                <Button
-                  title="Ranks"
-                  onPress={() => setShowLeaderboard(true)}
-                  variant="ghost"
-                  size="small"
-                  style={styles.bottomButton}
-                />
-              </View>
-            )}
-            {getHighestTier(highestLevel) !== null && (
-              <View style={styles.bottomButtonWrapper}>
-                <Button
-                  title={activeTournament ? 'Cup (Active)' : 'Cup'}
-                  onPress={() => setShowTournament(true)}
-                  variant={activeTournament ? 'secondary' : 'ghost'}
-                  size="small"
-                  style={styles.bottomButton}
-                />
-              </View>
-            )}
-            <View style={styles.bottomButtonWrapper}>
-              <Button
-                title={unclaimedCount > 0 ? `Inbox (${unclaimedCount})` : 'Inbox'}
-                onPress={() => setShowInbox(true)}
-                variant={unclaimedCount > 0 ? 'secondary' : 'ghost'}
-                size="small"
-                style={styles.bottomButton}
-              />
-            </View>
-            <View style={styles.bottomButtonWrapper}>
-              <Button
-                title={vipActive ? 'VIP' : 'Go VIP'}
-                onPress={() => setShowVIP(true)}
-                variant={vipActive ? 'secondary' : 'ghost'}
-                size="small"
-                style={styles.bottomButton}
-              />
-            </View>
-            <View style={styles.bottomButtonWrapper}>
-              <Button
-                title="Quests"
-                onPress={() => setShowQuestChains(true)}
-                variant="ghost"
-                size="small"
-                style={styles.bottomButton}
-              />
-            </View>
-            <View style={styles.bottomButtonWrapper}>
-              <Button
-                title="Fuse"
-                onPress={() => setShowFusion(true)}
-                variant="ghost"
-                size="small"
-                style={styles.bottomButton}
-              />
-            </View>
-            {activeSeason && (
-              <View style={styles.bottomButtonWrapper}>
-                <Button
-                  title={activeSeason.name}
-                  onPress={() => setShowSeasonalEvent(true)}
-                  variant="secondary"
-                  size="small"
-                  style={styles.bottomButton}
-                />
-              </View>
-            )}
-            <View style={styles.bottomButtonWrapper}>
-              <Button
-                title="Mystery"
-                onPress={() => setShowMysteryShop(true)}
-                variant="ghost"
-                size="small"
-                style={styles.bottomButton}
-              />
-            </View>
-            <View style={styles.bottomButtonWrapper}>
-              <Button
-                title={rouletteAvailable ? 'Wheel!' : 'Wheel'}
-                onPress={() => setShowDailyRoulette(true)}
-                variant={rouletteAvailable ? 'secondary' : 'ghost'}
-                size="small"
-                style={styles.bottomButton}
-              />
-            </View>
-            <View style={styles.bottomButtonWrapper}>
-              <Button
-                title={freeChestLabel}
+          {/* ── Feature Hub ───────────────────────────────── */}
+          {/* Only render tiles for features that are actually unlocked.
+              Disabled/grayed-out tiles look like an unfinished product. */}
+
+          {/* Rewards — always show at least chest + calendar */}
+          <View style={styles.hubSection}>
+            <Text style={styles.hubLabel}>REWARDS</Text>
+            <View style={styles.hubGrid}>
+              <FeatureTile
+                icon="gift"
+                label={freeChestReady ? 'Open!' : 'Free Chest'}
                 onPress={() => setShowFreeChest(true)}
-                variant={freeChestReady ? 'secondary' : 'ghost'}
-                size="small"
-                style={styles.bottomButton}
+                accent={COLORS.accentGold}
+                active={freeChestReady}
               />
-            </View>
-            <View style={styles.bottomButtonWrapper}>
-              <Button
-                title="Mastery"
-                onPress={() => setShowBlockMastery(true)}
-                variant="ghost"
-                size="small"
-                style={styles.bottomButton}
+              {isFeatureUnlocked('lucky_spin', highestLevel) && (
+                <FeatureTile
+                  icon="star"
+                  label={canSpin ? 'Spin!' : 'Lucky Spin'}
+                  onPress={() => setShowSpin(true)}
+                  accent="#FACC15"
+                  active={canSpin}
+                />
+              )}
+              <FeatureTile
+                icon="target"
+                label={rouletteAvailable ? 'Spin Now' : 'Roulette'}
+                onPress={() => setShowDailyRoulette(true)}
+                accent="#A78BFA"
+                active={rouletteAvailable}
               />
-            </View>
-            {isFeatureUnlocked('achievements', highestLevel) && (
-              <View style={styles.bottomButtonWrapper}>
-                <Button
-                  title="Album"
-                  onPress={() => setShowAlbum(true)}
-                  variant="ghost"
-                  size="small"
-                  style={styles.bottomButton}
-                />
-              </View>
-            )}
-            {isFeatureUnlocked('achievements', highestLevel) && (
-              <View style={styles.bottomButtonWrapper}>
-                <Button
-                  title="Showcase"
-                  onPress={() => setShowShowcase(true)}
-                  variant="ghost"
-                  size="small"
-                  style={styles.bottomButton}
-                />
-              </View>
-            )}
-            <View style={styles.bottomButtonWrapper}>
-              <Button
-                title="Calendar"
+              <FeatureTile
+                icon="calendar"
+                label="Calendar"
                 onPress={() => setShowCalendar(true)}
-                variant="ghost"
-                size="small"
-                style={styles.bottomButton}
+                accent={COLORS.info}
               />
             </View>
-            <View style={styles.bottomButtonWrapper}>
-              <Button
-                title="Profile"
-                onPress={() => setShowProfile(true)}
-                variant="ghost"
-                size="small"
-                style={styles.bottomButton}
+          </View>
+
+          {/* Compete — only show section if at least events or an unlocked feature */}
+          {(activeSeason || isFeatureUnlocked('achievements', highestLevel) || isFeatureUnlocked('battle_pass', highestLevel) || getHighestTier(highestLevel) !== null) && (
+            <View style={styles.hubSection}>
+              <Text style={styles.hubLabel}>COMPETE</Text>
+              <View style={styles.hubGrid}>
+                {isFeatureUnlocked('achievements', highestLevel) && (
+                  <FeatureTile
+                    icon="trophy"
+                    label="Trophies"
+                    onPress={() => setShowAchievements(true)}
+                    accent={COLORS.accentGold}
+                  />
+                )}
+                {isFeatureUnlocked('battle_pass', highestLevel) && (
+                  <FeatureTile
+                    icon="medal-gold"
+                    label="Season Pass"
+                    onPress={() => navigation.navigate('BattlePass')}
+                    accent="#60A5FA"
+                  />
+                )}
+                {activeSeason && (
+                  <FeatureTile
+                    icon={activeSeason.icon as any}
+                    label={activeSeason.name}
+                    onPress={() => setShowSeasonalEvent(true)}
+                    accent={activeSeason.color}
+                    active
+                  />
+                )}
+                {getHighestTier(highestLevel) !== null && (
+                  <FeatureTile
+                    icon="lightning"
+                    label={activeTournament ? 'Live Cup' : 'Tournament'}
+                    onPress={() => setShowTournament(true)}
+                    accent="#F472B6"
+                    active={!!activeTournament}
+                  />
+                )}
+              </View>
+            </View>
+          )}
+
+          {/* Shop & VIP — show once shop unlocks or always show VIP */}
+          <View style={styles.hubSection}>
+            <Text style={styles.hubLabel}>SHOP & VIP</Text>
+            <View style={styles.hubGrid}>
+              {isFeatureUnlocked('shop', highestLevel) && (
+                <FeatureTile
+                  icon="shop"
+                  label="Shop"
+                  onPress={() => navigation.navigate('Shop')}
+                  accent={COLORS.accent}
+                />
+              )}
+              <FeatureTile
+                icon="crown"
+                label={vipActive ? 'VIP Active' : 'Go VIP'}
+                onPress={() => setShowVIP(true)}
+                accent="#FACC15"
+                active={vipActive}
+              />
+              {isFeatureUnlocked('piggy_bank', highestLevel) && (
+                <FeatureTile
+                  icon="coin"
+                  label={piggyBankCoins > 0 ? `Bank (${formatCompact(piggyBankCoins)})` : 'Piggy Bank'}
+                  onPress={() => setShowPiggyBank(true)}
+                  accent="#34D399"
+                  active={piggyBankCoins >= 100}
+                />
+              )}
+              <FeatureTile
+                icon="gem"
+                label="Mystery"
+                onPress={() => setShowMysteryShop(true)}
+                accent="#C084FC"
               />
             </View>
-            <View style={styles.bottomButtonWrapper}>
-              <Button
-                title="Settings"
-                onPress={() => navigation.navigate('Settings')}
-                variant="ghost"
-                size="small"
-                style={styles.bottomButton}
-              />
-            </View>
+          </View>
+
+          {/* More — only show tiles that are actually unlocked */}
+          {(() => {
+            const moreTiles: React.ReactNode[] = [];
+            if (isBossRushUnlocked(highestLevel))
+              moreTiles.push(
+                <FeatureTile key="boss" icon="bomb" label="Boss Rush" onPress={() => setShowBossRush(true)} accent="#EF4444" />
+              );
+            if (isFeatureUnlocked('shop', highestLevel))
+              moreTiles.push(
+                <FeatureTile key="treasure" icon="map" label={treasureMapPieces >= PIECES_REQUIRED ? 'Dig!' : `Map ${Math.min(treasureMapPieces, PIECES_REQUIRED)}/${PIECES_REQUIRED}`} onPress={() => setShowTreasure(true)} accent="#22C55E" active={treasureMapPieces >= PIECES_REQUIRED} />
+              );
+            moreTiles.push(
+              <FeatureTile key="mastery" icon="fire" label="Mastery" onPress={() => setShowBlockMastery(true)} accent="#FB923C" />
+            );
+            if (isFeatureUnlocked('power_ups', highestLevel))
+              moreTiles.push(
+                <FeatureTile key="fuse" icon="palette" label="Power Fuse" onPress={() => setShowFusion(true)} accent="#F472B6" />
+              );
+            moreTiles.push(
+              <FeatureTile key="quests" icon="book" label="Quests" onPress={() => setShowQuestChains(true)} accent="#60A5FA" />
+            );
+            if (isFeatureUnlocked('weekly_challenge', highestLevel))
+              moreTiles.push(
+                <FeatureTile key="leader" icon="grid" label="Leaderboard" onPress={() => setShowLeaderboard(true)} accent="#A78BFA" />
+              );
+            if (isFeatureUnlocked('achievements', highestLevel))
+              moreTiles.push(
+                <FeatureTile key="album" icon="book" label="Album" onPress={() => setShowAlbum(true)} accent="#34D399" />
+              );
+            moreTiles.push(
+              <FeatureTile key="inbox" icon="film" label={unclaimedCount > 0 ? `Inbox (${unclaimedCount})` : 'Inbox'} onPress={() => setShowInbox(true)} accent={COLORS.info} badge={unclaimedCount > 0 ? String(unclaimedCount) : undefined} />
+            );
+            return moreTiles.length > 0 ? (
+              <View style={styles.hubSection}>
+                <Text style={styles.hubLabel}>MORE</Text>
+                <View style={styles.hubGrid}>{moreTiles}</View>
+              </View>
+            ) : null;
+          })()}
+
+          {/* Utility row — always visible */}
+          <View style={styles.utilRow}>
+            <TouchableOpacity style={styles.utilButton} onPress={() => setShowProfile(true)}>
+              <GameIcon name="gamepad" size={14} color={COLORS.textMuted} />
+              <Text style={styles.utilText}>Profile</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.utilButton} onPress={() => setShowShowcase(true)}>
+              <GameIcon name="medal-gold" size={14} color={COLORS.textMuted} />
+              <Text style={styles.utilText}>Showcase</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.utilButton} onPress={() => setShowStats(true)}>
+              <GameIcon name="grid" size={14} color={COLORS.textMuted} />
+              <Text style={styles.utilText}>Stats</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.utilButton} onPress={() => navigation.navigate('Settings')}>
+              <GameIcon name="gear" size={14} color={COLORS.textMuted} />
+              <Text style={styles.utilText}>Settings</Text>
+            </TouchableOpacity>
           </View>
 
           {/* Next unlock hint for new players */}
@@ -1305,13 +1247,40 @@ const styles = StyleSheet.create({
   thirdButton: {
     flex: 1,
   },
-  bottomRow: {
+  hubSection: {
+    width: '100%',
+    marginTop: SPACING.sm,
+  },
+  hubLabel: {
+    fontSize: 10,
+    fontWeight: '900',
+    letterSpacing: 2,
+    color: COLORS.textMuted,
+    marginBottom: 6,
+    marginLeft: 2,
+  },
+  hubGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    width: '100%',
-    marginTop: SPACING.xs,
-    rowGap: 8,
-    columnGap: 8,
+    gap: 6,
+    justifyContent: 'flex-start',
+  },
+  utilRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 20,
+    marginTop: SPACING.md,
+    paddingVertical: 8,
+  },
+  utilButton: {
+    alignItems: 'center',
+    gap: 3,
+  },
+  utilText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: COLORS.textMuted,
+    letterSpacing: 0.3,
   },
   dealBanner: {
     flexDirection: 'row',
@@ -1406,16 +1375,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  bottomButtonWrapper: {
-    // Four buttons per row at the widest; wrap to a new row on overflow.
-    // This replaces the old `flex: 1` layout which collapsed 20+ buttons
-    // to ~18px wide each, making every title render as an empty slot.
-    width: '23.5%',
-    minWidth: 72,
-  },
-  bottomButton: {
-    width: '100%',
   },
   levelIndicatorRow: {
     marginTop: SPACING.lg,

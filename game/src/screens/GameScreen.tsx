@@ -1098,7 +1098,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
 
         {/* "Oops Shield" — if the player still has their one free undo
             available at game-over, offer it right here. App Store reviews
-            of Block Blast / Woody Puzzle consistently highlight the
+            of popular puzzle games consistently highlight the
             "undo the move that killed me" escape hatch as the single
             most-wanted feature. We already track a one-shot undo
             snapshot on every placement, so this is essentially free. */}

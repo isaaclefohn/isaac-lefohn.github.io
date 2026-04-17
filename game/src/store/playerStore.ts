@@ -290,6 +290,7 @@ interface PlayerStore extends PlayerStoreState {
   recordFlashOfferPurchase: (key: string) => void;
   // Free chest
   claimFreeChest: () => void;
+  loadDemoState: () => void;
 }
 
 const getToday = () => new Date().toISOString().split('T')[0];
@@ -945,6 +946,27 @@ export const usePlayerStore = create<PlayerStore>()(
 
       claimFreeChest: () => {
         set({ freeChestLastClaimedAt: Date.now() });
+      },
+
+      loadDemoState: () => {
+        set({
+          highestLevel: 20,
+          coins: 2500,
+          gems: 150,
+          totalScore: 45000,
+          totalLinesCleared: 380,
+          currentStreak: 5,
+          longestStreak: 5,
+          totalGamesPlayed: 40,
+          bestCombo: 6,
+          powerUps: { bomb: 3, rowClear: 2, colorClear: 2 },
+          piggyBankCoins: 85,
+          treasureMapPieces: 2,
+          lives: 5,
+          skillRating: 450,
+          dailyRewardDay: 4,
+          battlePassXP: 300,
+        });
       },
     }),
     {

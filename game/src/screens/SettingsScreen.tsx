@@ -272,6 +272,30 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) =>
             <Divider />
             <View style={styles.dataRow}>
               <Button
+                title="Load Demo (Investor Preview)"
+                onPress={() => {
+                  Alert.alert(
+                    'Load Demo',
+                    'This will set your account to level 20 with coins, gems, and power-ups to showcase all features.',
+                    [
+                      { text: 'Cancel', style: 'cancel' },
+                      {
+                        text: 'Load',
+                        onPress: () => {
+                          usePlayerStore.getState().loadDemoState();
+                          Alert.alert('Demo Loaded', 'All features are now unlocked. Go back to the home screen to explore!');
+                        },
+                      },
+                    ]
+                  );
+                }}
+                variant="secondary"
+                size="medium"
+              />
+            </View>
+            <Divider />
+            <View style={styles.dataRow}>
+              <Button
                 title="Reset All Progress"
                 onPress={() => {
                   Alert.alert(
