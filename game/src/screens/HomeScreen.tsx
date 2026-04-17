@@ -416,7 +416,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           </Animated.View>
           {/* Subtitle tagline */}
           <Animated.Text style={[styles.tagline, { opacity: statsOpacity }]}>
-            Puzzle your way to the top
+            Drop \u2022 Clear \u2022 Climb
           </Animated.Text>
         </View>
 
@@ -506,7 +506,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             // nowTick ticks every 30s (for the VIP/offer cards above) —
             // reuse it so this countdown stays fresh without an extra
             // interval. Daily banner only needs minute-level accuracy.
-            void nowTick;
+            // nowTick re-renders this block every 30s so the countdown stays fresh
+            const _tick = nowTick;
             const countdownLabel = formatCountdown(getMsUntilNextPuzzle());
             const label = playedToday
               ? `Puzzle \u00b7 ${getDailyPuzzleLabel()} \u00b7 ${dailyPuzzleLastPlayedScore} pts \u00b7 Next in ${countdownLabel}`
@@ -873,6 +874,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             </View>
           </Animated.View>
         )}
+
+        <Text style={styles.versionText}>v1.0.0</Text>
       </View>
 
       {showTutorial && <Tutorial onComplete={handleTutorialComplete} />}
@@ -1408,6 +1411,14 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '600',
     color: COLORS.textMuted,
+    letterSpacing: 0.5,
+  },
+  versionText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: `${COLORS.textMuted}60`,
+    textAlign: 'center',
+    marginTop: SPACING.lg,
     letterSpacing: 0.5,
   },
   livesRow: {

@@ -117,7 +117,7 @@ export const SeasonalEventModal: React.FC<SeasonalEventModalProps> = ({
           const claimed = seasonalMilestonesClaimed.includes(key);
           return (
             <View
-              key={i}
+              key={`milestone-${i}`}
               style={[
                 styles.milestoneCard,
                 { borderColor: reached ? event.color : COLORS.textMuted },
