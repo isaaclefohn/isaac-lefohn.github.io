@@ -161,8 +161,12 @@ export function getPieceSize(piece: Piece): { width: number; height: number } {
   };
 }
 
-/** Get all filled cell positions of a piece (relative to top-left) */
+const cellsCache = new WeakMap<Piece, { row: number; col: number }[]>();
+
+/** Get all filled cell positions of a piece (relative to top-left). Cached. */
 export function getPieceCells(piece: Piece): { row: number; col: number }[] {
+  let cached = cellsCache.get(piece);
+  if (cached) return cached;
   const cells: { row: number; col: number }[] = [];
   for (let r = 0; r < piece.shape.length; r++) {
     for (let c = 0; c < piece.shape[r].length; c++) {
@@ -171,6 +175,7 @@ export function getPieceCells(piece: Piece): { row: number; col: number }[] {
       }
     }
   }
+  cellsCache.set(piece, cells);
   return cells;
 }
 
@@ -181,7 +186,11 @@ export function getPieceCells(piece: Piece): { row: number; col: number }[] {
  * pentominoes, etc.) so drag-to-place and tap-to-place can anchor the
  * piece under the user's finger in a way that matches what they see.
  */
+const centroidCache = new WeakMap<Piece, { row: number; col: number }>();
+
 export function getPieceCentroid(piece: Piece): { row: number; col: number } {
+  let cached = centroidCache.get(piece);
+  if (cached) return cached;
   const cells = getPieceCells(piece);
   if (cells.length === 0) return { row: 0, col: 0 };
   let sumR = 0;
@@ -190,5 +199,7 @@ export function getPieceCentroid(piece: Piece): { row: number; col: number } {
     sumR += cell.row;
     sumC += cell.col;
   }
-  return { row: sumR / cells.length, col: sumC / cells.length };
+  const result = { row: sumR / cells.length, col: sumC / cells.length };
+  centroidCache.set(piece, result);
+  return result;
 }

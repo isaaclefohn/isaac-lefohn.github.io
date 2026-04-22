@@ -40,8 +40,8 @@ export const FloatingParticles: React.FC<FloatingParticlesProps> = ({
   colors = PARTICLE_COLORS,
 }) => {
   const { reducedMotion } = useSettingsStore();
-  if (reducedMotion) return null;
   const particles = useMemo<ParticleData[]>(() => {
+    if (reducedMotion) return [];
     return Array.from({ length: count }, () => ({
       x: Math.random() * SCREEN_W,
       size: 4 + Math.random() * 10,
@@ -53,7 +53,7 @@ export const FloatingParticles: React.FC<FloatingParticlesProps> = ({
       opacity: new Animated.Value(0),
       sway: new Animated.Value(0),
     }));
-  }, [count, colors]);
+  }, [count, colors, reducedMotion]);
 
   useEffect(() => {
     particles.forEach((p) => {
@@ -112,6 +112,8 @@ export const FloatingParticles: React.FC<FloatingParticlesProps> = ({
       animate();
     });
   }, [particles]);
+
+  if (reducedMotion || particles.length === 0) return null;
 
   return (
     <View style={styles.container} pointerEvents="none">

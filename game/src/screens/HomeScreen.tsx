@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, Animated, Easing, Dimensions, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, Animated, Easing, Dimensions, TouchableOpacity } from 'react-native';
 import { usePlayerStore } from '../store/playerStore';
 import { useSettingsStore } from '../store/settingsStore';
 import { Button } from '../components/common/Button';
@@ -369,7 +369,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       <Animated.View style={[styles.decorOrb, styles.decorOrb2, { opacity: decorPulse }]} />
       <Animated.View style={[styles.decorOrb, styles.decorOrb3, { opacity: decorPulse }]} />
 
-      <View style={styles.content}>
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Animated Title with floating blocks */}
         <View style={styles.titleContainer}>
           {/* Floating decorative blocks behind title */}
@@ -876,7 +876,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         )}
 
         <Text style={styles.versionText}>v1.0.0</Text>
-      </View>
+      </ScrollView>
 
       {showTutorial && <Tutorial onComplete={handleTutorialComplete} />}
 
@@ -1085,11 +1085,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
   },
-  content: {
+  scrollView: {
     flex: 1,
+  },
+  content: {
     alignItems: 'center',
-    justifyContent: 'center',
     paddingHorizontal: SPACING.lg,
+    paddingTop: SPACING.lg,
+    paddingBottom: 40,
   },
   // Decorative background elements
   decorOrb: {

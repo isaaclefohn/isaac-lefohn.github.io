@@ -2,12 +2,13 @@
  * Core gameplay screen with juicy animations, board shake, and confetti.
  */
 
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, Animated, Share } from 'react-native';
 import { useGameEngine } from '../hooks/useGameEngine';
 import { useBoardTension } from '../hooks/useBoardTension';
 import { useSound } from '../hooks/useSound';
 import { usePlayerStore } from '../store/playerStore';
+import { useShallow } from 'zustand/react/shallow';
 import { GameBoard } from '../components/GameBoard';
 import { PieceTray, DragEvent } from '../components/PieceTray';
 import { HoldSlot } from '../components/HoldSlot';
@@ -116,7 +117,16 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
   } = useGameEngine();
 
   const { playSound, playPlacement } = useSound();
-  const { powerUps, usePowerUp, coins, gems, addCoins, addGems, addPowerUp, spendGems, levelHighScores, levelStars, zenHighScore, consecutiveFailures, lastFailedLevel, displayName, highestLevel, skillRating, claimedWorldClears, claimedWorldPerfects, claimWorldClear, claimWorldPerfect, dailyPuzzleStreak } = usePlayerStore();
+  const { powerUps, usePowerUp, coins, gems, addCoins, addGems, addPowerUp, spendGems, levelHighScores, levelStars, zenHighScore, consecutiveFailures, lastFailedLevel, displayName, highestLevel, skillRating, claimedWorldClears, claimedWorldPerfects, claimWorldClear, claimWorldPerfect, dailyPuzzleStreak } = usePlayerStore(useShallow((s) => ({
+    powerUps: s.powerUps, usePowerUp: s.usePowerUp, coins: s.coins, gems: s.gems,
+    addCoins: s.addCoins, addGems: s.addGems, addPowerUp: s.addPowerUp, spendGems: s.spendGems,
+    levelHighScores: s.levelHighScores, levelStars: s.levelStars, zenHighScore: s.zenHighScore,
+    consecutiveFailures: s.consecutiveFailures, lastFailedLevel: s.lastFailedLevel,
+    displayName: s.displayName, highestLevel: s.highestLevel, skillRating: s.skillRating,
+    claimedWorldClears: s.claimedWorldClears, claimedWorldPerfects: s.claimedWorldPerfects,
+    claimWorldClear: s.claimWorldClear, claimWorldPerfect: s.claimWorldPerfect,
+    dailyPuzzleStreak: s.dailyPuzzleStreak,
+  })));
   const { tutorialCompleted, completeTutorial, shownTips, markTipShown } = useSettingsStore();
 
   const showTutorial = !isEndless && level === 1 && !tutorialCompleted;
@@ -181,12 +191,12 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
 
   // World theme for ambient visuals
   const currentWorld = isEndless ? null : getWorldForLevel(level);
-  const worldParticleColors = currentWorld ? [
+  const worldParticleColors = useMemo(() => currentWorld ? [
     `${currentWorld.color}18`,
     `${currentWorld.color}12`,
     `${COLORS.accentGold}10`,
     `${COLORS.accent}08`,
-  ] : undefined;
+  ] : undefined, [currentWorld]);
 
   // Board tension — intensifies visuals as board fills
   const { tension, level: tensionLevel } = useBoardTension(gameState?.grid);
@@ -696,7 +706,14 @@ export const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => 
   if (!gameState || !levelConfig) {
     return (
       <SafeAreaView style={styles.container}>
-        <Text style={styles.loadingText}>Loading...</Text>
+        <View style={styles.loadingWrap}>
+          <View style={styles.loadingBlocks}>
+            {COLORS.blocks.slice(0, 5).map((c, i) => (
+              <View key={i} style={[styles.loadingBlock, { backgroundColor: c }]} />
+            ))}
+          </View>
+          <Text style={styles.loadingText}>LOADING</Text>
+        </View>
       </SafeAreaView>
     );
   }
@@ -1298,11 +1315,28 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  loadingWrap: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingBlocks: {
+    flexDirection: 'row',
+    gap: 6,
+    marginBottom: 20,
+  },
+  loadingBlock: {
+    width: 20,
+    height: 20,
+    borderRadius: 4,
+    opacity: 0.6,
+  },
   loadingText: {
     color: COLORS.textSecondary,
-    fontSize: 18,
+    fontSize: 12,
+    fontWeight: '700',
+    letterSpacing: 4,
     textAlign: 'center',
-    marginTop: 100,
   },
   powerUpHint: {
     alignItems: 'center',
