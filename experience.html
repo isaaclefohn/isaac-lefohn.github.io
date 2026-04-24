@@ -3,112 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Isaac Lefohn's professional experience - Facility management, video editing, retail sales, and financial operations across multiple industries.">
-    <meta name="keywords" content="Isaac Lefohn, Experience, Work History, Finance, Operations Management">
+    <meta name="description" content="Isaac Lefohn's work experience: facility management, video production, and retail operations. Five years of cash handling, inventory, and client-facing responsibility translated to finance.">
+    <meta name="author" content="Isaac Lefohn">
     <title>Experience | Isaac Lefohn</title>
+    <link rel="canonical" href="https://isaaclefohn.github.io/experience.html">
+
+    <meta property="og:type" content="profile">
+    <meta property="og:title" content="Experience | Isaac Lefohn">
+    <meta property="og:description" content="Work history across facility management, operations, and retail. Cash handling, inventory, and client relations framed for finance recruiters.">
+    <meta property="og:url" content="https://isaaclefohn.github.io/experience.html">
+    <meta property="og:site_name" content="Isaac Lefohn">
+    <meta name="twitter:card" content="summary">
+
     <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%231a1a1a'/%3E%3Ctext x='32' y='44' font-family='-apple-system,sans-serif' font-size='32' font-weight='600' text-anchor='middle' fill='%23c5a572'%3EIL%3C/text%3E%3C/svg%3E">
+
+    <script>
+        (function() {
+            try {
+                var stored = localStorage.getItem('theme');
+                var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                document.documentElement.setAttribute('data-theme', stored || (prefersDark ? 'dark' : 'light'));
+            } catch (e) {}
+        })();
+    </script>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav>
+    <!-- TODO(isaac): replace all [VERIFY:...] tokens with real numbers before deploying. Run `grep -r "VERIFY:" .` to catch any leftovers. -->
+
+    <a href="#main" class="skip-link">Skip to main content</a>
+
+    <nav aria-label="Primary">
         <div class="nav-container">
             <a href="index.html" class="logo">IL</a>
-            <button class="mobile-menu-btn" onclick="toggleMenu()">☰</button>
-            <ul class="nav-links" id="navLinks">
-                <li><a href="index.html">Home</a></li>
-                <li><a href="resume.html">Resume</a></li>
-                <li><a href="experience.html" class="active">Experience</a></li>
-                <li><a href="skills.html">Skills</a></li>
-                <li><a href="contact.html">Contact</a></li>
-            </ul>
+            <div class="nav-right">
+                <ul class="nav-links" id="navLinks">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="experience.html" class="active" aria-current="page">Experience</a></li>
+                    <li><a href="projects.html">Projects</a></li>
+                    <li><a href="skills.html">Skills</a></li>
+                    <li><a href="resume.html">Resume</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+                <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle color theme" aria-pressed="false">
+                    <svg class="icon-sun" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+                    <svg class="icon-moon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                </button>
+                <button class="mobile-menu-btn" onclick="toggleMenu()" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navLinks">&#9776;</button>
+            </div>
         </div>
     </nav>
 
-    <!-- Page Header -->
-    <div class="page-header">
-        <h1>Professional Experience</h1>
-        <p>5+ years of diverse work experience in operations, client management, and financial operations</p>
-    </div>
-
-    <!-- Main Content -->
-    <div class="container">
-        <div class="timeline">
-            <div class="timeline-item">
-                <div class="timeline-date">June 2025 – Present</div>
-                <div class="timeline-content">
-                    <h3>Facility Manager</h3>
-                    <h4>Portland Indoor – Lil' Kickers | Portland, OR</h4>
-                    <ul>
-                        <li>Manage daily facility operations including opening/closing procedures, financial transactions, and payment processing</li>
-                        <li>Maintain accurate financial records and ensure proper cash handling procedures</li>
-                        <li>Coordinate customer scheduling and serve as primary point of contact for service inquiries</li>
-                        <li>Optimize operational efficiency in a fast-paced, customer-facing environment</li>
-                    </ul>
-                    <div class="skills-tags">
-                        <span>Operations Management</span>
-                        <span>Cash Handling</span>
-                        <span>Customer Service</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="timeline-item">
-                <div class="timeline-date">March 2020 – Present</div>
-                <div class="timeline-content">
-                    <h3>Video Editor</h3>
-                    <h4>Virtuosity.Online | Tigard, OR</h4>
-                    <ul>
-                        <li>Manage multiple client projects simultaneously while meeting strict delivery deadlines</li>
-                        <li>Demonstrate meticulous attention to detail ensuring deliverables meet quality standards</li>
-                        <li>Apply project management principles to balance competing priorities and expectations</li>
-                    </ul>
-                    <div class="skills-tags">
-                        <span>Project Management</span>
-                        <span>Deadline Management</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="timeline-item">
-                <div class="timeline-date">June 2024 – September 2024</div>
-                <div class="timeline-content">
-                    <h3>Sales Associate</h3>
-                    <h4>Nordstrom | Tigard, OR</h4>
-                    <ul>
-                        <li>Assisted with cash reconciliation procedures, ensuring accuracy and financial accountability</li>
-                        <li>Processed financial transactions while maintaining department operational standards</li>
-                        <li>Balanced customer service excellence with achieving sales performance targets</li>
-                    </ul>
-                    <div class="skills-tags">
-                        <span>Cash Reconciliation</span>
-                        <span>Sales</span>
-                        <span>Financial Accuracy</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="timeline-item">
-                <div class="timeline-date">May 2021 – August 2025</div>
-                <div class="timeline-content">
-                    <h3>Sales Associate</h3>
-                    <h4>RocketFizz | Beaverton, OR</h4>
-                    <ul>
-                        <li>Independently managed store opening/closing procedures including daily cash reconciliation</li>
-                        <li>Maintained inventory accuracy through systematic product tracking, pricing, and order processing</li>
-                        <li>Analyzed sales trends and product movement to optimize inventory levels</li>
-                        <li>Demonstrated financial responsibility through independent management of cash operations</li>
-                    </ul>
-                    <div class="skills-tags">
-                        <span>Inventory Management</span>
-                        <span>Data Analysis</span>
-                        <span>Independent Operations</span>
-                    </div>
-                </div>
-            </div>
+    <main id="main">
+        <div class="page-header">
+            <h1>Professional Experience</h1>
+            <p>Five years of operational, financial, and client-facing work across industries</p>
         </div>
-    </div>
 
-    <!-- Footer -->
+        <div class="container">
+            <div class="timeline">
+
+                <article class="timeline-item fade-in">
+                    <div class="timeline-date">June 2025 &ndash; Present</div>
+                    <div class="timeline-content">
+                        <h3>Facility Manager</h3>
+                        <h4>Portland Indoor &ndash; Lil' Kickers &middot; Portland, OR</h4>
+                        <ul>
+                            <li>Run daily open and close for a facility handling <strong>[VERIFY: $X,XXX in daily revenue]</strong> across registration, concessions, and private event bookings.</li>
+                            <li>Reconcile cash and card receipts at shift close, preparing deposits and flagging variances &mdash; currently maintaining <strong>[VERIFY: XX]</strong>-day streak without a reconciliation discrepancy.</li>
+                            <li>Coordinate scheduling, communications, and issue resolution for <strong>[VERIFY: XXX+]</strong> client families across ongoing soccer programs and rotating events.</li>
+                            <li>Serve as primary on-site decision-maker during evening shifts: authorize refunds, resolve vendor issues, and escalate only when revenue impact exceeds manager approval threshold.</li>
+                        </ul>
+                        <div class="relevance-note"><strong>Transferable to finance:</strong> daily cash reconciliation, revenue recognition at transaction level, decision authority under a defined approval hierarchy.</div>
+                        <div class="skills-tags">
+                            <span>Cash Reconciliation</span>
+                            <span>Operations Management</span>
+                            <span>Client Communication</span>
+                            <span>Revenue Handling</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="timeline-item fade-in">
+                    <div class="timeline-date">March 2020 &ndash; Present</div>
+                    <div class="timeline-content">
+                        <h3>Video Editor &amp; Independent Contractor</h3>
+                        <h4>Virtuosity.Online &middot; Tigard, OR</h4>
+                        <ul>
+                            <li>Deliver <strong>[VERIFY: XX+]</strong> client projects per year on contracted turnaround windows, managing the full pipeline from intake to final asset handoff.</li>
+                            <li>Operate as 1099 contractor: issue invoices, track project-level P&amp;L, file quarterly self-employment taxes, and maintain separate books for the work.</li>
+                            <li>Scope and price new engagements directly with clients, balancing hourly-equivalent rate against scope creep risk.</li>
+                        </ul>
+                        <div class="relevance-note"><strong>Transferable to finance:</strong> ran personal book of business for five+ years &mdash; scoping, pricing, billing, and tax compliance are functions every finance analyst eventually touches.</div>
+                        <div class="skills-tags">
+                            <span>Contract Management</span>
+                            <span>Self-Employment Accounting</span>
+                            <span>Client Delivery</span>
+                            <span>Project P&amp;L</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="timeline-item fade-in">
+                    <div class="timeline-date">June 2024 &ndash; September 2024</div>
+                    <div class="timeline-content">
+                        <h3>Sales Associate</h3>
+                        <h4>Nordstrom &middot; Tigard, OR</h4>
+                        <ul>
+                            <li>Processed <strong>[VERIFY: $XX,XXX]</strong> in daily transactions across apparel and accessories departments, handling cash, card, and gift-card tender with register balancing at shift close.</li>
+                            <li>Ranked in <strong>[VERIFY: top XX%]</strong> of department sales associates by average transaction size during summer 2024.</li>
+                            <li>Built and maintained individual client book, following up on preferences and inventory arrivals to drive repeat purchases.</li>
+                        </ul>
+                        <div class="relevance-note"><strong>Transferable to finance:</strong> consultative selling in a premium environment translates directly to relationship management on the sales &amp; trading or wealth side.</div>
+                        <div class="skills-tags">
+                            <span>Transaction Processing</span>
+                            <span>Client Book Management</span>
+                            <span>Upselling</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="timeline-item fade-in">
+                    <div class="timeline-date">May 2021 &ndash; August 2023</div>
+                    <div class="timeline-content">
+                        <h3>Sales Associate</h3>
+                        <h4>RocketFizz &middot; Beaverton, OR</h4>
+                        <ul>
+                            <li>Ran store solo during evening and weekend shifts: opened and closed registers, reconciled <strong>[VERIFY: $X,XXX]</strong> in daily cash, and prepared bank deposits without supervision.</li>
+                            <li>Maintained inventory across <strong>[VERIFY: XXX+]</strong> SKUs through pricing updates, receiving, and weekly counts; flagged shrinkage variances to store owner.</li>
+                            <li>Identified fast-moving product categories from sales data and recommended reorder priority, contributing to better in-stock rates on high-margin items.</li>
+                        </ul>
+                        <div class="relevance-note"><strong>Transferable to finance:</strong> first job with full cash-handling accountability &mdash; the discipline of books-balance-to-the-penny is the same discipline that matters at a trading desk or in corporate treasury.</div>
+                        <div class="skills-tags">
+                            <span>Independent Cash Handling</span>
+                            <span>Inventory Analysis</span>
+                            <span>Deposit Preparation</span>
+                            <span>Data-Driven Decisions</span>
+                        </div>
+                    </div>
+                </article>
+
+            </div>
+
+            <!-- CTA block -->
+            <section class="cta-block fade-in" aria-labelledby="cta-heading">
+                <h3 id="cta-heading">Want to discuss my background?</h3>
+                <p>Happy to talk through any of these roles in detail, walk through finance-specific projects, or share references.</p>
+                <div class="cta-buttons">
+                    <a href="contact.html" class="btn btn-primary">Get in Touch</a>
+                    <a href="Isaac_Lefohn_Resume.pdf" download class="btn btn-secondary">Download Resume</a>
+                </div>
+            </section>
+        </div>
+    </main>
+
     <footer>
         <p>&copy; 2026 Isaac Lefohn. All rights reserved.</p>
     </footer>
