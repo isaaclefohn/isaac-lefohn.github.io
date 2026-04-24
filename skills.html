@@ -3,214 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Isaac Lefohn's skills and competencies - Python programming, financial analysis, data visualization, project management, and more.">
-    <meta name="keywords" content="Isaac Lefohn, Skills, Python, Financial Analysis, Data Analysis, Project Management">
+    <meta name="description" content="Isaac Lefohn's skills across finance, programming, and operations. Python, Excel financial modeling, quantitative analysis, cash reconciliation, and more.">
+    <meta name="author" content="Isaac Lefohn">
     <title>Skills | Isaac Lefohn</title>
+    <link rel="canonical" href="https://isaaclefohn.github.io/skills.html">
+
+    <meta property="og:type" content="profile">
+    <meta property="og:title" content="Skills | Isaac Lefohn">
+    <meta property="og:description" content="Technical and financial skills: Python, Excel financial modeling, quantitative analysis, cash reconciliation, client relationship management.">
+    <meta property="og:url" content="https://isaaclefohn.github.io/skills.html">
+    <meta property="og:site_name" content="Isaac Lefohn">
+    <meta name="twitter:card" content="summary">
+
     <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%231a1a1a'/%3E%3Ctext x='32' y='44' font-family='-apple-system,sans-serif' font-size='32' font-weight='600' text-anchor='middle' fill='%23c5a572'%3EIL%3C/text%3E%3C/svg%3E">
+
+    <script>
+        (function() {
+            try {
+                var stored = localStorage.getItem('theme');
+                var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                document.documentElement.setAttribute('data-theme', stored || (prefersDark ? 'dark' : 'light'));
+            } catch (e) {}
+        })();
+    </script>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav>
+    <a href="#main" class="skip-link">Skip to main content</a>
+
+    <nav aria-label="Primary">
         <div class="nav-container">
             <a href="index.html" class="logo">IL</a>
-            <button class="mobile-menu-btn" onclick="toggleMenu()">☰</button>
-            <ul class="nav-links" id="navLinks">
-                <li><a href="index.html">Home</a></li>
-                <li><a href="resume.html">Resume</a></li>
-                <li><a href="experience.html">Experience</a></li>
-                <li><a href="skills.html" class="active">Skills</a></li>
-                <li><a href="contact.html">Contact</a></li>
-            </ul>
+            <div class="nav-right">
+                <ul class="nav-links" id="navLinks">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="experience.html">Experience</a></li>
+                    <li><a href="projects.html">Projects</a></li>
+                    <li><a href="skills.html" class="active" aria-current="page">Skills</a></li>
+                    <li><a href="resume.html">Resume</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+                <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle color theme" aria-pressed="false">
+                    <svg class="icon-sun" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+                    <svg class="icon-moon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                </button>
+                <button class="mobile-menu-btn" onclick="toggleMenu()" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navLinks">&#9776;</button>
+            </div>
         </div>
     </nav>
 
-    <!-- Page Header -->
-    <div class="page-header">
-        <h1>Skills & Competencies</h1>
-        <p>A unique blend of technical, financial, and professional skills</p>
-    </div>
-
-    <!-- Main Content -->
-    <div class="container">
-        <div class="skills-section">
-            <div class="skill-category-card">
-                <div class="category-header">
-                    <h3>Programming & Technical</h3>
-                </div>
-                <div class="skill-list">
-                    <div class="skill-item">
-                        <span class="skill-name">Python Programming</span>
-                        <div class="skill-bar">
-                            <div class="skill-progress" style="width: 75%"></div>
-                        </div>
-                    </div>
-                    <div class="skill-item">
-                        <span class="skill-name">Microsoft Excel (Financial Modeling)</span>
-                        <div class="skill-bar">
-                            <div class="skill-progress" style="width: 80%"></div>
-                        </div>
-                    </div>
-                    <div class="skill-item">
-                        <span class="skill-name">Data Analysis & Visualization</span>
-                        <div class="skill-bar">
-                            <div class="skill-progress" style="width: 70%"></div>
-                        </div>
-                    </div>
-                    <div class="skill-item">
-                        <span class="skill-name">Problem-Solving & Computational Thinking</span>
-                        <div class="skill-bar">
-                            <div class="skill-progress" style="width: 85%"></div>
-                        </div>
-                    </div>
-                    <div class="skill-item">
-                        <span class="skill-name">Engineering & Systems Design</span>
-                        <div class="skill-bar">
-                            <div class="skill-progress" style="width: 65%"></div>
-                        </div>
-                    </div>
-                    <div class="skill-item">
-                        <span class="skill-name">Technical Documentation</span>
-                        <div class="skill-bar">
-                            <div class="skill-progress" style="width: 80%"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="skill-category-card">
-                <div class="category-header">
-                    <h3>Financial & Analytical</h3>
-                </div>
-                <div class="skill-list">
-                    <div class="skill-item">
-                        <span class="skill-name">Financial Statement Analysis</span>
-                        <div class="skill-bar">
-                            <div class="skill-progress" style="width: 75%"></div>
-                        </div>
-                    </div>
-                    <div class="skill-item">
-                        <span class="skill-name">Quantitative Analysis & Statistics</span>
-                        <div class="skill-bar">
-                            <div class="skill-progress" style="width: 80%"></div>
-                        </div>
-                    </div>
-                    <div class="skill-item">
-                        <span class="skill-name">Financial Accounting Principles</span>
-                        <div class="skill-bar">
-                            <div class="skill-progress" style="width: 85%"></div>
-                        </div>
-                    </div>
-                    <div class="skill-item">
-                        <span class="skill-name">Economic Theory & Application</span>
-                        <div class="skill-bar">
-                            <div class="skill-progress" style="width: 80%"></div>
-                        </div>
-                    </div>
-                    <div class="skill-item">
-                        <span class="skill-name">Cash Management & Reconciliation</span>
-                        <div class="skill-bar">
-                            <div class="skill-progress" style="width: 90%"></div>
-                        </div>
-                    </div>
-                    <div class="skill-item">
-                        <span class="skill-name">Operations & Process Analysis</span>
-                        <div class="skill-bar">
-                            <div class="skill-progress" style="width: 75%"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="skill-category-card">
-                <div class="category-header">
-                    <h3>Professional & Interpersonal</h3>
-                </div>
-                <div class="skill-list">
-                    <div class="skill-item">
-                        <span class="skill-name">Business Communication & Presentation</span>
-                        <div class="skill-bar">
-                            <div class="skill-progress" style="width: 85%"></div>
-                        </div>
-                    </div>
-                    <div class="skill-item">
-                        <span class="skill-name">Project Management</span>
-                        <div class="skill-bar">
-                            <div class="skill-progress" style="width: 80%"></div>
-                        </div>
-                    </div>
-                    <div class="skill-item">
-                        <span class="skill-name">Client Relationship Management</span>
-                        <div class="skill-bar">
-                            <div class="skill-progress" style="width: 90%"></div>
-                        </div>
-                    </div>
-                    <div class="skill-item">
-                        <span class="skill-name">Cross-Functional Collaboration</span>
-                        <div class="skill-bar">
-                            <div class="skill-progress" style="width: 85%"></div>
-                        </div>
-                    </div>
-                    <div class="skill-item">
-                        <span class="skill-name">Detail-Oriented Problem Solving</span>
-                        <div class="skill-bar">
-                            <div class="skill-progress" style="width: 90%"></div>
-                        </div>
-                    </div>
-                    <div class="skill-item">
-                        <span class="skill-name">Deadline Management</span>
-                        <div class="skill-bar">
-                            <div class="skill-progress" style="width: 95%"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <main id="main">
+        <div class="page-header">
+            <h1>Skills &amp; Competencies</h1>
+            <p>Finance, technical, and operational skills built from coursework and five years of hands-on work</p>
         </div>
 
-        <!-- Coursework Section -->
-        <div class="section" style="margin-top: 40px;">
-            <h2>Relevant Coursework</h2>
-            <div class="coursework-grid">
-                <div class="coursework-category">
-                    <h4>Core Finance & Business</h4>
-                    <ul>
-                        <li>Financial Accounting</li>
-                        <li>Managerial Accounting</li>
-                        <li>Finance</li>
-                        <li>Introduction to Business</li>
-                    </ul>
+        <div class="container">
+            <div class="skills-section">
+
+                <div class="skill-category-card fade-in">
+                    <div class="category-header">
+                        <svg class="category-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                        <h3>Programming &amp; Technical</h3>
+                    </div>
+                    <div class="skill-list">
+                        <div class="skill-item">
+                            <span class="skill-name">Python Programming</span>
+                            <div class="skill-bar"><div class="skill-progress" data-width="75"></div></div>
+                        </div>
+                        <div class="skill-item">
+                            <span class="skill-name">Microsoft Excel (Financial Modeling)</span>
+                            <div class="skill-bar"><div class="skill-progress" data-width="80"></div></div>
+                        </div>
+                        <div class="skill-item">
+                            <span class="skill-name">Data Analysis &amp; Visualization</span>
+                            <div class="skill-bar"><div class="skill-progress" data-width="70"></div></div>
+                        </div>
+                        <div class="skill-item">
+                            <span class="skill-name">Problem-Solving &amp; Computational Thinking</span>
+                            <div class="skill-bar"><div class="skill-progress" data-width="85"></div></div>
+                        </div>
+                        <div class="skill-item">
+                            <span class="skill-name">Engineering &amp; Systems Design</span>
+                            <div class="skill-bar"><div class="skill-progress" data-width="65"></div></div>
+                        </div>
+                        <div class="skill-item">
+                            <span class="skill-name">Technical Documentation</span>
+                            <div class="skill-bar"><div class="skill-progress" data-width="80"></div></div>
+                        </div>
+                    </div>
                 </div>
-                <div class="coursework-category">
-                    <h4>Economics & Quantitative</h4>
-                    <ul>
-                        <li>Principles of Microeconomics</li>
-                        <li>Principles of Macroeconomics</li>
-                        <li>Differential Calculus</li>
-                        <li>Integral Calculus</li>
-                        <li>Principles of Statistics I & II</li>
-                    </ul>
+
+                <div class="skill-category-card fade-in">
+                    <div class="category-header">
+                        <svg class="category-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
+                        <h3>Financial &amp; Analytical</h3>
+                    </div>
+                    <div class="skill-list">
+                        <div class="skill-item">
+                            <span class="skill-name">Financial Statement Analysis</span>
+                            <div class="skill-bar"><div class="skill-progress" data-width="75"></div></div>
+                        </div>
+                        <div class="skill-item">
+                            <span class="skill-name">Quantitative Analysis &amp; Statistics</span>
+                            <div class="skill-bar"><div class="skill-progress" data-width="80"></div></div>
+                        </div>
+                        <div class="skill-item">
+                            <span class="skill-name">Financial Accounting Principles</span>
+                            <div class="skill-bar"><div class="skill-progress" data-width="85"></div></div>
+                        </div>
+                        <div class="skill-item">
+                            <span class="skill-name">Economic Theory &amp; Application</span>
+                            <div class="skill-bar"><div class="skill-progress" data-width="80"></div></div>
+                        </div>
+                        <div class="skill-item">
+                            <span class="skill-name">Cash Management &amp; Reconciliation</span>
+                            <div class="skill-bar"><div class="skill-progress" data-width="90"></div></div>
+                        </div>
+                        <div class="skill-item">
+                            <span class="skill-name">Operations &amp; Process Analysis</span>
+                            <div class="skill-bar"><div class="skill-progress" data-width="75"></div></div>
+                        </div>
+                    </div>
                 </div>
-                <div class="coursework-category">
-                    <h4>Technical & Engineering</h4>
-                    <ul>
-                        <li>Engineering & Problem Solving</li>
-                        <li>Python Programming</li>
-                        <li>Scientific Reasoning</li>
-                    </ul>
-                </div>
-                <div class="coursework-category">
-                    <h4>Upcoming</h4>
-                    <ul>
-                        <li>Investments (FIN 341)</li>
-                        <li>Advanced Financial Management</li>
-                        <li>Operations & Supply Chain Mgmt</li>
-                        <li>Business Information Systems</li>
-                    </ul>
+
+                <div class="skill-category-card fade-in">
+                    <div class="category-header">
+                        <svg class="category-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        <h3>Professional &amp; Interpersonal</h3>
+                    </div>
+                    <div class="skill-list">
+                        <div class="skill-item">
+                            <span class="skill-name">Business Communication &amp; Presentation</span>
+                            <div class="skill-bar"><div class="skill-progress" data-width="85"></div></div>
+                        </div>
+                        <div class="skill-item">
+                            <span class="skill-name">Project Management</span>
+                            <div class="skill-bar"><div class="skill-progress" data-width="80"></div></div>
+                        </div>
+                        <div class="skill-item">
+                            <span class="skill-name">Client Relationship Management</span>
+                            <div class="skill-bar"><div class="skill-progress" data-width="90"></div></div>
+                        </div>
+                        <div class="skill-item">
+                            <span class="skill-name">Cross-Functional Collaboration</span>
+                            <div class="skill-bar"><div class="skill-progress" data-width="85"></div></div>
+                        </div>
+                        <div class="skill-item">
+                            <span class="skill-name">Detail-Oriented Problem Solving</span>
+                            <div class="skill-bar"><div class="skill-progress" data-width="90"></div></div>
+                        </div>
+                        <div class="skill-item">
+                            <span class="skill-name">Deadline Management</span>
+                            <div class="skill-bar"><div class="skill-progress" data-width="95"></div></div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Footer -->
+            <section class="section fade-in" aria-labelledby="coursework-heading">
+                <h2 id="coursework-heading">Relevant Coursework</h2>
+                <div class="coursework-grid">
+                    <div class="coursework-category">
+                        <h4>Core Finance &amp; Business</h4>
+                        <ul>
+                            <li>Financial Accounting</li>
+                            <li>Managerial Accounting</li>
+                            <li>Finance</li>
+                            <li>Introduction to Business</li>
+                        </ul>
+                    </div>
+                    <div class="coursework-category">
+                        <h4>Economics &amp; Quantitative</h4>
+                        <ul>
+                            <li>Principles of Microeconomics</li>
+                            <li>Principles of Macroeconomics</li>
+                            <li>Differential Calculus</li>
+                            <li>Integral Calculus</li>
+                            <li>Principles of Statistics I &amp; II</li>
+                        </ul>
+                    </div>
+                    <div class="coursework-category">
+                        <h4>Technical &amp; Engineering</h4>
+                        <ul>
+                            <li>Engineering &amp; Problem Solving</li>
+                            <li>Python Programming</li>
+                            <li>Scientific Reasoning</li>
+                        </ul>
+                    </div>
+                    <div class="coursework-category">
+                        <h4>Upcoming</h4>
+                        <ul>
+                            <li>Investments (FIN 341)</li>
+                            <li>Advanced Financial Management</li>
+                            <li>Operations &amp; Supply Chain Mgmt</li>
+                            <li>Business Information Systems</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section class="cta-block fade-in" aria-labelledby="cta-heading">
+                <h3 id="cta-heading">See these skills applied</h3>
+                <p>The Projects page has finance-specific work: valuation models, portfolio analysis, and sector writeups.</p>
+                <div class="cta-buttons">
+                    <a href="projects.html" class="btn btn-primary">View Projects</a>
+                    <a href="Isaac_Lefohn_Resume.pdf" download class="btn btn-secondary">Download Resume</a>
+                </div>
+            </section>
+        </div>
+    </main>
+
     <footer>
         <p>&copy; 2026 Isaac Lefohn. All rights reserved.</p>
     </footer>

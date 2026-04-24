@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Isaac Lefohn's resume &mdash; Finance student at Oregon State University, Honors Scholar, Class of 2027. Download PDF or view in-browser.">
+    <meta name="description" content="Isaac Lefohn's finance projects: DCF valuation models, Python portfolio analysis, and sector research writeups.">
     <meta name="author" content="Isaac Lefohn">
-    <title>Resume | Isaac Lefohn</title>
-    <link rel="canonical" href="https://isaaclefohn.github.io/resume.html">
+    <title>Projects | Isaac Lefohn</title>
+    <link rel="canonical" href="https://isaaclefohn.github.io/projects.html">
 
     <meta property="og:type" content="profile">
-    <meta property="og:title" content="Resume | Isaac Lefohn">
-    <meta property="og:description" content="One-page resume: Finance major at OSU, Honors Scholar, five years of operational and client-facing experience.">
-    <meta property="og:url" content="https://isaaclefohn.github.io/resume.html">
+    <meta property="og:title" content="Projects | Isaac Lefohn">
+    <meta property="og:description" content="Finance projects: valuation models, Python-based portfolio analysis, and regional bank sector research.">
+    <meta property="og:url" content="https://isaaclefohn.github.io/projects.html">
     <meta property="og:site_name" content="Isaac Lefohn">
     <meta name="twitter:card" content="summary">
 
@@ -38,9 +38,9 @@
                 <ul class="nav-links" id="navLinks">
                     <li><a href="index.html">Home</a></li>
                     <li><a href="experience.html">Experience</a></li>
-                    <li><a href="projects.html">Projects</a></li>
+                    <li><a href="projects.html" class="active" aria-current="page">Projects</a></li>
                     <li><a href="skills.html">Skills</a></li>
-                    <li><a href="resume.html" class="active" aria-current="page">Resume</a></li>
+                    <li><a href="resume.html">Resume</a></li>
                     <li><a href="contact.html">Contact</a></li>
                 </ul>
                 <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle color theme" aria-pressed="false">
@@ -54,26 +54,23 @@
 
     <main id="main">
         <div class="page-header">
-            <h1>Resume</h1>
-            <p>One page. Download the PDF or view in-browser below.</p>
+            <h1>Projects &amp; Case Studies</h1>
+            <p>Finance-focused work: valuation models, quantitative analysis, and sector research</p>
         </div>
 
         <div class="container">
-            <div class="resume-actions">
-                <a href="Isaac_Lefohn_Resume.pdf" download class="btn btn-primary">Download PDF</a>
-                <a href="Isaac_Lefohn_Resume.pdf" target="_blank" rel="noopener" class="btn btn-secondary">Open in new tab</a>
+            <div id="project-grid" class="project-grid" aria-live="polite">
+                <!-- Projects render here from projects-data.js -->
             </div>
 
-            <div class="pdf-embed-wrapper" aria-label="Resume PDF preview">
-                <iframe src="Isaac_Lefohn_Resume.pdf"
-                        title="Isaac Lefohn Resume"
-                        loading="lazy">
-                    <p>Your browser can't display embedded PDFs.
-                    <a href="Isaac_Lefohn_Resume.pdf">Download the PDF</a> instead.</p>
-                </iframe>
-            </div>
-
-            <p class="pdf-fallback-note">On mobile? Use <a href="Isaac_Lefohn_Resume.pdf" target="_blank" rel="noopener">Open in new tab</a> above for the best reading experience.</p>
+            <section class="cta-block fade-in" aria-labelledby="cta-heading">
+                <h3 id="cta-heading">Want to dig into any of these?</h3>
+                <p>Happy to walk through the modeling assumptions or share the underlying spreadsheet / notebook.</p>
+                <div class="cta-buttons">
+                    <a href="contact.html" class="btn btn-primary">Get in Touch</a>
+                    <a href="experience.html" class="btn btn-secondary">View Experience</a>
+                </div>
+            </section>
         </div>
     </main>
 
@@ -81,6 +78,7 @@
         <p>&copy; 2026 Isaac Lefohn. All rights reserved.</p>
     </footer>
 
+    <script src="projects-data.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
