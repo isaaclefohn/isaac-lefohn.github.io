@@ -63,14 +63,31 @@ const PROJECTS = [
     {
         id: 'pnw-banks',
         type: 'Sector Research',
-        title: 'Pacific NW Regional Banks — Comparative Writeup',
-        hook: 'Comparative analysis of regional banks with Oregon exposure: loan-book composition, NIM trends, and deposit beta.',
-        tools: ['Fundamental Analysis', '10-K Reading', 'Excel', 'Sector Comparables'],
-        status: 'draft',
+        title: 'Pacific NW Regional Banks — Comparative Writeup (COLB, BANR, HFWA)',
+        hook: 'Trading-multiples and balance-sheet comp of three PNW regional banks. Fundamentals pulled live from SEC EDGAR XBRL, market data from yfinance — no hand-keying. Focus: which balance sheet would I rather own in 2026?',
+        tools: ['Python', 'SEC EDGAR API', 'yfinance', 'Bank Analysis', 'Trading Comps', 'XBRL'],
+        status: 'published',
         details: `
-            <p><strong>Scope:</strong> Read most recent 10-Ks and investor presentations for three regional banks. Pull key metrics: net interest margin, efficiency ratio, loan-to-deposit, and uninsured-deposit exposure.</p>
-            <p><strong>Output:</strong> Side-by-side comp table plus a short memo on which balance sheet I'd rather own in a rising-rate environment.</p>
-            <p><em>Memo coming soon.</em></p>
+            <p><strong>Setup:</strong> Three publicly-traded banks with heavy Oregon/Washington exposure: Columbia Banking (COLB, $66.8B assets, post-Umpqua merger), Banner Corp (BANR, $16.4B, organic-growth community bank), and Heritage Financial (HFWA, $7.0B, smallest/most conservatively capitalized). Different strategies, same geography.</p>
+            <img src="projects/pnw-banks/pnw_banks_summary.png" alt="Profitability ratios and five-year total return comparison for COLB, BANR, HFWA vs the KRE regional bank ETF" loading="lazy">
+            <div class="project-kpis">
+                <div class="project-kpi"><span class="project-kpi-label">BANR ROE</span><span class="project-kpi-value">10.04%</span></div>
+                <div class="project-kpi"><span class="project-kpi-label">BANR 5Y Return</span><span class="project-kpi-value">+32.8%</span></div>
+                <div class="project-kpi"><span class="project-kpi-label">BANR P/E</span><span class="project-kpi-value">11.4×</span></div>
+                <div class="project-kpi"><span class="project-kpi-label">COLB ROE</span><span class="project-kpi-value">7.02%</span></div>
+                <div class="project-kpi"><span class="project-kpi-label">COLB 5Y Return</span><span class="project-kpi-value">&minus;18.0%</span></div>
+                <div class="project-kpi"><span class="project-kpi-label">HFWA Equity / Assets</span><span class="project-kpi-value">13.23%</span></div>
+                <div class="project-kpi"><span class="project-kpi-label">HFWA Beta</span><span class="project-kpi-value">0.48</span></div>
+                <div class="project-kpi"><span class="project-kpi-label">KRE 5Y Return</span><span class="project-kpi-value">+11.7%</span></div>
+            </div>
+            <p><strong>View:</strong> BANR is the standout. It leads on every profitability measure (ROA 1.19%, ROE 10.04%, Est. NIM 3.59%), trades at the lowest P/E of the three (11.4×), and delivered +32.8% five-year total return vs the KRE regional-bank ETF at +11.7%. That's compounding shareholder value without needing scale or M&amp;A — exactly what you want from a community-bank management team.</p>
+            <p><strong>COLB</strong> is the scale leader but the Umpqua integration shows up in the numbers: the lowest ROE in the set (7.02%) and a &minus;18.0% five-year total return. The cost-synergy thesis is still in front of it — and if NIM keeps compressing, the patience required to reach the run-rate earnings story gets harder to underwrite.</p>
+            <p><strong>HFWA</strong> is the defensive option: smallest by assets but highest equity/assets (13.23%) and lowest beta (0.48). Return tracked the benchmark (+10.6% vs +11.7%). Not a growth story — a "preserve capital through credit stress" story. Relevant if you're worried about CRE rolling over in 2026.</p>
+            <p><strong>Approach:</strong> All fundamentals pulled live from SEC EDGAR's XBRL companyfacts API (<code>data.sec.gov</code>) — the same structured 10-K data that Bloomberg and FactSet license. Handles multiple XBRL tag names per concept (banks file loans under 3–4 different tags) with fallback logic in <code>first_available()</code>. Market multiples via yfinance. Swap the tickers at the top of <code>build_comp_table.py</code> and rerun — the workbook and chart regenerate end-to-end.</p>
+            <div class="project-links">
+                <a href="projects/pnw-banks/pnw_banks_comp.xlsx" download>Download comp table (.xlsx)</a>
+                <a href="https://github.com/isaaclefohn/isaaclefohn.github.io/blob/main/projects/pnw-banks/build_comp_table.py" target="_blank" rel="noopener">View Python source</a>
+            </div>
         `
     }
 ];
